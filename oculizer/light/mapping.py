@@ -7,7 +7,7 @@ Date: 8/24/24
 
 import numpy as np
 import json
-from config import audio_parameters
+from src.config import audio_parameters
 import numpy as np
 import time
 from math import sin, pi

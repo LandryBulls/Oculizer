@@ -10,13 +10,13 @@ Date: 8/20/24
 
 from PyDMXControl.controllers import OpenDMXController
 from PyDMXControl.profiles.Generic import Dimmer, Custom
-from custom_profiles.RGB import RGB
+from oculizer import AudioListener, RGB, Strobe
 from custom_profiles.ADJ_strobe import Strobe
 import threading
 import queue
 import os
 import json
-from ..audio.audio_listener import AudioListener
+
 from ..scenes.scene_manager import SceneManager
 from .mapping import fft_to_rgb, fft_to_strobe, fft_to_dimmer, bool_rgb, time_rgb, time_strobe, time_dimmer
 from ..utils import load_json 
