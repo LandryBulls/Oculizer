@@ -3,3 +3,4 @@ spotifizer.py
 ./notebooks
 ./__pycache__
 ./audio
+*.pyc
