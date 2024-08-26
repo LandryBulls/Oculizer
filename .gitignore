@@ -4,3 +4,5 @@ spotifizer.py
 ./__pycache__
 ./audio
 *.pyc
+./vscode
+.cache**
