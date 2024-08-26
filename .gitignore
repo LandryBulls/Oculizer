@@ -1,0 +1,5 @@
+spotify_credentials.txt
+spotifizer.py
+./notebooks
+./__pycache__
+./audio
