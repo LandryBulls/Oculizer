@@ -16,10 +16,10 @@ import threading
 import queue
 import os
 import json
-from mapping import fft_to_rgb, fft_to_strobe, fft_to_dimmer, generate_RGB_signal, bool_rgb, time_dimmer, time_rgb, time_strobe
-from audio_listener import AudioListener
-from scene_manager import SceneManager
-from utils import load_json 
+from ..audio.audio_listener import AudioListener
+from ..scenes.scene_manager import SceneManager
+from .mapping import fft_to_rgb, fft_to_strobe, fft_to_dimmer, bool_rgb, time_rgb, time_strobe, time_dimmer
+from ..utils import load_json 
 import time
 
 def load_profile(profile_name):
