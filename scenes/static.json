@@ -1,8 +1,9 @@
 {
-    "name": "testing",
+    "name": "static",
     "description": "Testing scene. This works as the template scene for running tests with two rgbs.",
     "key_command": "s",
-    "lights": [
+    "lights": 
+    [
         {
             "name": "rgb1", 
             "type": "rgb",
