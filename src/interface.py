@@ -9,7 +9,7 @@ Date: 8/20/24
 
 import curses
 import keyboard
-from audio_listener import AudioListener
+from audio import AudioListener
 from control import LightController, SceneManager
 import time
 
