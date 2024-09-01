@@ -9,7 +9,7 @@
             "modulator": "fft",
             "brightness_range": [1, 255],
             "frequency_range": [10, 500],
-            "power_range": [1, 5],
+            "power_range": [20,50],
             "color": "white",
             "strobe": 255
         },
