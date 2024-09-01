@@ -10,7 +10,6 @@ setup(
         'scipy',
         'sounddevice',
         'librosa',
-        'pyaudio',
         'pydub',
         'scipy', 
         'sounddevice',
