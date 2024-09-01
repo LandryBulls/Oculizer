@@ -67,10 +67,10 @@ def load_controller(profile):
     return controller, control_dict
 
 class LightController(threading.Thread):
-    def __init__(self, audio_listener, profile_name, scene_manager):
+    def __init__(self, audio_listener, profile, scene_manager):
         threading.Thread.__init__(self)
         self.audio_listener = audio_listener
-        self.profile = load_profile(profile_name)
+        self.profile = profile
         self.light_names = [i['name'] for i in self.profile['lights']]
         self.dmx_controller, self.controller_dict = load_controller(self.profile)
         self.scene_manager = scene_manager
@@ -134,10 +134,11 @@ class LightController(threading.Thread):
         self.running.clear()
 
 def main():
-    audio_listener = AudioListener()  # Make sure this is imported or defined
+    audio_listener = AudioListener()
     scene_manager = SceneManager('scenes')
-    light_controller = LightController(audio_listener, 'testing', scene_manager)
-    
+    profile = load_profile('testing')
+    light_controller = LightController(audio_listener, profile, scene_manager)
+        
     audio_listener.start()
     light_controller.start()
 
