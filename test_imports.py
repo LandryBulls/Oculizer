@@ -1,6 +1,5 @@
 from oculizer import AudioListener, LightController, SceneManager
 from oculizer.config import audio_parameters
-from oculizer.light import mapping
 import time
 
 print("AudioListener imported successfully")
