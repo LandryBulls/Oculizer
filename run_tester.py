@@ -9,9 +9,10 @@ import queue
 import numpy as np
 import curses
 
-from control import load_json, load_profile, load_controller, LightController
-from audio_listener import AudioListener
-from scene_manager import SceneManager
+#from control import load_json, load_profile, load_controller, LightController
+from oculizer.light import LightController, load_controller, load_json, load_profile
+from oculizer.audio import AudioListener
+from oculizer.scenes import SceneManager
 
 stdscr = curses.initscr()
 

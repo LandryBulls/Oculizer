@@ -1,29 +1,21 @@
-"""
-Provides the AudioListener class, which listens to audio input and provides audio and FFT data using threading and queues.
-
-Author: Landry Bulls
-Date: 8/23/24
-"""
-
 import threading
 import queue
-import sounddevice as sd
 import numpy as np
 from scipy.fftpack import rfft
 import time
 import curses
-from ..config import audio_parameters
+import sounddevice as sd
+from oculizer.config import audio_parameters
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
 
-# get blackhole audio device
 def get_blackhole_device_idx():
     devices = sd.query_devices()
-    for device in devices:
+    for i, device in enumerate(devices):
         if 'BlackHole' in device['name']:
-            return device['index']
-    return None
+            return i, device['name']
+    return None, None
 
 class AudioListener(threading.Thread):
     def __init__(self, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1):
@@ -35,14 +27,15 @@ class AudioListener(threading.Thread):
         self.fft_queue = queue.Queue()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
-        self.device_idx = get_blackhole_device_idx()
+        self.device_idx, self.device_name = get_blackhole_device_idx()
+        self.stream = None
 
     def audio_callback(self, indata, frames, time, status):
         if status:
             self.error_queue.put(f"Audio callback error: {status}")
         try:
-            audio_data = np.copy(indata[:, 0])
-            fft_data = np.abs(np.fft.rfft(np.sum(indata, axis=1), n=None))
+            audio_data = indata.copy().flatten()
+            fft_data = np.abs(rfft(audio_data))
             self.audio_queue.put(audio_data)
             self.fft_queue.put(fft_data)
         except Exception as e:
@@ -51,8 +44,13 @@ class AudioListener(threading.Thread):
     def run(self):
         self.running.set()
         try:
-            with sd.InputStream(callback=self.audio_callback, channels=self.channels, 
-                                samplerate=self.sample_rate, blocksize=self.block_size, device=self.device_idx):
+            with sd.InputStream(
+                device=self.device_idx,
+                channels=self.channels,
+                samplerate=self.sample_rate,
+                blocksize=self.block_size,
+                callback=self.audio_callback
+            ):
                 while self.running.is_set():
                     sd.sleep(100)
         except Exception as e:
@@ -91,13 +89,13 @@ def main():
             audio_data = audio_listener.get_audio_data()
             fft_data = audio_listener.get_fft_data()
             errors = audio_listener.get_errors()
-            # put the sum with curses
+            
             stdscr.clear()
-            stdscr.addstr(0, 1, f"FFT Sum: {np.sum(fft_data)}")
             if fft_data is not None:
+                stdscr.addstr(0, 1, f"FFT Sum: {np.sum(fft_data)}")
                 stdscr.addstr(1, 1, f'FFT Shape: {len(fft_data)}')
-            stdscr.addstr(2, 1, "Sample rate: {}".format(audio_listener.sample_rate))
-            stdscr.addstr(3, 1, "Block size: {}".format(audio_listener.block_size))
+            stdscr.addstr(2, 1, f"Sample rate: {audio_listener.sample_rate}")
+            stdscr.addstr(3, 1, f"Block size: {audio_listener.block_size}")
             stdscr.refresh()
 
             if errors:
@@ -107,12 +105,13 @@ def main():
                 # Process data here
                 pass
 
-            sd.sleep(10)  # Small delay to prevent busy-waiting (this is 10 milliseconds)
+            time.sleep(0.01)  # Small delay to prevent busy-waiting
     except KeyboardInterrupt:
         print("Stopping audio listener...")
     finally:
         audio_listener.stop()
         audio_listener.join()
+        curses.endwin()
 
 if __name__ == "__main__":
     main()

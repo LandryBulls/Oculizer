@@ -97,22 +97,17 @@ class LightController(threading.Thread):
         self.running.set()
         while self.running.is_set():
             if self.scene_changed.is_set():
-                #print(f"Changing to scene: {self.scene_manager.current_scene['name']}")
+                print("Scene changed")
                 self.scene_changed.clear()
-                
-                # # Apply the new scene immediately
-                # if self.scene_manager.current_scene['type'] == 'static':
-                #     self.send_static()
             
-            # if self.scene_manager.current_scene['type'] == 'dynamic':
             if not self.audio_listener.fft_queue.empty():
                 try:
+                    print("Sending dynamic data")
                     self.send_dynamic()
                 except Exception as e:
                     print(f"Error sending dynamic data: {str(e)}")
-            # elif self.scene_manager.current_scene['type'] == 'static':
-            #     # For static scenes, we only need to update occasionally
-            #     time.sleep(0.1)  # Adjust this value as needed
+            else:
+                print("FFT queue is empty")
             
     def send_dynamic(self):
         # Fetch FFT data once for all lights
