@@ -2,11 +2,11 @@ import threading
 import queue
 import numpy as np
 from scipy.fftpack import rfft
+import librosa
 import time
 import curses
 import sounddevice as sd
 from oculizer.config import audio_parameters
-# test
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
@@ -17,6 +17,10 @@ def get_blackhole_device_idx():
         if 'BlackHole' in device['name']:
             return i, device['name']
     return None, None
+
+def get_fft_vector(audio_data):
+    # using librosa
+    return np.abs(librosa.stft(audio_data))
 
 class AudioListener(threading.Thread):
     def __init__(self, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1):
@@ -36,7 +40,7 @@ class AudioListener(threading.Thread):
             self.error_queue.put(f"Audio callback error: {status}")
         try:
             audio_data = indata.copy().flatten()
-            fft_data = np.abs(rfft(audio_data))
+            fft_data = np.abs(librosa.stft(audio_data))
             self.audio_queue.put(audio_data)
             self.fft_queue.put(fft_data)
         except Exception as e:
@@ -95,6 +99,7 @@ def main():
             if fft_data is not None:
                 stdscr.addstr(0, 1, f"FFT Sum: {np.sum(fft_data)}")
                 stdscr.addstr(1, 1, f'FFT Shape: {len(fft_data)}')
+                stdscr.addstr(2, 1, f'FFT Data: {fft_data}')
             stdscr.addstr(2, 1, f"Sample rate: {audio_listener.sample_rate}")
             stdscr.addstr(3, 1, f"Block size: {audio_listener.block_size}")
             stdscr.refresh()
