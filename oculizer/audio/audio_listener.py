@@ -6,6 +6,7 @@ import time
 import curses
 import sounddevice as sd
 from oculizer.config import audio_parameters
+# test
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
