@@ -3,6 +3,9 @@ import json
 import time
 import threading
 import curses
+import argparse
+import traceback
+import spotipy
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
 from oculizer.scenes.scene_prediction import ScenePredictor
@@ -98,13 +101,13 @@ class WatchdogTimer:
         self.timer.cancel()
 
 class SpotifyOculizerController:
-    def __init__(self, client_id, client_secret, redirect_uri, stdscr):
+    def __init__(self, client_id, client_secret, redirect_uri, stdscr, profile='garage'):
         self.stdscr = stdscr
         curses.curs_set(0)
         self.stdscr.nodelay(1)
         
         self.scene_manager = SceneManager('scenes')
-        self.oculizer = Oculizer('garage', self.scene_manager)
+        self.oculizer = Oculizer(profile, self.scene_manager)
         self.client_id = client_id
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
@@ -443,9 +446,16 @@ class SpotifyOculizerController:
             self.error_message = f"Error stopping controller: {str(e)}"
             logging.error(f"Error stopping controller: {str(e)}")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Spotify-integrated Oculizer controller')
+    parser.add_argument('-p', '--profile', type=str, default='garage',
+                      help='Profile to use (default: garage)')
+    return parser.parse_args()
+
 def main(stdscr):
     setup_colors()
     setup_logging()  # Set up logging before creating any objects
+    args = parse_args()
 
     try:
         credspath = os.path.join(os.path.dirname(__file__), 'spotify_credentials.txt')
@@ -460,7 +470,7 @@ def main(stdscr):
         time.sleep(5)
         return
 
-    controller = SpotifyOculizerController(client_id, client_secret, redirect_uri, stdscr)
+    controller = SpotifyOculizerController(client_id, client_secret, redirect_uri, stdscr, args.profile)
     
     try:
         controller.start()
