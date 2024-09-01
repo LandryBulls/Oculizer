@@ -1,0 +1,1184 @@
+2024-09-01 17:52:34,299 - __main__ - DEBUG - Initializing curses
+2024-09-01 17:52:34,299 - __main__ - DEBUG - Creating AudioListener
+2024-09-01 17:52:34,299 - __main__ - DEBUG - Creating SceneManager
+2024-09-01 17:52:34,301 - __main__ - DEBUG - Setting initial scene to 'hell'
+2024-09-01 17:52:34,301 - __main__ - DEBUG - Loading profile
+2024-09-01 17:52:34,301 - __main__ - DEBUG - Creating LightController
+2024-09-01 17:52:34,301 - oculizer.light.control - DEBUG - Initializing DMX controller
+2024-09-01 17:52:34,301 - oculizer.light.control - DEBUG - Starting load_controller function
+2024-09-01 17:52:34,301 - oculizer.light.control - DEBUG - Initializing OpenDMXController
+2024-09-01 17:52:34,374 - oculizer.light.control - DEBUG - Processing light: rgb1 of type rgb
+2024-09-01 17:52:34,374 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb1 at channel 1
+2024-09-01 17:52:34,375 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:52:34,879 - oculizer.light.control - DEBUG - Processing light: rgb2 of type rgb
+2024-09-01 17:52:34,879 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb2 at channel 7
+2024-09-01 17:52:34,879 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:52:35,383 - oculizer.light.control - DEBUG - Finished load_controller function
+2024-09-01 17:52:35,383 - oculizer.light.control - DEBUG - LightController initialized
+2024-09-01 17:52:35,383 - __main__ - DEBUG - Starting audio listener
+2024-09-01 17:52:35,384 - __main__ - DEBUG - Starting light controller
+2024-09-01 17:52:35,384 - oculizer.light.control - DEBUG - LightController running
+2024-09-01 17:52:35,384 - __main__ - DEBUG - Entering main loop
+2024-09-01 17:52:35,384 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:52:35,488 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:52:35,593 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:52:35,699 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:52:35,804 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:52:35,910 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:52:35,911 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:52:35,911 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:52:36,019 - root - DEBUG - Processing light rgb1 with FFT data: [9.18271637e+00 1.37082100e+01 2.45281982e+01 ... 5.56316376e-02
+ 1.55448914e-04 5.56144714e-02], time: 1725227555.911139
+2024-09-01 17:52:36,124 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:52:36,124 - root - DEBUG - Light type: rgb
+2024-09-01 17:52:36,228 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:52:36,229 - root - DEBUG - Generated brightness: 252, color index: 0, strobe: 61, colorfade: 0
+2024-09-01 17:52:38,476 - __main__ - DEBUG - Quit command received
+2024-09-01 17:52:38,477 - __main__ - DEBUG - Cleaning up
+2024-09-01 17:52:38,478 - __main__ - DEBUG - Stopping audio listener
+2024-09-01 17:52:38,478 - __main__ - DEBUG - Stopping light controller
+2024-09-01 17:52:38,479 - oculizer.light.control - DEBUG - Stopping LightController
+2024-09-01 17:52:38,479 - __main__ - DEBUG - Joining audio listener thread
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=90)
+           2	RESUME(arg=0, lineno=90)
+           4	LOAD_GLOBAL(arg=0, lineno=92)
+          16	LOAD_FAST(arg=1, lineno=92)
+          18	BINARY_SUBSCR(arg=None, lineno=92)
+          28	STORE_FAST(arg=4, lineno=92)
+          30	LOAD_GLOBAL(arg=3, lineno=93)
+          42	LOAD_ATTR(arg=2, lineno=93)
+          52	LOAD_FAST(arg=0, lineno=93)
+          54	LOAD_FAST(arg=4, lineno=93)
+          56	LOAD_CONST(arg=1, lineno=93)
+          58	BINARY_SUBSCR(arg=None, lineno=93)
+          68	LOAD_FAST(arg=4, lineno=93)
+          70	LOAD_CONST(arg=2, lineno=93)
+          72	BINARY_SUBSCR(arg=None, lineno=93)
+          82	LOAD_FAST(arg=4, lineno=93)
+          84	LOAD_CONST(arg=3, lineno=93)
+          86	BINARY_SUBSCR(arg=None, lineno=93)
+          96	LOAD_FAST(arg=2, lineno=93)
+          98	LOAD_FAST(arg=3, lineno=93)
+         100	BUILD_LIST(arg=6, lineno=93)
+         102	PRECALL(arg=1, lineno=93)
+         106	CALL(arg=1, lineno=93)
+         116	RETURN_VALUE(arg=None, lineno=93)
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=90)
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=RESUME(arg=0, lineno=90)
+2024-09-01 17:52:38,732 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=LOAD_GLOBAL(arg=0, lineno=92)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=16, inst=LOAD_FAST(arg=1, lineno=92)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$4load_global.0']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=18, inst=BINARY_SUBSCR(arg=None, lineno=92)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$4load_global.0', '$color_index16.1']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=28, inst=STORE_FAST(arg=4, lineno=92)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$18binary_subscr.2']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=30, inst=LOAD_GLOBAL(arg=3, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=42, inst=LOAD_ATTR(arg=2, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$30load_global.3']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=52, inst=LOAD_FAST(arg=0, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=54, inst=LOAD_FAST(arg=4, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=56, inst=LOAD_CONST(arg=1, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$color54.7']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=58, inst=BINARY_SUBSCR(arg=None, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$color54.7', '$const56.8']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=68, inst=LOAD_FAST(arg=4, lineno=93)
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9']
+2024-09-01 17:52:38,733 - numba.core.byteflow - DEBUG - dispatch pc=70, inst=LOAD_CONST(arg=2, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$color68.10']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=72, inst=BINARY_SUBSCR(arg=None, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$color68.10', '$const70.11']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=82, inst=LOAD_FAST(arg=4, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=84, inst=LOAD_CONST(arg=3, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$color82.13']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=86, inst=BINARY_SUBSCR(arg=None, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$color82.13', '$const84.14']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=96, inst=LOAD_FAST(arg=2, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$86binary_subscr.15']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=98, inst=LOAD_FAST(arg=3, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$86binary_subscr.15', '$strobe96.16']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=100, inst=BUILD_LIST(arg=6, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$86binary_subscr.15', '$strobe96.16', '$colorfade98.17']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=102, inst=PRECALL(arg=1, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$100build_list.18']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=106, inst=CALL(arg=1, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$null$30.4', '$42load_attr.5', '$100build_list.18']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - dispatch pc=116, inst=RETURN_VALUE(arg=None, lineno=93)
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - stack ['$106call.19']
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:52:38,734 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:52:38,735 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {'idx': 0, 'res': '$4load_global.0'}), (6, {}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {'res': '$color_index16.1'}), (18, {'index': '$color_index16.1', 'target': '$4load_global.0', 'res': '$18binary_subscr.2'}), (20, {}), (22, {}), (24, {}), (26, {}), (28, {'value': '$18binary_subscr.2'}), (30, {'idx': 1, 'res': '$30load_global.3'}), (32, {}), (34, {}), (36, {}), (38, {}), (40, {}), (42, {'item': '$30load_global.3', 'res': '$42load_attr.5'}), (44, {}), (46, {}), (48, {}), (50, {}), (52, {'res': '$brightness52.6'}), (54, {'res': '$color54.7'}), (56, {'res': '$const56.8'}), (58, {'index': '$const56.8', 'target': '$color54.7', 'res': '$58binary_subscr.9'}), (60, {}), (62, {}), (64, {}), (66, {}), (68, {'res': '$color68.10'}), (70, {'res': '$const70.11'}), (72, {'index': '$const70.11', 'target': '$color68.10', 'res': '$72binary_subscr.12'}), (74, {}), (76, {}), (78, {}), (80, {}), (82, {'res': '$color82.13'}), (84, {'res': '$const84.14'}), (86, {'index': '$const84.14', 'target': '$color82.13', 'res': '$86binary_subscr.15'}), (88, {}), (90, {}), (92, {}), (94, {}), (96, {'res': '$strobe96.16'}), (98, {'res': '$colorfade98.17'}), (100, {'items': ['$brightness52.6', '$58binary_subscr.9', '$72binary_subscr.12', '$86binary_subscr.15', '$strobe96.16', '$colorfade98.17'], 'res': '$100build_list.18'}), (102, {}), (104, {}), (106, {'func': '$42load_attr.5', 'args': ['$100build_list.18'], 'kw_names': None, 'res': '$106call.19'}), (108, {}), (110, {}), (112, {}), (114, {}), (116, {'retval': '$106call.19', 'castval': '$116return_value.20'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:52:38,736 - numba.core.interpreter - DEBUG - label 0:
+    brightness = arg(0, name=brightness)     ['brightness']
+    color_index = arg(1, name=color_index)   ['color_index']
+    strobe = arg(2, name=strobe)             ['strobe']
+    colorfade = arg(3, name=colorfade)       ['colorfade']
+    $4load_global.0 = global(COLORS: [[255.   0.   0.]
+ [255. 127.   0.]
+ [255. 255.   0.]
+ [  0. 255.   0.]
+ [  0.   0. 255.]
+ [ 75.   0. 130.]
+ [255.   0. 255.]
+ [255. 255. 255.]]) ['$4load_global.0']
+    color = getitem(value=$4load_global.0, index=color_index, fn=<built-in function getitem>) ['$4load_global.0', 'color', 'color_index']
+    $30load_global.3 = global(np: <module 'numpy' from '/Users/f004swn/anaconda3/envs/spotify/lib/python3.11/site-packages/numpy/__init__.py'>) ['$30load_global.3']
+    $42load_attr.5 = getattr(value=$30load_global.3, attr=array) ['$30load_global.3', '$42load_attr.5']
+    $const56.8 = const(int, 0)               ['$const56.8']
+    $58binary_subscr.9 = getitem(value=color, index=$const56.8, fn=<built-in function getitem>) ['$58binary_subscr.9', '$const56.8', 'color']
+    $const70.11 = const(int, 1)              ['$const70.11']
+    $72binary_subscr.12 = getitem(value=color, index=$const70.11, fn=<built-in function getitem>) ['$72binary_subscr.12', '$const70.11', 'color']
+    $const84.14 = const(int, 2)              ['$const84.14']
+    $86binary_subscr.15 = getitem(value=color, index=$const84.14, fn=<built-in function getitem>) ['$86binary_subscr.15', '$const84.14', 'color']
+    $100build_list.18 = build_list(items=[Var(brightness, mapping.py:90), Var($58binary_subscr.9, mapping.py:93), Var($72binary_subscr.12, mapping.py:93), Var($86binary_subscr.15, mapping.py:93), Var(strobe, mapping.py:90), Var(colorfade, mapping.py:90)]) ['$100build_list.18', '$58binary_subscr.9', '$72binary_subscr.12', '$86binary_subscr.15', 'brightness', 'colorfade', 'strobe']
+    $106call.19 = call $42load_attr.5($100build_list.18, func=$42load_attr.5, args=[Var($100build_list.18, mapping.py:93)], kws=(), vararg=None, varkwarg=None, target=None) ['$100build_list.18', '$106call.19', '$42load_attr.5']
+    $116return_value.20 = cast(value=$106call.19) ['$106call.19', '$116return_value.20']
+    return $116return_value.20               ['$116return_value.20']
+
+2024-09-01 17:52:38,744 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:52:38,744 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x1257e01d0>
+2024-09-01 17:52:38,744 - numba.core.ssa - DEBUG - on stmt: brightness = arg(0, name=brightness)
+2024-09-01 17:52:38,744 - numba.core.ssa - DEBUG - on stmt: color_index = arg(1, name=color_index)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: strobe = arg(2, name=strobe)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: colorfade = arg(3, name=colorfade)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $4load_global.0 = global(COLORS: [[255.   0.   0.]
+ [255. 127.   0.]
+ [255. 255.   0.]
+ [  0. 255.   0.]
+ [  0.   0. 255.]
+ [ 75.   0. 130.]
+ [255.   0. 255.]
+ [255. 255. 255.]])
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: color = getitem(value=$4load_global.0, index=color_index, fn=<built-in function getitem>)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $30load_global.3 = global(np: <module 'numpy' from '/Users/f004swn/anaconda3/envs/spotify/lib/python3.11/site-packages/numpy/__init__.py'>)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $42load_attr.5 = getattr(value=$30load_global.3, attr=array)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $const56.8 = const(int, 0)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $58binary_subscr.9 = static_getitem(value=color, index=0, index_var=$const56.8, fn=<built-in function getitem>)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $const70.11 = const(int, 1)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $72binary_subscr.12 = static_getitem(value=color, index=1, index_var=$const70.11, fn=<built-in function getitem>)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $const84.14 = const(int, 2)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $86binary_subscr.15 = static_getitem(value=color, index=2, index_var=$const84.14, fn=<built-in function getitem>)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $100build_list.18 = build_list(items=[Var(brightness, mapping.py:90), Var($58binary_subscr.9, mapping.py:93), Var($72binary_subscr.12, mapping.py:93), Var($86binary_subscr.15, mapping.py:93), Var(strobe, mapping.py:90), Var(colorfade, mapping.py:90)])
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $106call.19 = call $42load_attr.5($100build_list.18, func=$42load_attr.5, args=[Var($100build_list.18, mapping.py:93)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: $116return_value.20 = cast(value=$106call.19)
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - on stmt: return $116return_value.20
+2024-09-01 17:52:38,745 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$100build_list.18': [<numba.core.ir.Assign object at 0x1257cb650>],
+             '$106call.19': [<numba.core.ir.Assign object at 0x1257cb950>],
+             '$116return_value.20': [<numba.core.ir.Assign object at 0x1257cbcd0>],
+             '$30load_global.3': [<numba.core.ir.Assign object at 0x1257c9810>],
+             '$42load_attr.5': [<numba.core.ir.Assign object at 0x1257c9b50>],
+             '$4load_global.0': [<numba.core.ir.Assign object at 0x1257c9010>],
+             '$58binary_subscr.9': [<numba.core.ir.Assign object at 0x1257cf590>],
+             '$72binary_subscr.12': [<numba.core.ir.Assign object at 0x1257cfb50>],
+             '$86binary_subscr.15': [<numba.core.ir.Assign object at 0x1257cf9d0>],
+             '$const56.8': [<numba.core.ir.Assign object at 0x1257c98d0>],
+             '$const70.11': [<numba.core.ir.Assign object at 0x1257ca710>],
+             '$const84.14': [<numba.core.ir.Assign object at 0x1257cad50>],
+             'brightness': [<numba.core.ir.Assign object at 0x1257c8510>],
+             'color': [<numba.core.ir.Assign object at 0x1257c9450>],
+             'color_index': [<numba.core.ir.Assign object at 0x1257c8c10>],
+             'colorfade': [<numba.core.ir.Assign object at 0x1257c8dd0>],
+             'strobe': [<numba.core.ir.Assign object at 0x1257c8cd0>]})
+2024-09-01 17:52:38,746 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=5394)
+           2	RESUME(arg=0, lineno=5394)
+           4	LOAD_GLOBAL(arg=1, lineno=5395)
+          16	LOAD_FAST(arg=0, lineno=5395)
+          18	LOAD_FAST(arg=1, lineno=5395)
+          20	PRECALL(arg=2, lineno=5395)
+          24	CALL(arg=2, lineno=5395)
+          34	RETURN_VALUE(arg=None, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=5394)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=RESUME(arg=0, lineno=5394)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=LOAD_GLOBAL(arg=1, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=16, inst=LOAD_FAST(arg=0, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0']
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=18, inst=LOAD_FAST(arg=1, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$object16.2']
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=20, inst=PRECALL(arg=2, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$object16.2', '$dtype18.3']
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - dispatch pc=24, inst=CALL(arg=2, lineno=5395)
+2024-09-01 17:52:38,751 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$object16.2', '$dtype18.3']
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - dispatch pc=34, inst=RETURN_VALUE(arg=None, lineno=5395)
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - stack ['$24call.4']
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:52:38,752 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {'idx': 0, 'res': '$4load_global.0'}), (6, {}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {'res': '$object16.2'}), (18, {'res': '$dtype18.3'}), (20, {}), (22, {}), (24, {'func': '$4load_global.0', 'args': ['$object16.2', '$dtype18.3'], 'kw_names': None, 'res': '$24call.4'}), (26, {}), (28, {}), (30, {}), (32, {}), (34, {'retval': '$24call.4', 'castval': '$34return_value.5'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:52:38,752 - numba.core.interpreter - DEBUG - label 0:
+    object = arg(0, name=object)             ['object']
+    dtype = arg(1, name=dtype)               ['dtype']
+    $4load_global.0 = global(np_array: <intrinsic np_array>) ['$4load_global.0']
+    $24call.4 = call $4load_global.0(object, dtype, func=$4load_global.0, args=[Var(object, arrayobj.py:5394), Var(dtype, arrayobj.py:5394)], kws=(), vararg=None, varkwarg=None, target=None) ['$24call.4', '$4load_global.0', 'dtype', 'object']
+    $34return_value.5 = cast(value=$24call.4) ['$24call.4', '$34return_value.5']
+    return $34return_value.5                 ['$34return_value.5']
+
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x1257f3310>
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: object = arg(0, name=object)
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: dtype = arg(1, name=dtype)
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: $4load_global.0 = global(np_array: <intrinsic np_array>)
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: $24call.4 = call $4load_global.0(object, dtype, func=$4load_global.0, args=[Var(object, arrayobj.py:5394), Var(dtype, arrayobj.py:5394)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: $34return_value.5 = cast(value=$24call.4)
+2024-09-01 17:52:38,756 - numba.core.ssa - DEBUG - on stmt: return $34return_value.5
+2024-09-01 17:52:38,757 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$24call.4': [<numba.core.ir.Assign object at 0x125816b10>],
+             '$34return_value.5': [<numba.core.ir.Assign object at 0x125816dd0>],
+             '$4load_global.0': [<numba.core.ir.Assign object at 0x1258163d0>],
+             'dtype': [<numba.core.ir.Assign object at 0x125816150>],
+             'object': [<numba.core.ir.Assign object at 0x125816010>]})
+2024-09-01 17:52:38,757 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:52:38,771 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=4245)
+           2	RESUME(arg=0, lineno=4245)
+           4	LOAD_FAST(arg=0, lineno=4248)
+           6	LOAD_METHOD(arg=0, lineno=4248)
+          28	LOAD_FAST(arg=1, lineno=4248)
+          30	LOAD_FAST(arg=2, lineno=4248)
+          32	PRECALL(arg=2, lineno=4248)
+          36	CALL(arg=2, lineno=4248)
+          46	RETURN_VALUE(arg=None, lineno=4248)
+2024-09-01 17:52:38,772 - __main__ - DEBUG - Joining light controller thread
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=4245)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=RESUME(arg=0, lineno=4245)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=LOAD_FAST(arg=0, lineno=4248)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - dispatch pc=6, inst=LOAD_METHOD(arg=0, lineno=4248)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack ['$arrtype4.0']
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - dispatch pc=28, inst=LOAD_FAST(arg=1, lineno=4248)
+2024-09-01 17:52:38,772 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_method.2']
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - dispatch pc=30, inst=LOAD_FAST(arg=2, lineno=4248)
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_method.2', '$size28.3']
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - dispatch pc=32, inst=PRECALL(arg=2, lineno=4248)
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_method.2', '$size28.3', '$align30.4']
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - dispatch pc=36, inst=CALL(arg=2, lineno=4248)
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_method.2', '$size28.3', '$align30.4']
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - dispatch pc=46, inst=RETURN_VALUE(arg=None, lineno=4248)
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - stack ['$36call.5']
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:52:38,773 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:52:38,774 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {'res': '$arrtype4.0'}), (6, {'item': '$arrtype4.0', 'res': '$6load_method.2'}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {}), (18, {}), (20, {}), (22, {}), (24, {}), (26, {}), (28, {'res': '$size28.3'}), (30, {'res': '$align30.4'}), (32, {}), (34, {}), (36, {'func': '$6load_method.2', 'args': ['$size28.3', '$align30.4'], 'kw_names': None, 'res': '$36call.5'}), (38, {}), (40, {}), (42, {}), (44, {}), (46, {'retval': '$36call.5', 'castval': '$46return_value.6'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:52:38,775 - numba.core.interpreter - DEBUG - label 0:
+    arrtype = arg(0, name=arrtype)           ['arrtype']
+    size = arg(1, name=size)                 ['size']
+    align = arg(2, name=align)               ['align']
+    $6load_method.2 = getattr(value=arrtype, attr=_allocate) ['$6load_method.2', 'arrtype']
+    $36call.5 = call $6load_method.2(size, align, func=$6load_method.2, args=[Var(size, arrayobj.py:4245), Var(align, arrayobj.py:4245)], kws=(), vararg=None, varkwarg=None, target=None) ['$36call.5', '$6load_method.2', 'align', 'size']
+    $46return_value.6 = cast(value=$36call.5) ['$36call.5', '$46return_value.6']
+    return $46return_value.6                 ['$46return_value.6']
+
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x1258b6ed0>
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: arrtype = arg(0, name=arrtype)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: size = arg(1, name=size)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: align = arg(2, name=align)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: $6load_method.2 = getattr(value=arrtype, attr=_allocate)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: $36call.5 = call $6load_method.2(size, align, func=$6load_method.2, args=[Var(size, arrayobj.py:4245), Var(align, arrayobj.py:4245)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: $46return_value.6 = cast(value=$36call.5)
+2024-09-01 17:52:38,782 - numba.core.ssa - DEBUG - on stmt: return $46return_value.6
+2024-09-01 17:52:38,783 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$36call.5': [<numba.core.ir.Assign object at 0x125874290>],
+             '$46return_value.6': [<numba.core.ir.Assign object at 0x1258745d0>],
+             '$6load_method.2': [<numba.core.ir.Assign object at 0x125863bd0>],
+             'align': [<numba.core.ir.Assign object at 0x125863790>],
+             'arrtype': [<numba.core.ir.Assign object at 0x125863610>],
+             'size': [<numba.core.ir.Assign object at 0x125863690>]})
+2024-09-01 17:52:38,783 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=4240)
+           2	RESUME(arg=0, lineno=4240)
+           4	LOAD_GLOBAL(arg=1, lineno=4241)
+          16	LOAD_FAST(arg=1, lineno=4241)
+          18	LOAD_FAST(arg=2, lineno=4241)
+          20	PRECALL(arg=2, lineno=4241)
+          24	CALL(arg=2, lineno=4241)
+          34	RETURN_VALUE(arg=None, lineno=4241)
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=4240)
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=RESUME(arg=0, lineno=4240)
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=LOAD_GLOBAL(arg=1, lineno=4241)
+2024-09-01 17:52:38,786 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - dispatch pc=16, inst=LOAD_FAST(arg=1, lineno=4241)
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0']
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - dispatch pc=18, inst=LOAD_FAST(arg=2, lineno=4241)
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$allocsize16.2']
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - dispatch pc=20, inst=PRECALL(arg=2, lineno=4241)
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$allocsize16.2', '$align18.3']
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - dispatch pc=24, inst=CALL(arg=2, lineno=4241)
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - stack ['$null$4.1', '$4load_global.0', '$allocsize16.2', '$align18.3']
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - dispatch pc=34, inst=RETURN_VALUE(arg=None, lineno=4241)
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - stack ['$24call.4']
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:52:38,787 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {'idx': 0, 'res': '$4load_global.0'}), (6, {}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {'res': '$allocsize16.2'}), (18, {'res': '$align18.3'}), (20, {}), (22, {}), (24, {'func': '$4load_global.0', 'args': ['$allocsize16.2', '$align18.3'], 'kw_names': None, 'res': '$24call.4'}), (26, {}), (28, {}), (30, {}), (32, {}), (34, {'retval': '$24call.4', 'castval': '$34return_value.5'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:52:38,787 - numba.core.interpreter - DEBUG - label 0:
+    cls = arg(0, name=cls)                   ['cls']
+    allocsize = arg(1, name=allocsize)       ['allocsize']
+    align = arg(2, name=align)               ['align']
+    $4load_global.0 = global(intrin_alloc: <intrinsic intrin_alloc>) ['$4load_global.0']
+    $24call.4 = call $4load_global.0(allocsize, align, func=$4load_global.0, args=[Var(allocsize, arrayobj.py:4240), Var(align, arrayobj.py:4240)], kws=(), vararg=None, varkwarg=None, target=None) ['$24call.4', '$4load_global.0', 'align', 'allocsize']
+    $34return_value.5 = cast(value=$24call.4) ['$24call.4', '$34return_value.5']
+    return $34return_value.5                 ['$34return_value.5']
+
+2024-09-01 17:52:38,792 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:52:38,792 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x125911310>
+2024-09-01 17:52:38,792 - numba.core.ssa - DEBUG - on stmt: cls = arg(0, name=cls)
+2024-09-01 17:52:38,792 - numba.core.ssa - DEBUG - on stmt: allocsize = arg(1, name=allocsize)
+2024-09-01 17:52:38,792 - numba.core.ssa - DEBUG - on stmt: align = arg(2, name=align)
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - on stmt: $4load_global.0 = global(intrin_alloc: <intrinsic intrin_alloc>)
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - on stmt: $24call.4 = call $4load_global.0(allocsize, align, func=$4load_global.0, args=[Var(allocsize, arrayobj.py:4240), Var(align, arrayobj.py:4240)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - on stmt: $34return_value.5 = cast(value=$24call.4)
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - on stmt: return $34return_value.5
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$24call.4': [<numba.core.ir.Assign object at 0x125910490>],
+             '$34return_value.5': [<numba.core.ir.Assign object at 0x125910750>],
+             '$4load_global.0': [<numba.core.ir.Assign object at 0x1258fbe10>],
+             'align': [<numba.core.ir.Assign object at 0x1258fbc10>],
+             'allocsize': [<numba.core.ir.Assign object at 0x1258fbb10>],
+             'cls': [<numba.core.ir.Assign object at 0x1258fb950>]})
+2024-09-01 17:52:38,793 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:52:38,883 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=4369)
+           2	COPY_FREE_VARS(arg=1, lineno=4369)
+           4	RESUME(arg=0, lineno=4369)
+           6	LOAD_GLOBAL(arg=1, lineno=4370)
+          18	LOAD_FAST(arg=0, lineno=4370)
+          20	LOAD_FAST(arg=1, lineno=4370)
+          22	LOAD_DEREF(arg=2, lineno=4370)
+          24	PRECALL(arg=3, lineno=4370)
+          28	CALL(arg=3, lineno=4370)
+          38	RETURN_VALUE(arg=None, lineno=4370)
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=4369)
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=COPY_FREE_VARS(arg=1, lineno=4369)
+2024-09-01 17:52:38,884 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=RESUME(arg=0, lineno=4369)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=6, inst=LOAD_GLOBAL(arg=1, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=18, inst=LOAD_FAST(arg=0, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_global.0']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=20, inst=LOAD_FAST(arg=1, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_global.0', '$shape18.2']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=22, inst=LOAD_DEREF(arg=2, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_global.0', '$shape18.2', '$dtype20.3']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=24, inst=PRECALL(arg=3, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_global.0', '$shape18.2', '$dtype20.3', '$22load_deref.4']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=28, inst=CALL(arg=3, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$null$6.1', '$6load_global.0', '$shape18.2', '$dtype20.3', '$22load_deref.4']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - dispatch pc=38, inst=RETURN_VALUE(arg=None, lineno=4370)
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - stack ['$28call.5']
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:52:38,885 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:52:38,886 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:52:38,886 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:52:38,886 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {}), (6, {'idx': 0, 'res': '$6load_global.0'}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {}), (18, {'res': '$shape18.2'}), (20, {'res': '$dtype20.3'}), (22, {'res': '$22load_deref.4'}), (24, {}), (26, {}), (28, {'func': '$6load_global.0', 'args': ['$shape18.2', '$dtype20.3', '$22load_deref.4'], 'kw_names': None, 'res': '$28call.5'}), (30, {}), (32, {}), (34, {}), (36, {}), (38, {'retval': '$28call.5', 'castval': '$38return_value.6'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:52:38,886 - numba.core.interpreter - DEBUG - label 0:
+    shape = arg(0, name=shape)               ['shape']
+    dtype = arg(1, name=dtype)               ['dtype']
+    $6load_global.0 = global(numpy_empty_nd: <intrinsic numpy_empty_nd>) ['$6load_global.0']
+    $22load_deref.4 = freevar(retty: array(float64, 1d, C)) ['$22load_deref.4']
+    $28call.5 = call $6load_global.0(shape, dtype, $22load_deref.4, func=$6load_global.0, args=[Var(shape, arrayobj.py:4369), Var(dtype, arrayobj.py:4369), Var($22load_deref.4, arrayobj.py:4370)], kws=(), vararg=None, varkwarg=None, target=None) ['$22load_deref.4', '$28call.5', '$6load_global.0', 'dtype', 'shape']
+    $38return_value.6 = cast(value=$28call.5) ['$28call.5', '$38return_value.6']
+    return $38return_value.6                 ['$38return_value.6']
+
+2024-09-01 17:52:38,890 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x12597d090>
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: shape = arg(0, name=shape)
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: dtype = arg(1, name=dtype)
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: $6load_global.0 = global(numpy_empty_nd: <intrinsic numpy_empty_nd>)
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: $22load_deref.4 = freevar(retty: array(float64, 1d, C))
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: $28call.5 = call $6load_global.0(shape, dtype, $22load_deref.4, func=$6load_global.0, args=[Var(shape, arrayobj.py:4369), Var(dtype, arrayobj.py:4369), Var($22load_deref.4, arrayobj.py:4370)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: $38return_value.6 = cast(value=$28call.5)
+2024-09-01 17:52:38,891 - numba.core.ssa - DEBUG - on stmt: return $38return_value.6
+2024-09-01 17:52:38,892 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$22load_deref.4': [<numba.core.ir.Assign object at 0x12596bfd0>],
+             '$28call.5': [<numba.core.ir.Assign object at 0x12597c210>],
+             '$38return_value.6': [<numba.core.ir.Assign object at 0x12597c490>],
+             '$6load_global.0': [<numba.core.ir.Assign object at 0x12596bd10>],
+             'dtype': [<numba.core.ir.Assign object at 0x12596b890>],
+             'shape': [<numba.core.ir.Assign object at 0x12594f490>]})
+2024-09-01 17:52:38,892 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:52:39,026 - oculizer.light.control - DEBUG - DMX values for rgb1: [252, 255, 0, 0, 61, 0]
+2024-09-01 17:52:39,026 - oculizer.light.control - DEBUG - Setting rgb1 to [252, 255, 0, 0, 61, 0]
+2024-09-01 17:52:39,026 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:52:39,026 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:52:39,027 - root - DEBUG - Processing light rgb2 with FFT data: [9.18271637e+00 1.37082100e+01 2.45281982e+01 ... 5.56316376e-02
+ 1.55448914e-04 5.56144714e-02], time: 1725227555.911139
+2024-09-01 17:52:39,027 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:52:39,027 - root - DEBUG - Light type: rgb
+2024-09-01 17:52:39,027 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:52:39,027 - root - DEBUG - Generated brightness: 240, color index: 0, strobe: 88, colorfade: 0
+2024-09-01 17:52:39,027 - oculizer.light.control - DEBUG - DMX values for rgb2: [240, 255, 0, 0, 88, 0]
+2024-09-01 17:52:39,027 - oculizer.light.control - DEBUG - Setting rgb2 to [240, 255, 0, 0, 88, 0]
+2024-09-01 17:52:39,039 - __main__ - DEBUG - Ending curses
+2024-09-01 17:52:39,039 - __main__ - DEBUG - Cleanup complete
+2024-09-01 17:55:37,762 - __main__ - DEBUG - Initializing curses
+2024-09-01 17:55:37,762 - __main__ - DEBUG - Creating AudioListener
+2024-09-01 17:55:37,763 - __main__ - DEBUG - Creating SceneManager
+2024-09-01 17:55:37,764 - __main__ - DEBUG - Setting initial scene to 'hell'
+2024-09-01 17:55:37,764 - __main__ - DEBUG - Loading profile
+2024-09-01 17:55:37,765 - __main__ - DEBUG - Creating LightController
+2024-09-01 17:55:37,765 - oculizer.light.control - DEBUG - Initializing DMX controller
+2024-09-01 17:55:37,765 - oculizer.light.control - DEBUG - Starting load_controller function
+2024-09-01 17:55:37,765 - oculizer.light.control - DEBUG - Initializing OpenDMXController
+2024-09-01 17:55:37,888 - oculizer.light.control - DEBUG - Processing light: rgb1 of type rgb
+2024-09-01 17:55:37,888 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb1 at channel 1
+2024-09-01 17:55:37,889 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:55:38,392 - oculizer.light.control - DEBUG - Processing light: rgb2 of type rgb
+2024-09-01 17:55:38,392 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb2 at channel 7
+2024-09-01 17:55:38,392 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:55:38,898 - oculizer.light.control - DEBUG - Finished load_controller function
+2024-09-01 17:55:38,898 - oculizer.light.control - DEBUG - LightController initialized
+2024-09-01 17:55:38,898 - __main__ - DEBUG - Starting audio listener
+2024-09-01 17:55:38,898 - __main__ - DEBUG - Starting light controller
+2024-09-01 17:55:38,898 - oculizer.light.control - DEBUG - LightController running
+2024-09-01 17:55:38,898 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:38,899 - __main__ - DEBUG - Entering main loop
+2024-09-01 17:55:39,002 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:39,106 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:39,210 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:39,316 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:39,419 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:39,420 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:39,420 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:39,421 - root - DEBUG - Processing light rgb1 with FFT data: [2.20092773e-01 1.88309982e-01 3.34227949e-01 ... 3.98593098e-02
+ 1.19417906e-04 3.98594737e-02], time: 1725227739.4200718
+2024-09-01 17:55:39,527 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:39,527 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:39,527 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:39,527 - root - DEBUG - Generated brightness: 45, color index: 0, strobe: 140, colorfade: 0
+2024-09-01 17:55:39,527 - oculizer.light.control - DEBUG - DMX values for rgb1: [45, 255, 0, 0, 140, 0]
+2024-09-01 17:55:39,527 - oculizer.light.control - DEBUG - Setting rgb1 to [45, 255, 0, 0, 140, 0]
+2024-09-01 17:55:39,527 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:39,527 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:39,528 - root - DEBUG - Processing light rgb2 with FFT data: [2.20092773e-01 1.88309982e-01 3.34227949e-01 ... 3.98593098e-02
+ 1.19417906e-04 3.98594737e-02], time: 1725227739.4200718
+2024-09-01 17:55:39,631 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:39,632 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:39,632 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:39,632 - root - DEBUG - Generated brightness: 249, color index: 0, strobe: 94, colorfade: 0
+2024-09-01 17:55:39,633 - oculizer.light.control - DEBUG - DMX values for rgb2: [249, 255, 0, 0, 94, 0]
+2024-09-01 17:55:39,633 - oculizer.light.control - DEBUG - Setting rgb2 to [249, 255, 0, 0, 94, 0]
+2024-09-01 17:55:39,844 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:39,949 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:39,949 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:39,950 - root - DEBUG - Processing light rgb1 with FFT data: [1.33536339e+00 1.39915395e+00 5.55416644e-02 ... 2.90882587e-02
+ 8.65552574e-05 2.90881395e-02], time: 1725227739.9494321
+2024-09-01 17:55:40,055 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:40,055 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,158 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,159 - root - DEBUG - Generated brightness: 249, color index: 0, strobe: 153, colorfade: 0
+2024-09-01 17:55:40,159 - oculizer.light.control - DEBUG - DMX values for rgb1: [249, 255, 0, 0, 153, 0]
+2024-09-01 17:55:40,159 - oculizer.light.control - DEBUG - Setting rgb1 to [249, 255, 0, 0, 153, 0]
+2024-09-01 17:55:40,159 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:40,159 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,159 - root - DEBUG - Processing light rgb2 with FFT data: [1.33536339e+00 1.39915395e+00 5.55416644e-02 ... 2.90882587e-02
+ 8.65552574e-05 2.90881395e-02], time: 1725227739.9494321
+2024-09-01 17:55:40,159 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:40,159 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,159 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,159 - root - DEBUG - Generated brightness: 76, color index: 0, strobe: 197, colorfade: 0
+2024-09-01 17:55:40,160 - oculizer.light.control - DEBUG - DMX values for rgb2: [76, 255, 0, 0, 197, 0]
+2024-09-01 17:55:40,265 - oculizer.light.control - DEBUG - Setting rgb2 to [76, 255, 0, 0, 197, 0]
+2024-09-01 17:55:40,371 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:40,371 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:40,371 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,371 - root - DEBUG - Processing light rgb1 with FFT data: [2.97003198e+00 3.01509666e+00 4.28348958e-01 ... 6.08545542e-02
+ 1.66609883e-04 6.08527660e-02], time: 1725227740.371525
+2024-09-01 17:55:40,372 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:40,372 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,478 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,479 - root - DEBUG - Generated brightness: 193, color index: 0, strobe: 39, colorfade: 0
+2024-09-01 17:55:40,479 - oculizer.light.control - DEBUG - DMX values for rgb1: [193, 255, 0, 0, 39, 0]
+2024-09-01 17:55:40,480 - oculizer.light.control - DEBUG - Setting rgb1 to [193, 255, 0, 0, 39, 0]
+2024-09-01 17:55:40,480 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:40,480 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,480 - root - DEBUG - Processing light rgb2 with FFT data: [2.97003198e+00 3.01509666e+00 4.28348958e-01 ... 6.08545542e-02
+ 1.66609883e-04 6.08527660e-02], time: 1725227740.371525
+2024-09-01 17:55:40,480 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:40,480 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,480 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,481 - root - DEBUG - Generated brightness: 179, color index: 0, strobe: 238, colorfade: 0
+2024-09-01 17:55:40,481 - oculizer.light.control - DEBUG - DMX values for rgb2: [179, 255, 0, 0, 238, 0]
+2024-09-01 17:55:40,481 - oculizer.light.control - DEBUG - Setting rgb2 to [179, 255, 0, 0, 238, 0]
+2024-09-01 17:55:40,585 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:40,586 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:40,586 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,586 - root - DEBUG - Processing light rgb1 with FFT data: [7.95002401e-01 1.02037191e+00 1.64024413e-01 ... 1.60608888e-02
+ 4.30122018e-05 1.60692334e-02], time: 1725227740.5862021
+2024-09-01 17:55:40,691 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:40,691 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,796 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,796 - root - DEBUG - Generated brightness: 60, color index: 0, strobe: 153, colorfade: 0
+2024-09-01 17:55:40,797 - oculizer.light.control - DEBUG - DMX values for rgb1: [60, 255, 0, 0, 153, 0]
+2024-09-01 17:55:40,797 - oculizer.light.control - DEBUG - Setting rgb1 to [60, 255, 0, 0, 153, 0]
+2024-09-01 17:55:40,797 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:40,797 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,797 - root - DEBUG - Processing light rgb2 with FFT data: [7.95002401e-01 1.02037191e+00 1.64024413e-01 ... 1.60608888e-02
+ 4.30122018e-05 1.60692334e-02], time: 1725227740.5862021
+2024-09-01 17:55:40,797 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:40,902 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:40,902 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:40,903 - root - DEBUG - Generated brightness: 149, color index: 0, strobe: 225, colorfade: 0
+2024-09-01 17:55:40,903 - oculizer.light.control - DEBUG - DMX values for rgb2: [149, 255, 0, 0, 225, 0]
+2024-09-01 17:55:40,903 - oculizer.light.control - DEBUG - Setting rgb2 to [149, 255, 0, 0, 225, 0]
+2024-09-01 17:55:41,007 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:41,008 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:41,008 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,008 - root - DEBUG - Processing light rgb1 with FFT data: [2.20254183e+00 2.83014107e+00 4.08373356e-01 ... 4.78162766e-02
+ 1.48907304e-04 4.78167534e-02], time: 1725227741.0080981
+2024-09-01 17:55:41,008 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:41,008 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,008 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,009 - root - DEBUG - Generated brightness: 101, color index: 0, strobe: 94, colorfade: 0
+2024-09-01 17:55:41,114 - oculizer.light.control - DEBUG - DMX values for rgb1: [101, 255, 0, 0, 94, 0]
+2024-09-01 17:55:41,114 - oculizer.light.control - DEBUG - Setting rgb1 to [101, 255, 0, 0, 94, 0]
+2024-09-01 17:55:41,114 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:41,114 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,115 - root - DEBUG - Processing light rgb2 with FFT data: [2.20254183e+00 2.83014107e+00 4.08373356e-01 ... 4.78162766e-02
+ 1.48907304e-04 4.78167534e-02], time: 1725227741.0080981
+2024-09-01 17:55:41,115 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:41,115 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,115 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,115 - root - DEBUG - Generated brightness: 209, color index: 0, strobe: 251, colorfade: 0
+2024-09-01 17:55:41,115 - oculizer.light.control - DEBUG - DMX values for rgb2: [209, 255, 0, 0, 251, 0]
+2024-09-01 17:55:41,115 - oculizer.light.control - DEBUG - Setting rgb2 to [209, 255, 0, 0, 251, 0]
+2024-09-01 17:55:41,219 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:41,324 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:41,324 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,325 - root - DEBUG - Processing light rgb1 with FFT data: [2.15554762e+00 2.21995330e+00 1.49946213e-01 ... 1.96528435e-03
+ 8.10623169e-06 1.96492672e-03], time: 1725227741.3243132
+2024-09-01 17:55:41,325 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:41,325 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,430 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,430 - root - DEBUG - Generated brightness: 20, color index: 0, strobe: 1, colorfade: 0
+2024-09-01 17:55:41,430 - oculizer.light.control - DEBUG - DMX values for rgb1: [20, 255, 0, 0, 1, 0]
+2024-09-01 17:55:41,430 - oculizer.light.control - DEBUG - Setting rgb1 to [20, 255, 0, 0, 1, 0]
+2024-09-01 17:55:41,430 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:41,534 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,535 - root - DEBUG - Processing light rgb2 with FFT data: [2.15554762e+00 2.21995330e+00 1.49946213e-01 ... 1.96528435e-03
+ 8.10623169e-06 1.96492672e-03], time: 1725227741.3243132
+2024-09-01 17:55:41,535 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:41,640 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,640 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,640 - root - DEBUG - Generated brightness: 37, color index: 0, strobe: 131, colorfade: 0
+2024-09-01 17:55:41,641 - oculizer.light.control - DEBUG - DMX values for rgb2: [37, 255, 0, 0, 131, 0]
+2024-09-01 17:55:41,641 - oculizer.light.control - DEBUG - Setting rgb2 to [37, 255, 0, 0, 131, 0]
+2024-09-01 17:55:41,744 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:41,744 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:41,744 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,745 - root - DEBUG - Processing light rgb1 with FFT data: [2.32509899e+00 2.45959997e+00 3.05523217e-01 ... 1.60721540e-02
+ 5.06788492e-05 1.60723925e-02], time: 1725227741.7444868
+2024-09-01 17:55:41,745 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:41,849 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,850 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,850 - root - DEBUG - Generated brightness: 201, color index: 0, strobe: 193, colorfade: 0
+2024-09-01 17:55:41,850 - oculizer.light.control - DEBUG - DMX values for rgb1: [201, 255, 0, 0, 193, 0]
+2024-09-01 17:55:41,851 - oculizer.light.control - DEBUG - Setting rgb1 to [201, 255, 0, 0, 193, 0]
+2024-09-01 17:55:41,851 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:41,851 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,851 - root - DEBUG - Processing light rgb2 with FFT data: [2.32509899e+00 2.45959997e+00 3.05523217e-01 ... 1.60721540e-02
+ 5.06788492e-05 1.60723925e-02], time: 1725227741.7444868
+2024-09-01 17:55:41,851 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:41,851 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:41,851 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:41,851 - root - DEBUG - Generated brightness: 243, color index: 0, strobe: 148, colorfade: 0
+2024-09-01 17:55:41,954 - oculizer.light.control - DEBUG - DMX values for rgb2: [243, 255, 0, 0, 148, 0]
+2024-09-01 17:55:41,954 - oculizer.light.control - DEBUG - Setting rgb2 to [243, 255, 0, 0, 148, 0]
+2024-09-01 17:55:42,059 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:42,059 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:42,164 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,165 - root - DEBUG - Processing light rgb1 with FFT data: [3.20690012e+00 3.35784721e+00 2.80312836e-01 ... 1.56720877e-02
+ 6.27189875e-05 1.56731606e-02], time: 1725227742.059596
+2024-09-01 17:55:42,270 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:42,271 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:42,375 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,376 - root - DEBUG - Generated brightness: 138, color index: 0, strobe: 49, colorfade: 0
+2024-09-01 17:55:42,480 - oculizer.light.control - DEBUG - DMX values for rgb1: [138, 255, 0, 0, 49, 0]
+2024-09-01 17:55:42,480 - oculizer.light.control - DEBUG - Setting rgb1 to [138, 255, 0, 0, 49, 0]
+2024-09-01 17:55:42,480 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:42,480 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,481 - root - DEBUG - Processing light rgb2 with FFT data: [3.20690012e+00 3.35784721e+00 2.80312836e-01 ... 1.56720877e-02
+ 6.27189875e-05 1.56731606e-02], time: 1725227742.059596
+2024-09-01 17:55:42,481 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:42,481 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:42,481 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,481 - root - DEBUG - Generated brightness: 66, color index: 0, strobe: 94, colorfade: 0
+2024-09-01 17:55:42,481 - oculizer.light.control - DEBUG - DMX values for rgb2: [66, 255, 0, 0, 94, 0]
+2024-09-01 17:55:42,481 - oculizer.light.control - DEBUG - Setting rgb2 to [66, 255, 0, 0, 94, 0]
+2024-09-01 17:55:42,588 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:42,589 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:42,693 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,694 - root - DEBUG - Processing light rgb1 with FFT data: [2.08474302e+00 2.37000966e+00 4.39649284e-01 ... 1.14772320e-02
+ 5.51342964e-05 1.14902258e-02], time: 1725227742.5890281
+2024-09-01 17:55:42,694 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:42,799 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:42,907 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:42,908 - root - DEBUG - Generated brightness: 214, color index: 0, strobe: 85, colorfade: 0
+2024-09-01 17:55:43,012 - oculizer.light.control - DEBUG - DMX values for rgb1: [214, 255, 0, 0, 85, 0]
+2024-09-01 17:55:43,012 - oculizer.light.control - DEBUG - Setting rgb1 to [214, 255, 0, 0, 85, 0]
+2024-09-01 17:55:43,012 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:43,012 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,013 - root - DEBUG - Processing light rgb2 with FFT data: [2.08474302e+00 2.37000966e+00 4.39649284e-01 ... 1.14772320e-02
+ 5.51342964e-05 1.14902258e-02], time: 1725227742.5890281
+2024-09-01 17:55:43,013 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:43,013 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:43,013 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,013 - root - DEBUG - Generated brightness: 246, color index: 0, strobe: 244, colorfade: 0
+2024-09-01 17:55:43,014 - oculizer.light.control - DEBUG - DMX values for rgb2: [246, 255, 0, 0, 244, 0]
+2024-09-01 17:55:43,014 - oculizer.light.control - DEBUG - Setting rgb2 to [246, 255, 0, 0, 244, 0]
+2024-09-01 17:55:43,223 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:43,326 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:43,431 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,432 - root - DEBUG - Processing light rgb1 with FFT data: [3.75585139e-01 2.08906978e-01 5.29846191e-01 ... 3.93081233e-02
+ 9.86754894e-05 3.93075049e-02], time: 1725227743.326727
+2024-09-01 17:55:43,432 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:43,535 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:43,535 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,644 - root - DEBUG - Generated brightness: 92, color index: 0, strobe: 109, colorfade: 0
+2024-09-01 17:55:43,645 - oculizer.light.control - DEBUG - DMX values for rgb1: [92, 255, 0, 0, 109, 0]
+2024-09-01 17:55:43,645 - oculizer.light.control - DEBUG - Setting rgb1 to [92, 255, 0, 0, 109, 0]
+2024-09-01 17:55:43,750 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:43,857 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,858 - root - DEBUG - Processing light rgb2 with FFT data: [3.75585139e-01 2.08906978e-01 5.29846191e-01 ... 3.93081233e-02
+ 9.86754894e-05 3.93075049e-02], time: 1725227743.326727
+2024-09-01 17:55:43,965 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:43,966 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:43,966 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:43,966 - root - DEBUG - Generated brightness: 123, color index: 0, strobe: 53, colorfade: 0
+2024-09-01 17:55:43,966 - oculizer.light.control - DEBUG - DMX values for rgb2: [123, 255, 0, 0, 53, 0]
+2024-09-01 17:55:43,966 - oculizer.light.control - DEBUG - Setting rgb2 to [123, 255, 0, 0, 53, 0]
+2024-09-01 17:55:44,175 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:44,176 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:44,176 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:44,176 - root - DEBUG - Processing light rgb1 with FFT data: [4.59536582e-01 3.18700582e-01 8.18192244e-01 ... 7.41927326e-02
+ 3.28302383e-04 7.42820799e-02], time: 1725227744.176167
+2024-09-01 17:55:44,176 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:44,176 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:44,176 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:44,279 - root - DEBUG - Generated brightness: 65, color index: 0, strobe: 239, colorfade: 0
+2024-09-01 17:55:44,280 - oculizer.light.control - DEBUG - DMX values for rgb1: [65, 255, 0, 0, 239, 0]
+2024-09-01 17:55:44,280 - oculizer.light.control - DEBUG - Setting rgb1 to [65, 255, 0, 0, 239, 0]
+2024-09-01 17:55:44,280 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:44,384 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:44,385 - root - DEBUG - Processing light rgb2 with FFT data: [4.59536582e-01 3.18700582e-01 8.18192244e-01 ... 7.41927326e-02
+ 3.28302383e-04 7.42820799e-02], time: 1725227744.176167
+2024-09-01 17:55:44,488 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:44,489 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:44,489 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:44,489 - root - DEBUG - Generated brightness: 234, color index: 0, strobe: 133, colorfade: 0
+2024-09-01 17:55:44,489 - oculizer.light.control - DEBUG - DMX values for rgb2: [234, 255, 0, 0, 133, 0]
+2024-09-01 17:55:44,489 - oculizer.light.control - DEBUG - Setting rgb2 to [234, 255, 0, 0, 133, 0]
+2024-09-01 17:55:44,801 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:44,905 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:44,906 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,010 - root - DEBUG - Processing light rgb1 with FFT data: [2.90343314e-01 1.82722528e-02 7.60420680e-01 ... 1.93247292e-02
+ 7.96616077e-05 1.93270147e-02], time: 1725227744.9055219
+2024-09-01 17:55:45,114 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:45,115 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:45,115 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,115 - root - DEBUG - Generated brightness: 0, color index: 0, strobe: 179, colorfade: 0
+2024-09-01 17:55:45,115 - oculizer.light.control - DEBUG - DMX values for rgb1: [0, 255, 0, 0, 179, 0]
+2024-09-01 17:55:45,115 - oculizer.light.control - DEBUG - Setting rgb1 to [0, 255, 0, 0, 179, 0]
+2024-09-01 17:55:45,115 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:45,116 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,323 - root - DEBUG - Processing light rgb2 with FFT data: [2.90343314e-01 1.82722528e-02 7.60420680e-01 ... 1.93247292e-02
+ 7.96616077e-05 1.93270147e-02], time: 1725227744.9055219
+2024-09-01 17:55:45,323 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:45,323 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:45,324 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,324 - root - DEBUG - Generated brightness: 14, color index: 0, strobe: 125, colorfade: 0
+2024-09-01 17:55:45,428 - oculizer.light.control - DEBUG - DMX values for rgb2: [14, 255, 0, 0, 125, 0]
+2024-09-01 17:55:45,428 - oculizer.light.control - DEBUG - Setting rgb2 to [14, 255, 0, 0, 125, 0]
+2024-09-01 17:55:45,534 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:45,534 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:45,640 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,640 - root - DEBUG - Processing light rgb1 with FFT data: [1.05087590e+00 1.32247436e+00 2.74740815e-01 ... 7.15339184e-03
+ 1.77547336e-04 6.73317909e-03], time: 1725227745.53465
+2024-09-01 17:55:45,640 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:45,640 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:45,641 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,641 - root - DEBUG - Generated brightness: 116, color index: 0, strobe: 208, colorfade: 0
+2024-09-01 17:55:45,641 - oculizer.light.control - DEBUG - DMX values for rgb1: [116, 255, 0, 0, 208, 0]
+2024-09-01 17:55:45,641 - oculizer.light.control - DEBUG - Setting rgb1 to [116, 255, 0, 0, 208, 0]
+2024-09-01 17:55:45,641 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:45,746 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,955 - root - DEBUG - Processing light rgb2 with FFT data: [1.05087590e+00 1.32247436e+00 2.74740815e-01 ... 7.15339184e-03
+ 1.77547336e-04 6.73317909e-03], time: 1725227745.53465
+2024-09-01 17:55:45,955 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:45,955 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:45,955 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:45,956 - root - DEBUG - Generated brightness: 136, color index: 0, strobe: 58, colorfade: 0
+2024-09-01 17:55:46,059 - oculizer.light.control - DEBUG - DMX values for rgb2: [136, 255, 0, 0, 58, 0]
+2024-09-01 17:55:46,060 - oculizer.light.control - DEBUG - Setting rgb2 to [136, 255, 0, 0, 58, 0]
+2024-09-01 17:55:46,270 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:46,270 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:46,271 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,271 - root - DEBUG - Processing light rgb1 with FFT data: [5.09482801e-01 5.94610214e-01 5.43082118e-01 ... 1.52739882e-03
+ 2.20537186e-05 1.52760744e-03], time: 1725227746.270978
+2024-09-01 17:55:46,271 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:46,375 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:46,375 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,375 - root - DEBUG - Generated brightness: 190, color index: 0, strobe: 199, colorfade: 0
+2024-09-01 17:55:46,376 - oculizer.light.control - DEBUG - DMX values for rgb1: [190, 255, 0, 0, 199, 0]
+2024-09-01 17:55:46,479 - oculizer.light.control - DEBUG - Setting rgb1 to [190, 255, 0, 0, 199, 0]
+2024-09-01 17:55:46,479 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:46,583 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,583 - root - DEBUG - Processing light rgb2 with FFT data: [5.09482801e-01 5.94610214e-01 5.43082118e-01 ... 1.52739882e-03
+ 2.20537186e-05 1.52760744e-03], time: 1725227746.270978
+2024-09-01 17:55:46,583 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:46,583 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:46,583 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,584 - root - DEBUG - Generated brightness: 107, color index: 0, strobe: 231, colorfade: 0
+2024-09-01 17:55:46,584 - oculizer.light.control - DEBUG - DMX values for rgb2: [107, 255, 0, 0, 231, 0]
+2024-09-01 17:55:46,584 - oculizer.light.control - DEBUG - Setting rgb2 to [107, 255, 0, 0, 231, 0]
+2024-09-01 17:55:46,794 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:46,795 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:46,795 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,796 - root - DEBUG - Processing light rgb1 with FFT data: [2.07785702e+00 2.11167455e+00 2.82207946e-03 ... 1.19230747e-02
+ 4.68709040e-05 1.19235516e-02], time: 1725227746.7953768
+2024-09-01 17:55:46,796 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:46,796 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:46,796 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,796 - root - DEBUG - Generated brightness: 187, color index: 0, strobe: 206, colorfade: 0
+2024-09-01 17:55:46,796 - oculizer.light.control - DEBUG - DMX values for rgb1: [187, 255, 0, 0, 206, 0]
+2024-09-01 17:55:46,796 - oculizer.light.control - DEBUG - Setting rgb1 to [187, 255, 0, 0, 206, 0]
+2024-09-01 17:55:46,797 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:46,797 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,797 - root - DEBUG - Processing light rgb2 with FFT data: [2.07785702e+00 2.11167455e+00 2.82207946e-03 ... 1.19230747e-02
+ 4.68709040e-05 1.19235516e-02], time: 1725227746.7953768
+2024-09-01 17:55:46,797 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:46,797 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:46,797 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:46,798 - root - DEBUG - Generated brightness: 50, color index: 0, strobe: 68, colorfade: 0
+2024-09-01 17:55:46,798 - __main__ - DEBUG - Quit command received
+2024-09-01 17:55:46,798 - __main__ - DEBUG - Cleaning up
+2024-09-01 17:55:46,798 - __main__ - DEBUG - Stopping audio listener
+2024-09-01 17:55:46,798 - __main__ - DEBUG - Stopping light controller
+2024-09-01 17:55:46,798 - oculizer.light.control - DEBUG - Stopping LightController
+2024-09-01 17:55:46,798 - __main__ - DEBUG - Joining audio listener thread
+2024-09-01 17:55:46,798 - oculizer.light.control - DEBUG - DMX values for rgb2: [50, 255, 0, 0, 68, 0]
+2024-09-01 17:55:46,798 - oculizer.light.control - DEBUG - Setting rgb2 to [50, 255, 0, 0, 68, 0]
+2024-09-01 17:55:47,064 - __main__ - DEBUG - Joining light controller thread
+2024-09-01 17:55:47,064 - __main__ - DEBUG - Ending curses
+2024-09-01 17:55:47,064 - __main__ - DEBUG - Cleanup complete
+2024-09-01 17:55:50,587 - __main__ - DEBUG - Initializing curses
+2024-09-01 17:55:50,587 - __main__ - DEBUG - Creating AudioListener
+2024-09-01 17:55:50,587 - __main__ - DEBUG - Creating SceneManager
+2024-09-01 17:55:50,589 - __main__ - DEBUG - Setting initial scene to 'hell'
+2024-09-01 17:55:50,589 - __main__ - DEBUG - Loading profile
+2024-09-01 17:55:50,589 - __main__ - DEBUG - Creating LightController
+2024-09-01 17:55:50,589 - oculizer.light.control - DEBUG - Initializing DMX controller
+2024-09-01 17:55:50,589 - oculizer.light.control - DEBUG - Starting load_controller function
+2024-09-01 17:55:50,589 - oculizer.light.control - DEBUG - Initializing OpenDMXController
+2024-09-01 17:55:50,764 - oculizer.light.control - DEBUG - Processing light: rgb1 of type rgb
+2024-09-01 17:55:50,765 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb1 at channel 1
+2024-09-01 17:55:50,765 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:55:51,267 - oculizer.light.control - DEBUG - Processing light: rgb2 of type rgb
+2024-09-01 17:55:51,267 - oculizer.light.control - DEBUG - Adding RGB fixture: rgb2 at channel 7
+2024-09-01 17:55:51,267 - oculizer.light.control - DEBUG - Flashing RGB light
+2024-09-01 17:55:51,771 - oculizer.light.control - DEBUG - Finished load_controller function
+2024-09-01 17:55:51,772 - oculizer.light.control - DEBUG - LightController initialized
+2024-09-01 17:55:51,772 - __main__ - DEBUG - Starting audio listener
+2024-09-01 17:55:51,773 - __main__ - DEBUG - Starting light controller
+2024-09-01 17:55:51,774 - oculizer.light.control - DEBUG - LightController running
+2024-09-01 17:55:51,774 - __main__ - DEBUG - Entering main loop
+2024-09-01 17:55:51,774 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:51,881 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:52,090 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:52,196 - oculizer.light.control - DEBUG - No FFT data available
+2024-09-01 17:55:52,302 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:52,302 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:52,407 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:52,408 - root - DEBUG - Processing light rgb1 with FFT data: [1.84534514e+00 1.96319628e+00 2.59723276e-01 ... 6.46872520e-02
+ 1.45852566e-04 6.54224157e-02], time: 1725227752.3027961
+2024-09-01 17:55:52,511 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:52,513 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:52,513 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:52,619 - root - DEBUG - Generated brightness: 212, color index: 0, strobe: 113, colorfade: 0
+2024-09-01 17:55:52,620 - oculizer.light.control - DEBUG - DMX values for rgb1: [212, 255, 0, 0, 113, 0]
+2024-09-01 17:55:52,621 - oculizer.light.control - DEBUG - Setting rgb1 to [212, 255, 0, 0, 113, 0]
+2024-09-01 17:55:52,622 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:52,623 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:52,623 - root - DEBUG - Processing light rgb2 with FFT data: [1.84534514e+00 1.96319628e+00 2.59723276e-01 ... 6.46872520e-02
+ 1.45852566e-04 6.54224157e-02], time: 1725227752.3027961
+2024-09-01 17:55:52,623 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:52,728 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:52,834 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:52,836 - root - DEBUG - Generated brightness: 246, color index: 0, strobe: 39, colorfade: 0
+2024-09-01 17:55:52,837 - oculizer.light.control - DEBUG - DMX values for rgb2: [246, 255, 0, 0, 39, 0]
+2024-09-01 17:55:52,838 - oculizer.light.control - DEBUG - Setting rgb2 to [246, 255, 0, 0, 39, 0]
+2024-09-01 17:55:52,944 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:52,946 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:53,050 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,053 - root - DEBUG - Processing light rgb1 with FFT data: [2.70533133e+00 2.84814262e+00 6.18263423e-01 ... 2.26778984e-02
+ 7.64727592e-05 2.26775408e-02], time: 1725227752.9462762
+2024-09-01 17:55:53,053 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:53,053 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:53,159 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,160 - root - DEBUG - Generated brightness: 52, color index: 0, strobe: 70, colorfade: 0
+2024-09-01 17:55:53,266 - oculizer.light.control - DEBUG - DMX values for rgb1: [52, 255, 0, 0, 70, 0]
+2024-09-01 17:55:53,266 - oculizer.light.control - DEBUG - Setting rgb1 to [52, 255, 0, 0, 70, 0]
+2024-09-01 17:55:53,267 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:53,267 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,268 - root - DEBUG - Processing light rgb2 with FFT data: [2.70533133e+00 2.84814262e+00 6.18263423e-01 ... 2.26778984e-02
+ 7.64727592e-05 2.26775408e-02], time: 1725227752.9462762
+2024-09-01 17:55:53,268 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:53,268 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:53,268 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,269 - root - DEBUG - Generated brightness: 130, color index: 0, strobe: 126, colorfade: 0
+2024-09-01 17:55:53,269 - oculizer.light.control - DEBUG - DMX values for rgb2: [130, 255, 0, 0, 126, 0]
+2024-09-01 17:55:53,375 - oculizer.light.control - DEBUG - Setting rgb2 to [130, 255, 0, 0, 126, 0]
+2024-09-01 17:55:53,589 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:53,590 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:53,695 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,697 - root - DEBUG - Processing light rgb1 with FFT data: [2.80998588e+00 2.81506252e+00 6.33080006e-01 ... 1.10611916e-02
+ 3.49879265e-05 1.10580921e-02], time: 1725227753.590506
+2024-09-01 17:55:53,698 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:53,698 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:53,699 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:53,804 - root - DEBUG - Generated brightness: 198, color index: 0, strobe: 235, colorfade: 0
+2024-09-01 17:55:53,805 - oculizer.light.control - DEBUG - DMX values for rgb1: [198, 255, 0, 0, 235, 0]
+2024-09-01 17:55:53,910 - oculizer.light.control - DEBUG - Setting rgb1 to [198, 255, 0, 0, 235, 0]
+2024-09-01 17:55:53,911 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:54,017 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,019 - root - DEBUG - Processing light rgb2 with FFT data: [2.80998588e+00 2.81506252e+00 6.33080006e-01 ... 1.10611916e-02
+ 3.49879265e-05 1.10580921e-02], time: 1725227753.590506
+2024-09-01 17:55:54,020 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:54,021 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:54,125 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,126 - root - DEBUG - Generated brightness: 55, color index: 0, strobe: 254, colorfade: 0
+2024-09-01 17:55:54,126 - oculizer.light.control - DEBUG - DMX values for rgb2: [55, 255, 0, 0, 254, 0]
+2024-09-01 17:55:54,127 - oculizer.light.control - DEBUG - Setting rgb2 to [55, 255, 0, 0, 254, 0]
+2024-09-01 17:55:54,231 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:54,232 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:54,232 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,233 - root - DEBUG - Processing light rgb1 with FFT data: [6.24937296e-01 7.53336787e-01 2.04908907e-01 ... 3.41554582e-02
+ 1.15029514e-04 3.41641605e-02], time: 1725227754.232682
+2024-09-01 17:55:54,233 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:54,233 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:54,234 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,234 - root - DEBUG - Generated brightness: 249, color index: 0, strobe: 127, colorfade: 0
+2024-09-01 17:55:54,234 - oculizer.light.control - DEBUG - DMX values for rgb1: [249, 255, 0, 0, 127, 0]
+2024-09-01 17:55:54,234 - oculizer.light.control - DEBUG - Setting rgb1 to [249, 255, 0, 0, 127, 0]
+2024-09-01 17:55:54,234 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:54,234 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,235 - root - DEBUG - Processing light rgb2 with FFT data: [6.24937296e-01 7.53336787e-01 2.04908907e-01 ... 3.41554582e-02
+ 1.15029514e-04 3.41641605e-02], time: 1725227754.232682
+2024-09-01 17:55:54,235 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:54,235 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:54,236 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,236 - root - DEBUG - Generated brightness: 203, color index: 0, strobe: 116, colorfade: 0
+2024-09-01 17:55:54,342 - oculizer.light.control - DEBUG - DMX values for rgb2: [203, 255, 0, 0, 116, 0]
+2024-09-01 17:55:54,342 - oculizer.light.control - DEBUG - Setting rgb2 to [203, 255, 0, 0, 116, 0]
+2024-09-01 17:55:54,447 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:54,449 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:54,449 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,553 - root - DEBUG - Processing light rgb1 with FFT data: [9.68364835e-01 1.54704332e-01 1.89469457e-01 ... 8.09265971e-02
+ 2.75574625e-04 8.09277296e-02], time: 1725227754.449
+2024-09-01 17:55:54,555 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:54,556 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:54,557 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'max_brightness': 50.0, 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,663 - root - DEBUG - Generated brightness: 247, color index: 0, strobe: 239, colorfade: 0
+2024-09-01 17:55:54,664 - oculizer.light.control - DEBUG - DMX values for rgb1: [247, 255, 0, 0, 239, 0]
+2024-09-01 17:55:54,664 - oculizer.light.control - DEBUG - Setting rgb1 to [247, 255, 0, 0, 239, 0]
+2024-09-01 17:55:54,666 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:55:54,666 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,770 - root - DEBUG - Processing light rgb2 with FFT data: [9.68364835e-01 1.54704332e-01 1.89469457e-01 ... 8.09265971e-02
+ 2.75574625e-04 8.09277296e-02], time: 1725227754.449
+2024-09-01 17:55:54,771 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:55:54,771 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:54,875 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 'random', 'color': 'red', 'strobe': 'random'}
+2024-09-01 17:55:54,876 - root - DEBUG - Generated brightness: 97, color index: 0, strobe: 105, colorfade: 0
+2024-09-01 17:55:54,877 - __main__ - DEBUG - Changing scene to: brainblaster
+2024-09-01 17:55:54,877 - oculizer.light.control - DEBUG - DMX values for rgb2: [97, 255, 0, 0, 105, 0]
+2024-09-01 17:55:54,878 - oculizer.light.control - DEBUG - Changing scene to brainblaster
+2024-09-01 17:55:54,879 - oculizer.light.control - DEBUG - Turning off all lights
+2024-09-01 17:55:54,878 - oculizer.light.control - DEBUG - Setting rgb2 to [97, 255, 0, 0, 105, 0]
+2024-09-01 17:55:54,879 - oculizer.light.control - DEBUG - All lights turned off
+2024-09-01 17:55:54,983 - oculizer.light.control - DEBUG - Scene changed, applying new scene
+2024-09-01 17:55:54,984 - oculizer.light.control - DEBUG - Sending dynamic data
+2024-09-01 17:55:54,984 - oculizer.light.control - DEBUG - Processing light rgb1
+2024-09-01 17:55:55,089 - root - DEBUG - Light rgb1 as float64: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 255.0, 'color': 'random', 'strobe': 255.0}
+2024-09-01 17:55:55,091 - root - DEBUG - Processing light rgb1 with FFT data: [8.52464855e-01 3.85836810e-01 7.02177048e-01 ... 3.66422832e-02
+ 1.09910965e-04 3.66426110e-02], time: 1725227754.984631
+2024-09-01 17:55:55,091 - root - DEBUG - Processing light rgb1 with modulator bool
+2024-09-01 17:55:55,092 - root - DEBUG - Light type: rgb
+2024-09-01 17:55:55,092 - root - DEBUG - Processing bool RGB light: {'name': 'rgb1', 'type': 'rgb', 'modulator': 'bool', 'brightness': 255.0, 'color': 'random', 'strobe': 255.0}
+2024-09-01 17:56:02,989 - __main__ - DEBUG - Changing scene to: electric
+2024-09-01 17:56:02,990 - oculizer.light.control - DEBUG - Changing scene to electric
+2024-09-01 17:56:02,991 - oculizer.light.control - DEBUG - Turning off all lights
+2024-09-01 17:56:02,991 - oculizer.light.control - DEBUG - All lights turned off
+2024-09-01 17:56:06,822 - __main__ - DEBUG - Changing scene to: static
+2024-09-01 17:56:06,822 - oculizer.light.control - DEBUG - Changing scene to static
+2024-09-01 17:56:06,823 - oculizer.light.control - DEBUG - Turning off all lights
+2024-09-01 17:56:06,823 - oculizer.light.control - DEBUG - All lights turned off
+2024-09-01 17:56:08,527 - __main__ - DEBUG - Changing scene to: hell
+2024-09-01 17:56:08,528 - oculizer.light.control - DEBUG - Changing scene to hell
+2024-09-01 17:56:08,528 - oculizer.light.control - DEBUG - Turning off all lights
+2024-09-01 17:56:08,529 - oculizer.light.control - DEBUG - All lights turned off
+2024-09-01 17:56:11,935 - __main__ - DEBUG - Changing scene to: vintage
+2024-09-01 17:56:11,936 - oculizer.light.control - DEBUG - Changing scene to vintage
+2024-09-01 17:56:11,937 - oculizer.light.control - DEBUG - Turning off all lights
+2024-09-01 17:56:11,937 - oculizer.light.control - DEBUG - All lights turned off
+2024-09-01 17:56:15,566 - __main__ - DEBUG - Quit command received
+2024-09-01 17:56:15,566 - __main__ - DEBUG - Cleaning up
+2024-09-01 17:56:15,566 - __main__ - DEBUG - Stopping audio listener
+2024-09-01 17:56:15,566 - __main__ - DEBUG - Stopping light controller
+2024-09-01 17:56:15,566 - oculizer.light.control - DEBUG - Stopping LightController
+2024-09-01 17:56:15,566 - __main__ - DEBUG - Joining audio listener thread
+2024-09-01 17:56:15,749 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=35)
+           2	RESUME(arg=0, lineno=35)
+           4	LOAD_GLOBAL(arg=0, lineno=37)
+          16	LOAD_ATTR(arg=1, lineno=37)
+          26	LOAD_METHOD(arg=2, lineno=37)
+          48	LOAD_CONST(arg=1, lineno=37)
+          50	LOAD_GLOBAL(arg=7, lineno=37)
+          62	LOAD_GLOBAL(arg=8, lineno=37)
+          74	PRECALL(arg=1, lineno=37)
+          78	CALL(arg=1, lineno=37)
+          88	PRECALL(arg=2, lineno=37)
+          92	CALL(arg=2, lineno=37)
+         102	RETURN_VALUE(arg=None, lineno=37)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=35)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=RESUME(arg=0, lineno=35)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=LOAD_GLOBAL(arg=0, lineno=37)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=16, inst=LOAD_ATTR(arg=1, lineno=37)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack ['$4load_global.0']
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=26, inst=LOAD_METHOD(arg=2, lineno=37)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack ['$16load_attr.1']
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - dispatch pc=48, inst=LOAD_CONST(arg=1, lineno=37)
+2024-09-01 17:56:15,750 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=50, inst=LOAD_GLOBAL(arg=7, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=62, inst=LOAD_GLOBAL(arg=8, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4', '$null$50.6', '$50load_global.5']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=74, inst=PRECALL(arg=1, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4', '$null$50.6', '$50load_global.5', '$62load_global.7']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=78, inst=CALL(arg=1, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4', '$null$50.6', '$50load_global.5', '$62load_global.7']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=88, inst=PRECALL(arg=2, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4', '$78call.8']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=92, inst=CALL(arg=2, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$null$26.2', '$26load_method.3', '$const48.4', '$78call.8']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - dispatch pc=102, inst=RETURN_VALUE(arg=None, lineno=37)
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - stack ['$92call.9']
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:56:15,751 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:56:15,752 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {'idx': 0, 'res': '$4load_global.0'}), (6, {}), (8, {}), (10, {}), (12, {}), (14, {}), (16, {'item': '$4load_global.0', 'res': '$16load_attr.1'}), (18, {}), (20, {}), (22, {}), (24, {}), (26, {'item': '$16load_attr.1', 'res': '$26load_method.3'}), (28, {}), (30, {}), (32, {}), (34, {}), (36, {}), (38, {}), (40, {}), (42, {}), (44, {}), (46, {}), (48, {'res': '$const48.4'}), (50, {'idx': 3, 'res': '$50load_global.5'}), (52, {}), (54, {}), (56, {}), (58, {}), (60, {}), (62, {'idx': 4, 'res': '$62load_global.7'}), (64, {}), (66, {}), (68, {}), (70, {}), (72, {}), (74, {}), (76, {}), (78, {'func': '$50load_global.5', 'args': ['$62load_global.7'], 'kw_names': None, 'res': '$78call.8'}), (80, {}), (82, {}), (84, {}), (86, {}), (88, {}), (90, {}), (92, {'func': '$26load_method.3', 'args': ['$const48.4', '$78call.8'], 'kw_names': None, 'res': '$92call.9'}), (94, {}), (96, {}), (98, {}), (100, {}), (102, {'retval': '$92call.9', 'castval': '$102return_value.10'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:56:15,752 - numba.core.interpreter - DEBUG - label 0:
+    $4load_global.0 = global(np: <module 'numpy' from '/Users/f004swn/anaconda3/envs/spotify/lib/python3.11/site-packages/numpy/__init__.py'>) ['$4load_global.0']
+    $16load_attr.1 = getattr(value=$4load_global.0, attr=random) ['$16load_attr.1', '$4load_global.0']
+    $26load_method.3 = getattr(value=$16load_attr.1, attr=randint) ['$16load_attr.1', '$26load_method.3']
+    $const48.4 = const(int, 0)               ['$const48.4']
+    $50load_global.5 = global(len: <built-in function len>) ['$50load_global.5']
+    $62load_global.7 = global(COLORS: [[255.   0.   0.]
+ [255. 127.   0.]
+ [255. 255.   0.]
+ [  0. 255.   0.]
+ [  0.   0. 255.]
+ [ 75.   0. 130.]
+ [255.   0. 255.]
+ [255. 255. 255.]]) ['$62load_global.7']
+    $78call.8 = call $50load_global.5($62load_global.7, func=$50load_global.5, args=[Var($62load_global.7, mapping.py:37)], kws=(), vararg=None, varkwarg=None, target=None) ['$50load_global.5', '$62load_global.7', '$78call.8']
+    $92call.9 = call $26load_method.3($const48.4, $78call.8, func=$26load_method.3, args=[Var($const48.4, mapping.py:37), Var($78call.8, mapping.py:37)], kws=(), vararg=None, varkwarg=None, target=None) ['$26load_method.3', '$78call.8', '$92call.9', '$const48.4']
+    $102return_value.10 = cast(value=$92call.9) ['$102return_value.10', '$92call.9']
+    return $102return_value.10               ['$102return_value.10']
+
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x1236d6590>
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $4load_global.0 = global(np: <module 'numpy' from '/Users/f004swn/anaconda3/envs/spotify/lib/python3.11/site-packages/numpy/__init__.py'>)
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $16load_attr.1 = getattr(value=$4load_global.0, attr=random)
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $26load_method.3 = getattr(value=$16load_attr.1, attr=randint)
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $const48.4 = const(int, 0)
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $50load_global.5 = global(len: <built-in function len>)
+2024-09-01 17:56:15,758 - numba.core.ssa - DEBUG - on stmt: $62load_global.7 = global(COLORS: [[255.   0.   0.]
+ [255. 127.   0.]
+ [255. 255.   0.]
+ [  0. 255.   0.]
+ [  0.   0. 255.]
+ [ 75.   0. 130.]
+ [255.   0. 255.]
+ [255. 255. 255.]])
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - on stmt: $78call.8 = call $50load_global.5($62load_global.7, func=$50load_global.5, args=[Var($62load_global.7, mapping.py:37)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - on stmt: $92call.9 = call $26load_method.3($const48.4, $78call.8, func=$26load_method.3, args=[Var($const48.4, mapping.py:37), Var($78call.8, mapping.py:37)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - on stmt: $102return_value.10 = cast(value=$92call.9)
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - on stmt: return $102return_value.10
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$102return_value.10': [<numba.core.ir.Assign object at 0x1236ce2d0>],
+             '$16load_attr.1': [<numba.core.ir.Assign object at 0x1236ccb90>],
+             '$26load_method.3': [<numba.core.ir.Assign object at 0x1236ccf50>],
+             '$4load_global.0': [<numba.core.ir.Assign object at 0x1236cc890>],
+             '$50load_global.5': [<numba.core.ir.Assign object at 0x1236cd510>],
+             '$62load_global.7': [<numba.core.ir.Assign object at 0x1236cd850>],
+             '$78call.8': [<numba.core.ir.Assign object at 0x1236cdbd0>],
+             '$92call.9': [<numba.core.ir.Assign object at 0x1236cdf90>],
+             '$const48.4': [<numba.core.ir.Assign object at 0x1236cd350>]})
+2024-09-01 17:56:15,759 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - bytecode dump:
+>          0	NOP(arg=None, lineno=596)
+           2	COPY_FREE_VARS(arg=1, lineno=596)
+           4	RESUME(arg=0, lineno=596)
+           6	PUSH_NULL(arg=None, lineno=596)
+           8	LOAD_DEREF(arg=2, lineno=596)
+          10	LOAD_FAST(arg=0, lineno=596)
+          12	LOAD_FAST(arg=1, lineno=596)
+          14	PRECALL(arg=2, lineno=596)
+          18	CALL(arg=2, lineno=596)
+          28	RETURN_VALUE(arg=None, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - pending: deque([State(pc_initial=0 nstack_initial=0)])
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack: []
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - state.pc_initial: State(pc_initial=0 nstack_initial=0)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=0, inst=NOP(arg=None, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=2, inst=COPY_FREE_VARS(arg=1, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=4, inst=RESUME(arg=0, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=6, inst=PUSH_NULL(arg=None, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack []
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=8, inst=LOAD_DEREF(arg=2, lineno=596)
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - stack ['$null$6.0']
+2024-09-01 17:56:15,763 - numba.core.byteflow - DEBUG - dispatch pc=10, inst=LOAD_FAST(arg=0, lineno=596)
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - stack ['$null$6.0', '$8load_deref.1']
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - dispatch pc=12, inst=LOAD_FAST(arg=1, lineno=596)
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - stack ['$null$6.0', '$8load_deref.1', '$low10.2']
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - dispatch pc=14, inst=PRECALL(arg=2, lineno=596)
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - stack ['$null$6.0', '$8load_deref.1', '$low10.2', '$high12.3']
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - dispatch pc=18, inst=CALL(arg=2, lineno=596)
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - stack ['$null$6.0', '$8load_deref.1', '$low10.2', '$high12.3']
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - dispatch pc=28, inst=RETURN_VALUE(arg=None, lineno=596)
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - stack ['$18call.4']
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - end state. edges=[]
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - -------------------------Prune PHIs-------------------------
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - Used_phis: defaultdict(<class 'set'>, {State(pc_initial=0 nstack_initial=0): set()})
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - defmap: {}
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - changing phismap: defaultdict(<class 'set'>, {})
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - keep phismap: {}
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - new_out: defaultdict(<class 'dict'>, {})
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - ----------------------DONE Prune PHIs-----------------------
+2024-09-01 17:56:15,764 - numba.core.byteflow - DEBUG - block_infos State(pc_initial=0 nstack_initial=0):
+AdaptBlockInfo(insts=((0, {}), (2, {}), (4, {}), (6, {}), (8, {'res': '$8load_deref.1'}), (10, {'res': '$low10.2'}), (12, {'res': '$high12.3'}), (14, {}), (16, {}), (18, {'func': '$8load_deref.1', 'args': ['$low10.2', '$high12.3'], 'kw_names': None, 'res': '$18call.4'}), (20, {}), (22, {}), (24, {}), (26, {}), (28, {'retval': '$18call.4', 'castval': '$28return_value.5'})), outgoing_phis={}, blockstack=(), active_try_block=None, outgoing_edgepushed={})
+2024-09-01 17:56:15,765 - numba.core.interpreter - DEBUG - label 0:
+    low = arg(0, name=low)                   ['low']
+    high = arg(1, name=high)                 ['high']
+    $8load_deref.1 = freevar(_impl: <intrinsic _impl>) ['$8load_deref.1']
+    $18call.4 = call $8load_deref.1(low, high, func=$8load_deref.1, args=[Var(low, randomimpl.py:596), Var(high, randomimpl.py:596)], kws=(), vararg=None, varkwarg=None, target=None) ['$18call.4', '$8load_deref.1', 'high', 'low']
+    $28return_value.5 = cast(value=$18call.4) ['$18call.4', '$28return_value.5']
+    return $28return_value.5                 ['$28return_value.5']
+
+2024-09-01 17:56:15,769 - numba.core.ssa - DEBUG - ==== SSA block analysis pass on 0
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - Running <numba.core.ssa._GatherDefsHandler object at 0x1236ea090>
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: low = arg(0, name=low)
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: high = arg(1, name=high)
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: $8load_deref.1 = freevar(_impl: <intrinsic _impl>)
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: $18call.4 = call $8load_deref.1(low, high, func=$8load_deref.1, args=[Var(low, randomimpl.py:596), Var(high, randomimpl.py:596)], kws=(), vararg=None, varkwarg=None, target=None)
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: $28return_value.5 = cast(value=$18call.4)
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - on stmt: return $28return_value.5
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - defs defaultdict(<class 'list'>,
+            {'$18call.4': [<numba.core.ir.Assign object at 0x1236ff4d0>],
+             '$28return_value.5': [<numba.core.ir.Assign object at 0x1236ff790>],
+             '$8load_deref.1': [<numba.core.ir.Assign object at 0x1236e83d0>],
+             'high': [<numba.core.ir.Assign object at 0x1236fed10>],
+             'low': [<numba.core.ir.Assign object at 0x1236fec50>]})
+2024-09-01 17:56:15,770 - numba.core.ssa - DEBUG - SSA violators set()
+2024-09-01 17:56:15,829 - __main__ - DEBUG - Joining light controller thread
+2024-09-01 17:56:15,855 - root - DEBUG - Generated brightness: 255.0, color index: 5, strobe: 255.0, colorfade: 0
+2024-09-01 17:56:15,855 - oculizer.light.control - DEBUG - DMX values for rgb1: [255, 75, 0, 130, 255, 0]
+2024-09-01 17:56:15,855 - oculizer.light.control - DEBUG - Setting rgb1 to [255, 75, 0, 130, 255, 0]
+2024-09-01 17:56:15,855 - oculizer.light.control - DEBUG - Processing light rgb2
+2024-09-01 17:56:15,855 - root - DEBUG - Light rgb2 as float64: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 255.0, 'color': 'random', 'strobe': 255.0}
+2024-09-01 17:56:15,855 - root - DEBUG - Processing light rgb2 with FFT data: [8.52464855e-01 3.85836810e-01 7.02177048e-01 ... 3.66422832e-02
+ 1.09910965e-04 3.66426110e-02], time: 1725227754.984631
+2024-09-01 17:56:15,855 - root - DEBUG - Processing light rgb2 with modulator bool
+2024-09-01 17:56:15,855 - root - DEBUG - Light type: rgb
+2024-09-01 17:56:15,856 - root - DEBUG - Processing bool RGB light: {'name': 'rgb2', 'type': 'rgb', 'modulator': 'bool', 'brightness': 255.0, 'color': 'random', 'strobe': 255.0}
+2024-09-01 17:56:15,856 - root - DEBUG - Generated brightness: 255.0, color index: 5, strobe: 255.0, colorfade: 0
+2024-09-01 17:56:15,856 - oculizer.light.control - DEBUG - DMX values for rgb2: [255, 75, 0, 130, 255, 0]
+2024-09-01 17:56:15,856 - oculizer.light.control - DEBUG - Setting rgb2 to [255, 75, 0, 130, 255, 0]
+2024-09-01 17:56:15,867 - __main__ - DEBUG - Ending curses
+2024-09-01 17:56:15,868 - __main__ - DEBUG - Cleanup complete
