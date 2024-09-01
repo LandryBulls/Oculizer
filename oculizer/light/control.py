@@ -14,13 +14,13 @@ from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.audio import AudioListener
 from oculizer.scenes import SceneManager
+from oculizer.light.mapping import process_light, color_to_index
 import threading
 import queue
 import os
 import json
 from pathlib import Path
 
-from .mapping import fft_to_rgb, fft_to_strobe, fft_to_dimmer, bool_rgb, time_rgb, time_strobe, time_dimmer
 from ..utils import load_json 
 import time
 
@@ -102,55 +102,33 @@ class LightController(threading.Thread):
             
             if not self.audio_listener.fft_queue.empty():
                 try:
-                    print("Sending dynamic data")
                     self.send_dynamic()
                 except Exception as e:
                     print(f"Error sending dynamic data: {str(e)}")
             else:
-                print("FFT queue is empty")
+                # do nothing
+                pass
             
     def send_dynamic(self):
-        # Fetch FFT data once for all lights
         try:
-            # get the most recent FFT data
             fft_data = self.audio_listener.fft_queue.get_nowait()
         except queue.Empty:
             print("No FFT data available")
             return
 
+        current_time = time.time()  # Get current time for time-based effects
+
         for light in self.scene_manager.current_scene['lights']:
             if light['name'] not in self.light_names:
-                continue  # Skip lights not in the profile
+                continue
 
-            if light['modulator'] == 'fft':
+            dmx_values = process_light(light, fft_data, current_time)
+            
+            if dmx_values is not None:
                 if light['type'] == 'dimmer':
-                    dmx_value = fft_to_dimmer(fft_data, light['frequency_range'], light['power_range'], light['brightness_range'])
-                    self.controller_dict[light['name']].dim(dmx_value)
-                elif light['type'] == 'rgb':
-                    dmx_values = fft_to_rgb(fft_data, frange=light['frequency_range'], prange=light['power_range'], brange=light['brightness_range'], color=light['color'], strobe=light['strobe'])
+                    self.controller_dict[light['name']].dim(dmx_values)
+                elif light['type'] in ['rgb', 'strobe']:
                     self.controller_dict[light['name']].set_channels(dmx_values)
-                elif light['type'] == 'strobe':
-                    dmx_values = fft_to_strobe(fft_data, light['frequency_range'], light['power_range'][0])
-                    self.controller_dict[light['name']].set_channels(dmx_values)
-
-            elif light['modulator'] == 'bool':
-                if light['type'] == 'dimmer':
-                    self.controller_dict[light['name']].dim(light['brightness'])
-                elif light['type'] == 'rgb':
-                    self.controller_dict[light['name']].set_channels(bool_rgb(light))
-                elif light['type'] == 'strobe':
-                    self.controller_dict[light['name']].set_channels(light['speed'], light['brightness'])
-
-            elif light['modulator'] == 'time':
-                try:
-                    if light['type'] == 'dimmer':
-                        self.controller_dict[light['name']].dim(time_dimmer(light))
-                    elif light['type'] == 'rgb':
-                        self.controller_dict[light['name']].set_channels(time_rgb(light))
-                    elif light['type'] == 'strobe':
-                        self.controller_dict[light['name']].set_channels(time_strobe(light))
-                except Exception as e:
-                    print(f"Error sending time data: {str(e)}")
 
     def stop(self):
         self.running.clear()
