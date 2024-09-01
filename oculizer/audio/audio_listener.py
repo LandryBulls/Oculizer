@@ -12,11 +12,10 @@ import numpy as np
 from scipy.fftpack import rfft
 import time
 import curses
-from oculizer.config import audio_parameters
+from ..config import audio_parameters
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
-
 
 # get blackhole audio device
 def get_blackhole_device_idx():

@@ -1,0 +1,11 @@
+numpy
+scipy
+sounddevice
+librosa
+pyaudio
+pydub
+scipy
+sounddevice
+soundfile
+sklearn
+PyDMXControl

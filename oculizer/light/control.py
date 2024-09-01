@@ -10,25 +10,35 @@ Date: 8/20/24
 
 from PyDMXControl.controllers import OpenDMXController
 from PyDMXControl.profiles.Generic import Dimmer, Custom
-from oculizer import AudioListener, RGB, Strobe
-from custom_profiles.ADJ_strobe import Strobe
+from oculizer.custom_profiles.RGB import RGB
+from oculizer.custom_profiles.ADJ_strobe import Strobe
+from oculizer.audio import AudioListener
+from oculizer.scenes import SceneManager
 import threading
 import queue
 import os
 import json
+from pathlib import Path
 
-from ..scenes.scene_manager import SceneManager
 from .mapping import fft_to_rgb, fft_to_strobe, fft_to_dimmer, bool_rgb, time_rgb, time_strobe, time_dimmer
 from ..utils import load_json 
 import time
 
 def load_profile(profile_name):
-    with open(f'profiles/{profile_name}.json', 'r') as f:
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent.parent
+    profile_path = project_root / 'profiles' / f'{profile_name}.json'
+    with open(profile_path, 'r') as f:
         profile = json.load(f)
+    
     return profile
 
 def load_controller(profile):
-    controller = OpenDMXController()
+    try:
+        controller = OpenDMXController()
+    except Exception as e:
+        print(f"Error loading DMX controller: {str(e)}")
+        return None, None
     control_dict = {}
     curr_channel = 1
     for light in profile['lights']:
