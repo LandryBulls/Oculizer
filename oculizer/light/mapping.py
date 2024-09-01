@@ -111,6 +111,7 @@ def process_fft_to_rgb(fft_vec, light):
 
 def process_bool_rgb(light):
     brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
+    # need to accept no colors here
     color_index = random_color() if light['color'] == 'random' else color_to_index(light['color'])
     strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
     colorfade = light.get('colorfade', 0)

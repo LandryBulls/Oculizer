@@ -9,7 +9,7 @@
             "modulator": "fft",
             "brightness_range": [1, 255],
             "frequency_range": [10, 500],
-            "power_range": [1, 5],
+            "power_range": [15, 30],
             "color": "white",
             "strobe": 255
         },
@@ -18,10 +18,10 @@
             "type": "rgb",
             "modulator": "fft",
             "brightness": 100,
-            "color": "green",
+            "color": "blue",
             "strobe": 0,
             "frequency_range": [2000, 5000],
-            "power_range": [0, 3],
+            "power_range": [1, 5],
             "brightness_range": [0, 255]
 
         }
