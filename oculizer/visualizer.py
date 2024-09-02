@@ -1,41 +1,55 @@
-import curses
-from audio_listener import AudioListener
+import sys
 import numpy as np
-import sounddevice as sd
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtCore import QTimer
+import pyqtgraph as pg
+from oculizer.audio import AudioListener
 
+class FeatureVisualizer(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Audio Feature Visualizer")
+        self.setGeometry(100, 100, 1200, 800)  # Increased size for better visibility
 
-def main():
-    stdscr = curses.initscr()
-    audio_listener = AudioListener()
-    audio_listener.start()
-    print('Listening to audio...')
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
 
-    try:
-        while True:
-            audio_data = audio_listener.get_audio_data()
-            fft_data = audio_listener.get_fft_data()
-            errors = audio_listener.get_errors()
+        # Create plots for each feature
+        self.plots = {
+            'Spectrogram': pg.PlotWidget(title='Spectrogram'),
+        }
 
-            if errors:
-                print("Errors occurred:", errors)
+        # Set up bar graphs and lock y-axis
+        self.bars = {}
+        for name, plot in self.plots.items():
+            layout.addWidget(plot)
+            plot.setYRange(0, 20)
+            self.bars[name] = plot.plot(pen=None, symbol='o', symbolPen=None, symbolBrush='r')
 
-            if fft_data is not None:
-                # uses curses to display the audio data
-                stdscr.clear()
-                stdscr.addstr(0, 0, f"Audio data: {np.sum(fft_data)}")
-                stdscr.refresh()
-            else:
-                stdscr.addstr(0, 0, "No audio data available")
-                stdscr.refresh()
+        # Initialize AudioListener
+        self.audio_listener = AudioListener()
+        self.audio_listener.start()
 
+        # Set up timer for updating plots
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_plots)
+        self.timer.start(50)  # Update every 50 ms
 
-            sd.sleep(10)  # Small delay to prevent busy-waiting (this is 10 milliseconds)
-    except KeyboardInterrupt:
-        print("Stopping audio listener...")
-    finally:
-        audio_listener.stop()
-        audio_listener.join()
+    def update_plots(self):
+        fft = self.audio_listener.get_fft_data()
+        if fft is not None:
+            # Update mel spectrogram (line plot)
+            self.plots['Spectrogram'].clear()
+            self.plots['Spectrogram'].plot(fft)
+
+    def closeEvent(self, event):
+        self.audio_listener.stop()
+        self.audio_listener.join()
+        event.accept()
 
 if __name__ == '__main__':
-    main()
-    curses.endwin()
+    app = QApplication(sys.argv)
+    visualizer = FeatureVisualizer()
+    visualizer.show()
+    sys.exit(app.exec_())
