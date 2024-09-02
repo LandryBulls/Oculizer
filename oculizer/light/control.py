@@ -133,6 +133,114 @@ class LightController(threading.Thread):
     def stop(self):
         self.running.clear()
 
+## consolidated version
+class AudioLightController(threading.Thread):
+    def __init__(self, profile_name, scene_manager):
+        threading.Thread.__init__(self)
+        self.sample_rate = audio_parameters['SAMPLERATE']
+        self.block_size = audio_parameters['BLOCKSIZE']
+        self.channels = 1
+        self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
+        self.running = threading.Event()
+        self.error_queue = queue.Queue()
+        
+        # Light controller initialization
+        self.profile = load_profile(profile_name)
+        self.light_names = [i['name'] for i in self.profile['lights']]
+        self.dmx_controller, self.controller_dict = load_controller(self.profile)
+        self.scene_manager = scene_manager
+        self.scene_changed = threading.Event()
+
+    def audio_callback(self, indata, frames, time, status):
+        if status:
+            self.error_queue.put(f"Audio callback error: {status}")
+        try:
+            audio_data = indata.copy().flatten()
+            fft_data = np.abs(rfft(audio_data))
+            if self.fft_queue.full():
+                self.fft_queue.get_nowait()  # Discard old data
+            self.fft_queue.put_nowait(fft_data)
+        except Exception as e:
+            self.error_queue.put(f"Error processing audio data: {str(e)}")
+
+    def run(self):
+        self.running.set()
+        try:
+            with sd.InputStream(
+                channels=self.channels,
+                samplerate=self.sample_rate,
+                blocksize=self.block_size,
+                callback=self.audio_callback
+            ):
+                while self.running.is_set():
+                    self.process_audio_and_lights()
+                    time.sleep(0.001)  # Small delay to prevent busy-waiting
+        except Exception as e:
+            self.error_queue.put(f"Error in audio stream: {str(e)}")
+
+    def process_audio_and_lights(self):
+        if self.scene_changed.is_set():
+            self.scene_changed.clear()
+            self.turn_off_all_lights()
+
+        try:
+            fft_data = self.fft_queue.get_nowait()
+        except queue.Empty:
+            return
+
+        current_time = time.time()
+
+        for light in self.scene_manager.current_scene['lights']:
+            if light['name'] not in self.light_names:
+                continue
+
+            dmx_values = process_light(light, fft_data, current_time)
+            
+            if dmx_values is not None:
+                if light['type'] == 'dimmer':
+                    self.controller_dict[light['name']].dim(dmx_values[0])
+                elif light['type'] in ['rgb', 'strobe']:
+                    self.controller_dict[light['name']].set_channels(dmx_values)
+
+    def change_scene(self, scene_name):
+        self.scene_manager.set_scene(scene_name)
+        self.scene_changed.set()
+
+    def turn_off_all_lights(self):
+        for light in self.profile['lights']:
+            if light['type'] == 'dimmer':
+                self.controller_dict[light['name']].dim(0)
+            elif light['type'] == 'rgb':
+                self.controller_dict[light['name']].set_channels([0,0,0,0,0,0])
+            elif light['type'] == 'strobe':
+                self.controller_dict[light['name']].set_channels([0,0])
+
+    def stop(self):
+        self.running.clear()
+
+    def get_errors(self):
+        errors = []
+        while not self.error_queue.empty():
+            errors.append(self.error_queue.get_nowait())
+        return errors
+
+def main():
+    audio_listener = AudioListener()  # Make sure this is imported or defined
+    scene_manager = SceneManager('scenes')
+    light_controller = LightController(audio_listener, 'testing', scene_manager)
+    
+    audio_listener.start()
+    light_controller.start()
+
+    print('Running for 10 seconds')
+    scene_manager.set_scene('testing')
+    time.sleep(10)  
+
+    audio_listener.stop()
+    light_controller.stop()
+    audio_listener.join()
+    light_controller.join()
+
 def main():
     audio_listener = AudioListener()  # Make sure this is imported or defined
     scene_manager = SceneManager('scenes')
