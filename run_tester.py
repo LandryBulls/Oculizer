@@ -10,22 +10,19 @@ import numpy as np
 import curses
 
 #from control import load_json, load_profile, load_controller, LightController
-from oculizer.light import LightController, load_controller, load_json, load_profile
+from oculizer.light import load_controller, load_json, load_profile, Oculizer
 from oculizer.audio import AudioListener
 from oculizer.scenes import SceneManager
 
 stdscr = curses.initscr()
 
 def main():
-    audio_listener = AudioListener()
     scene_manager = SceneManager('scenes')
     scene_manager.set_scene('hell')
-
-    light_controller = LightController(audio_listener, 'testing', scene_manager)
+    light_controller = Oculizer('testing', scene_manager)
 
     scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
 
-    audio_listener.start()
     light_controller.start()
 
     while True:
@@ -36,7 +33,7 @@ def main():
             stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
         
         # Print any errors from the audio listener
-        errors = audio_listener.get_errors()
+        errors = light_controller.get_errors()
         if errors:
             for i, error in enumerate(errors):
                 stdscr.addstr(i+len(scene_manager.scenes)+3, 0, f"Error: {error}")
@@ -45,6 +42,8 @@ def main():
 
         key = stdscr.getch()
         if key == ord('q'):
+            light_controller.stop()
+            light_controller.join()
             break
         elif key in scene_commands:
             try:
