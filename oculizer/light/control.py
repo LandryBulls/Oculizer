@@ -15,14 +15,26 @@ from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.audio import AudioListener
 from oculizer.scenes import SceneManager
 from oculizer.light.mapping import process_light, color_to_index
+from oculizer.config import audio_parameters
 import threading
 import queue
 import os
 import json
 from pathlib import Path
 
-from ..utils import load_json 
+from oculizer.utils import load_json 
 import time
+
+SAMPLERATE = audio_parameters['SAMPLERATE']
+BLOCKSIZE = audio_parameters['BLOCKSIZE']
+
+def get_blackhole_device_idx():
+    devices = sd.query_devices()
+    for i, device in enumerate(devices):
+        if 'BlackHole' in device['name']:
+            return i, device['name']
+    return None, None
+
 
 def load_profile(profile_name):
     current_dir = Path(__file__).resolve().parent
@@ -134,13 +146,14 @@ class LightController(threading.Thread):
         self.running.clear()
 
 ## consolidated version
-class AudioLightController(threading.Thread):
+class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
         threading.Thread.__init__(self)
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.channels = 1
         self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
+        self.device_idx = get_blackhole_device_idx()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
         
@@ -156,7 +169,7 @@ class AudioLightController(threading.Thread):
             self.error_queue.put(f"Audio callback error: {status}")
         try:
             audio_data = indata.copy().flatten()
-            fft_data = np.abs(rfft(audio_data))
+            fft_data = np.abs(rfft(audio_data)) # replace this with librosa soon
             if self.fft_queue.full():
                 self.fft_queue.get_nowait()  # Discard old data
             self.fft_queue.put_nowait(fft_data)
@@ -170,7 +183,8 @@ class AudioLightController(threading.Thread):
                 channels=self.channels,
                 samplerate=self.sample_rate,
                 blocksize=self.block_size,
-                callback=self.audio_callback
+                callback=self.audio_callback, 
+                device=self.device_idx
             ):
                 while self.running.is_set():
                     self.process_audio_and_lights()
@@ -186,7 +200,7 @@ class AudioLightController(threading.Thread):
         try:
             fft_data = self.fft_queue.get_nowait()
         except queue.Empty:
-            return
+            self.error_queue.put("No FFT data available")
 
         current_time = time.time()
 
@@ -225,38 +239,21 @@ class AudioLightController(threading.Thread):
         return errors
 
 def main():
-    audio_listener = AudioListener()  # Make sure this is imported or defined
-    scene_manager = SceneManager('scenes')
-    light_controller = LightController(audio_listener, 'testing', scene_manager)
-    
-    audio_listener.start()
-    light_controller.start()
-
-    print('Running for 10 seconds')
-    scene_manager.set_scene('testing')
-    time.sleep(10)  
-
-    audio_listener.stop()
-    light_controller.stop()
-    audio_listener.join()
-    light_controller.join()
-
-def main():
-    audio_listener = AudioListener()  # Make sure this is imported or defined
-    scene_manager = SceneManager('scenes')
-    light_controller = LightController(audio_listener, 'testing', scene_manager)
-    
-    audio_listener.start()
-    light_controller.start()
-
-    print('Running for 10 seconds')
-    scene_manager.set_scene('testing')
-    time.sleep(10)  
-
-    audio_listener.stop()
-    light_controller.stop()
-    audio_listener.join()
-    light_controller.join()
+    controller = Oculizer('testing', SceneManager('scenes'))
+    controller.start()
+    # print out the audio data
+    try:
+        while True:
+            fft_data = controller.fft_queue.get_nowait()
+            print(f"Audio data: {np.sum(fft_data)}")
+            errors = controller.get_errors()
+            if errors:
+                print("Errors occurred:", errors)
+            time.sleep(0.1)
+    except KeyboardInterrupt:
+        print("Stopping audio listener...")
+    controller.stop()
+    controller.join()
 
 if __name__ == "__main__":
     main()
