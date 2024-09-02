@@ -22,6 +22,8 @@ import os
 import json
 from pathlib import Path
 import sounddevice as sd
+import numpy as np
+from scipy.fftpack import rfft
 
 from oculizer.utils import load_json 
 import time
@@ -79,83 +81,14 @@ def load_controller(profile):
 
     return controller, control_dict
 
-class LightController(threading.Thread):
-    def __init__(self, audio_listener, profile_name, scene_manager):
-        threading.Thread.__init__(self)
-        self.audio_listener = audio_listener
-        self.profile = load_profile(profile_name)
-        self.light_names = [i['name'] for i in self.profile['lights']]
-        self.dmx_controller, self.controller_dict = load_controller(self.profile)
-        self.scene_manager = scene_manager
-        self.running = threading.Event()
-        self.fft_data = None
-        self.scene_changed = threading.Event()
-
-    def turn_off_all_lights(self):
-        for light in self.profile['lights']:
-            if light['type'] == 'dimmer':
-                self.controller_dict[light['name']].dim(0)
-            elif light['type'] == 'rgb':
-                self.controller_dict[light['name']].set_channels([0,0,0,0,0,0])
-            elif light['type'] == 'strobe':
-                self.controller_dict[light['name']].set_channels([0,0])
-
-    def change_scene(self, scene_name):
-        # first turn off all the lights
-        self.turn_off_all_lights()
-        self.scene_manager.set_scene(scene_name)
-        self.scene_changed.set()
-
-    def run(self):
-        self.running.set()
-        while self.running.is_set():
-            if self.scene_changed.is_set():
-                print("Scene changed")
-                self.scene_changed.clear()
-            
-            if not self.audio_listener.fft_queue.empty():
-                try:
-                    self.send_dynamic()
-                except Exception as e:
-                    print(f"Error sending dynamic data: {str(e)}")
-            else:
-                # do nothing
-                pass
-            
-    def send_dynamic(self):
-        try:
-            fft_data = self.audio_listener.fft_queue.get_nowait()
-        except queue.Empty:
-            print("No FFT data available")
-            return
-
-        current_time = time.time()  # Get current time for time-based effects
-
-        for light in self.scene_manager.current_scene['lights']:
-            if light['name'] not in self.light_names:
-                continue
-
-            dmx_values = process_light(light, fft_data, current_time)
-            
-            if dmx_values is not None:
-                if light['type'] == 'dimmer':
-                    self.controller_dict[light['name']].dim(dmx_values)
-                elif light['type'] in ['rgb', 'strobe']:
-                    self.controller_dict[light['name']].set_channels(dmx_values)
-
-    def stop(self):
-        self.running.clear()
-
-## consolidated version
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
         threading.Thread.__init__(self)
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.channels = 1
-        #self.fft_queue = queue.Queue()
         self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
-        self.device_idx = get_blackhole_device_idx()
+        self.device_idx, self.device_name = get_blackhole_device_idx()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
         
@@ -171,10 +104,13 @@ class Oculizer(threading.Thread):
             self.error_queue.put(f"Audio callback error: {status}")
         try:
             audio_data = indata.copy().flatten()
-            fft_data = np.abs(rfft(audio_data)) # replace this with librosa soon
+            fft_data = np.abs(rfft(audio_data))
             if self.fft_queue.full():
-                self.fft_queue.get_nowait()  # Discard old data
-            self.fft_queue.put_nowait(fft_data)
+                try:
+                    self.fft_queue.get_nowait()  # Discard old data
+                except queue.Empty:
+                    pass  # Queue was emptied by another thread, which is fine
+            self.fft_queue.put(fft_data)
         except Exception as e:
             self.error_queue.put(f"Error processing audio data: {str(e)}")
 
@@ -182,11 +118,11 @@ class Oculizer(threading.Thread):
         self.running.set()
         try:
             with sd.InputStream(
+                device=self.device_idx,
                 channels=self.channels,
                 samplerate=self.sample_rate,
                 blocksize=self.block_size,
-                callback=self.audio_callback, 
-                device=self.device_idx
+                callback=self.audio_callback
             ):
                 while self.running.is_set():
                     self.process_audio_and_lights()
@@ -200,9 +136,9 @@ class Oculizer(threading.Thread):
             self.turn_off_all_lights()
 
         try:
-            fft_data = self.fft_queue.get_nowait()
+            fft_data = self.fft_queue.get(block=False)
         except queue.Empty:
-            self.error_queue.put("No FFT data available")
+            return  # No new data, skip this iteration
 
         current_time = time.time()
 
@@ -243,21 +179,20 @@ class Oculizer(threading.Thread):
 def main():
     controller = Oculizer('testing', SceneManager('scenes'))
     controller.start()
-    # print out the audio data
     try:
         while True:
             try:
-                fft_data = controller.fft_queue.get_nowait()
+                fft_data = controller.fft_queue.get(timeout=0.1)
+                print(f"Audio data: {np.sum(fft_data)}")
             except queue.Empty:
                 print("No FFT data available")
-                continue
-            print(f"Audio data: {np.sum(fft_data)}")
+            
             errors = controller.get_errors()
             if errors:
                 print("Errors occurred:", errors)
             time.sleep(0.1)
     except KeyboardInterrupt:
-        print("Stopping audio listener...")
+        print("Stopping Oculizer...")
     controller.stop()
     controller.join()
 
