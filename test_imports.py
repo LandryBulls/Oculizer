@@ -1,4 +1,4 @@
-from oculizer import AudioListener, LightController, SceneManager
+from oculizer import AudioListener, LightController, SceneManager, AudioLightController
 from oculizer.config import audio_parameters
 import time
 

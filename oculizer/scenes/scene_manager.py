@@ -3,6 +3,8 @@ import json
 
 class SceneManager:
     def __init__(self, scenes_directory):
+        # two dirs up from the current file
+        scenes_directory = os.path.join(os.path.dirname(__file__), '..', '..', scenes_directory)
         self.scenes = self.load_json_files(scenes_directory)
         self.current_scene = self.scenes[list(self.scenes.keys())[0]]
 

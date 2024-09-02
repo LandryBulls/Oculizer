@@ -59,10 +59,6 @@ def main():
         
         stdscr.refresh()
 
-    audio_listener.stop()
-    light_controller.stop()
-    audio_listener.join()
-    light_controller.join()
     curses.endwin()
 
 if __name__ == '__main__':

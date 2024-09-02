@@ -21,6 +21,7 @@ import queue
 import os
 import json
 from pathlib import Path
+import sounddevice as sd
 
 from oculizer.utils import load_json 
 import time
@@ -152,6 +153,7 @@ class Oculizer(threading.Thread):
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.channels = 1
+        #self.fft_queue = queue.Queue()
         self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
         self.device_idx = get_blackhole_device_idx()
         self.running = threading.Event()
@@ -244,7 +246,11 @@ def main():
     # print out the audio data
     try:
         while True:
-            fft_data = controller.fft_queue.get_nowait()
+            try:
+                fft_data = controller.fft_queue.get_nowait()
+            except queue.Empty:
+                print("No FFT data available")
+                continue
             print(f"Audio data: {np.sum(fft_data)}")
             errors = controller.get_errors()
             if errors:
