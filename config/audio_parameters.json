@@ -1,4 +1,5 @@
 {
     "SAMPLERATE": 16000,
-    "BLOCKSIZE": 1024
+    "BLOCKSIZE": 1024,
+    "HOP_LENGTH": 512
 }
