@@ -51,7 +51,7 @@ class FeatureVisualizer(QMainWindow):
         # Set up timer for updating plots
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_plot)
-        self.timer.start(50)  # Update every 50 ms
+        self.timer.start(10)  # Update every 10 ms
 
     def update_plot(self):
         mfcc = self.controller.get_features()

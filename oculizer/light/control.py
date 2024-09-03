@@ -24,7 +24,7 @@ from pathlib import Path
 import sounddevice as sd
 import numpy as np
 from scipy.fftpack import rfft
-from librosa.feature import mfcc
+from librosa.feature import melspectrogram, mfcc
 
 from oculizer.utils import load_json 
 import time
@@ -39,9 +39,6 @@ def get_blackhole_device_idx():
             return i, device['name']
     return None, None
 
-# def get_features(audio_data):
-#     return np.abs(rfft(audio_data))
-
 def load_profile(profile_name):
     current_dir = Path(__file__).resolve().parent
     project_root = current_dir.parent.parent
@@ -51,7 +48,7 @@ def load_profile(profile_name):
     
     return profile
 
-def get_features(audio_data, sr, n_mfcc=13):
+def get_mfcc(audio_data, sr, n_mfcc=13):
 
     try:
         mfcc_features = mfcc(y=audio_data, sr=sr, n_mfcc=n_mfcc)
@@ -64,6 +61,15 @@ def get_features(audio_data, sr, n_mfcc=13):
     feature_vector = np.concatenate([mfcc_mean])#, mfcc_std])
     
     return feature_vector
+
+def get_fft(audio_data):
+    return np.abs(rfft(audio_data))
+
+def get_mel_spectrogram(audio_data, sr):
+    try:
+        mel_spectrogram = melspectrogram(y=audio_data, sr=sr)
+    except Exception as e:
+        return None
 
 def load_controller(profile):
     try:
@@ -106,7 +112,7 @@ class Oculizer(threading.Thread):
         self.block_size = audio_parameters['BLOCKSIZE']
         self.n_mfcc = n_mfcc
         self.channels = channels
-        #self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
+        self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
         self.mfcc_queue = queue.Queue(maxsize=1)  # Only keep the most recent MFCC data
         self.device_idx, self.device_name = get_blackhole_device_idx()
         self.running = threading.Event()
@@ -136,6 +142,17 @@ class Oculizer(threading.Thread):
         except Exception as e:
             self.error_queue.put(f"Error processing audio data: {str(e)}")
 
+        try:
+            fft_data = get_fft(audio_data)
+            if self.fft_queue.full():
+                try:
+                    self.fft_queue.get_nowait()  # Discard old data
+                except queue.Empty:
+                    pass  # Queue was emptied by another thread, which is fine
+            self.fft_queue.put(fft_data)
+        except Exception as e:
+            self.error_queue.put(f"Error processing FFT data: {str(e)}")
+
     def run(self):
         self.running.set()
         try:
@@ -162,6 +179,7 @@ class Oculizer(threading.Thread):
 
         try:
             mfcc_data = self.mfcc_queue.get(block=False)
+            fft_data = self.fft_queue.get(block=False)
         except queue.Empty:
             return  # No new data, skip this iteration
 
@@ -201,11 +219,17 @@ class Oculizer(threading.Thread):
             errors.append(self.error_queue.get_nowait())
         return errors
 
-    def get_features(self):
+    def get_mfcc(self):
         try:
-            return self.mfcc_queue.get_nowait()
+            return self.mfcc_queue.get(timeout=0.1)
         except queue.Empty:
             return None
+
+    def get_fft(self):
+        try:
+            return self.fft_queue.get(timeout=0.1)
+        except queue.Empty:
+            return None 
 
 def main():
     scene_manager = SceneManager('scenes')
