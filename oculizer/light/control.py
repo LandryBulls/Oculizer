@@ -119,6 +119,7 @@ class Oculizer(threading.Thread):
         self.dmx_controller, self.controller_dict = load_controller(self.profile)
         self.scene_manager = SceneManager('scenes')
         self.scene_changed = threading.Event()
+        self.lights = True # Whether to control lights or not
 
     def audio_callback(self, indata, frames, time, status):
         if status:
@@ -146,8 +147,11 @@ class Oculizer(threading.Thread):
                 callback=self.audio_callback
             ):
                 while self.running.is_set():
-                    self.process_audio_and_lights()
-                    time.sleep(0.001)  # Small delay to prevent busy-waiting
+                    if self.lights:
+                        self.process_audio_and_lights()
+                        time.sleep(0.001)  # Small delay to prevent busy-waiting
+                    else:
+                        time.sleep(0.1)
         except Exception as e:
             self.error_queue.put(f"Error in audio stream: {str(e)}")
 
