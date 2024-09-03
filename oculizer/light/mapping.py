@@ -43,7 +43,6 @@ def mfcc_to_rgb(mfcc_vec, mfcc_range, power_range, brightness_range, color, stro
     
     return [brightness, color[0], color[1], color[2], strobe, 0]
 
-
 def mfcc_to_dimmer(mfcc_vec, mfcc_range, prange, brange):
     freq_low, freq_high = freq_to_index(frange[0]), freq_to_index(frange[1])
     mfcc_mean = np.mean(mfcc_vec[freq_low:freq_high])
