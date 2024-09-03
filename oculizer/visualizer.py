@@ -1,25 +1,24 @@
 import curses
-from audio_listener import AudioListener
+from oculizer import Oculizer
 import numpy as np
 import sounddevice as sd
 
 
 def main():
     stdscr = curses.initscr()
-    audio_listener = AudioListener()
-    audio_listener.start()
-    print('Listening to audio...')
+    oculizer = Oculizer('testing')
+    print('Starting oculizer...')
+    oculizer.start()
 
     try:
         while True:
-            audio_data = audio_listener.get_audio_data()
-            fft_data = audio_listener.get_fft_data()
+            mfcc_data = audio_listener.get_mfcc_data()
             errors = audio_listener.get_errors()
 
             if errors:
                 print("Errors occurred:", errors)
 
-            if fft_data is not None:
+            if mfcc_data is not None:
                 # uses curses to display the audio data
                 stdscr.clear()
                 stdscr.addstr(0, 0, f"Audio data: {np.sum(fft_data)}")
