@@ -6,22 +6,22 @@
         {
             "name": "rgb1", 
             "type": "rgb",
-            "modulator": "fft",
+            "modulator": "mfcc",
             "brightness_range": [1, 255],
-            "frequency_range": [10, 500],
-            "power_range": [20,50],
+            "mfcc_range": [1, 2],
+            "power_range": [100,200],
             "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb2",
             "type": "rgb",
-            "modulator": "fft",
+            "modulator": "mfcc",
             "brightness": 100,
             "color": "green",
             "strobe": 0,
-            "frequency_range": [2000, 5000],
-            "power_range": [0, 3],
+            "mfcc_range": [10, 12],
+            "power_range": [100,200],
             "brightness_range": [0, 255]
 
         }
