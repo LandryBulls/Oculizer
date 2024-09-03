@@ -39,8 +39,8 @@ def get_blackhole_device_idx():
             return i, device['name']
     return None, None
 
-def get_features(audio_data):
-    return np.abs(rfft(audio_data))
+# def get_features(audio_data):
+#     return np.abs(rfft(audio_data))
 
 def load_profile(profile_name):
     current_dir = Path(__file__).resolve().parent
@@ -119,7 +119,7 @@ class Oculizer(threading.Thread):
         self.dmx_controller, self.controller_dict = load_controller(self.profile)
         self.scene_manager = SceneManager('scenes')
         self.scene_changed = threading.Event()
-        self.lights = True # Whether to control lights or not
+        self.control_lights = True # Whether to control lights or not
 
     def audio_callback(self, indata, frames, time, status):
         if status:
@@ -147,7 +147,7 @@ class Oculizer(threading.Thread):
                 callback=self.audio_callback
             ):
                 while self.running.is_set():
-                    if self.lights:
+                    if self.control_lights:
                         self.process_audio_and_lights()
                         time.sleep(0.001)  # Small delay to prevent busy-waiting
                     else:
@@ -200,6 +200,12 @@ class Oculizer(threading.Thread):
         while not self.error_queue.empty():
             errors.append(self.error_queue.get_nowait())
         return errors
+
+    def get_features(self):
+        try:
+            return self.mfcc_queue.get_nowait()
+        except queue.Empty:
+            return None
 
 def main():
     scene_manager = SceneManager('scenes')
