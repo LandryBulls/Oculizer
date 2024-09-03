@@ -197,9 +197,8 @@ class Oculizer(threading.Thread):
         return errors
 
 def main():
-    scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('hell')
     controller = Oculizer('testing', scene_manager)
+    controller.scene_manager.set_scene('hell')
     print("Starting Oculizer...")
     controller.start()
     try:
