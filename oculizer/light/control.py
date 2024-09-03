@@ -99,7 +99,7 @@ def load_controller(profile):
     return controller, control_dict
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1, n_mfcc=13):
+    def __init__(self, profile_name, scene_manager, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1, n_mfcc=13):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.sample_rate = audio_parameters['SAMPLERATE']
@@ -111,6 +111,7 @@ class Oculizer(threading.Thread):
         self.device_idx, self.device_name = get_blackhole_device_idx()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
+        self.scene_manager = scene_manager
         
         # Light controller initialization
         self.profile = load_profile(self.profile_name)
@@ -197,8 +198,9 @@ class Oculizer(threading.Thread):
         return errors
 
 def main():
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('hell')
     controller = Oculizer('testing', scene_manager)
-    controller.scene_manager.set_scene('hell')
     print("Starting Oculizer...")
     controller.start()
     try:

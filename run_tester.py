@@ -17,7 +17,7 @@ from oculizer.scenes import SceneManager
 stdscr = curses.initscr()
 
 def main():
-    scene_manager = SceneManager('scenes')
+    scene_manager = SceneManager()
     scene_manager.set_scene('hell')
     light_controller = Oculizer('testing', scene_manager)
 
