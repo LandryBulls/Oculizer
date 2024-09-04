@@ -9,3 +9,4 @@ def load_audio_parameters():
         return json.load(f)
 
 audio_parameters = load_audio_parameters()
+audio_parameters['HOP_LENGTH'] = int(audio_parameters['BLOCKSIZE'] / 2)

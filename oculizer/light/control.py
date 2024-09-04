@@ -31,6 +31,7 @@ import time
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
+HOP_Length = audio_parameters['HOP_LENGTH']
 
 def get_blackhole_device_idx():
     devices = sd.query_devices()
@@ -65,10 +66,12 @@ def get_mfcc(audio_data, sr, n_mfcc=13):
 def get_fft(audio_data):
     return np.abs(rfft(audio_data))
 
-def get_mel_spectrogram(audio_data, sr):
+def get_mfft(audio_data, sr):
     try:
-        mel_spectrogram = melspectrogram(y=audio_data, sr=sr)
+        return np.mean(melspectrogram(y=audio_data, sr=sr, n_fft=audio_parameters['BLOCKSIZE'], hop_length=audio_parameters['HOP_LENGTH']), axis=1)
+
     except Exception as e:
+        print(f'Error getting MFFT: {str(e)}')
         return None
 
 def load_controller(profile):
@@ -105,15 +108,17 @@ def load_controller(profile):
     return controller, control_dict
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1, n_mfcc=13):
+    def __init__(self, profile_name, scene_manager, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, hop_length=audio_parameters['HOP_LENGTH'], channels=1):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
-        self.n_mfcc = n_mfcc
+        self.hop_length = audio_parameters['HOP_LENGTH']
         self.channels = channels
-        self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
-        self.mfcc_queue = queue.Queue(maxsize=1)  # Only keep the most recent MFCC data
+        #self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
+        #self.mfcc_queue = queue.Queue(maxsize=1)  # Only keep the most recent MFCC data
+        self.audio_queue = queue.Queue(maxsize=1)
+        self.mfft_queue = queue.Queue(maxsize=1)
         self.device_idx, self.device_name = get_blackhole_device_idx()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
@@ -130,28 +135,41 @@ class Oculizer(threading.Thread):
     def audio_callback(self, indata, frames, time, status):
         if status:
             self.error_queue.put(f"Audio callback error: {status}")
+
         try:
             audio_data = indata.copy().flatten()
-            mfcc_data = get_features(audio_data, self.sample_rate, self.n_mfcc)
-            if self.mfcc_queue.full():
+            if self.audio_queue.full():
                 try:
-                    self.mfcc_queue.get_nowait()  # Discard old data
+                    self.audio_queue.get_nowait()  # Discard old data
                 except queue.Empty:
-                    pass  # Queue was emptied by another thread, which is fine
-            self.mfcc_queue.put(mfcc_data)
+                    pass
+            self.audio_queue.put(audio_data)
+
         except Exception as e:
             self.error_queue.put(f"Error processing audio data: {str(e)}")
 
         try:
-            fft_data = get_fft(audio_data)
-            if self.fft_queue.full():
+            mfft_data = get_mfft(audio_data, self.sample_rate)
+            if self.mfft_queue.full():
                 try:
-                    self.fft_queue.get_nowait()  # Discard old data
+                    self.mfft_queue.get_nowait()  # Discard old data
                 except queue.Empty:
                     pass  # Queue was emptied by another thread, which is fine
-            self.fft_queue.put(fft_data)
+            self.mfft_queue.put(mfft_data)
+
         except Exception as e:
-            self.error_queue.put(f"Error processing FFT data: {str(e)}")
+            self.error_queue.put(f"Error processing MFFT data: {str(e)}")
+
+        # try:
+        #     fft_data = get_fft(audio_data)
+        #     if self.fft_queue.full():
+        #         try:
+        #             self.fft_queue.get_nowait()  # Discard old data
+        #         except queue.Empty:
+        #             pass  # Queue was emptied by another thread, which is fine
+        #     self.fft_queue.put(fft_data)
+        # except Exception as e:
+        #     self.error_queue.put(f"Error processing FFT data: {str(e)}")
 
     def run(self):
         self.running.set()
@@ -178,8 +196,9 @@ class Oculizer(threading.Thread):
             self.turn_off_all_lights()
 
         try:
-            mfcc_data = self.mfcc_queue.get(block=False)
-            fft_data = self.fft_queue.get(block=False)
+            #mfcc_data = self.mfcc_queue.get(block=False)
+            #fft_data = self.fft_queue.get(block=False)
+            mfft_data = self.mfft_queue.get(block=False)
         except queue.Empty:
             return  # No new data, skip this iteration
 
@@ -189,7 +208,8 @@ class Oculizer(threading.Thread):
             if light['name'] not in self.light_names:
                 continue
 
-            dmx_values = process_light(light, mfcc_data, current_time)
+            #dmx_values = process_light(light, mfcc_data, current_time)
+            dmx_values = process_light(light, mfft_data, current_time)
             
             if dmx_values is not None:
                 if light['type'] == 'dimmer':
@@ -219,17 +239,23 @@ class Oculizer(threading.Thread):
             errors.append(self.error_queue.get_nowait())
         return errors
 
-    def get_mfcc(self):
+    # def get_mfcc(self):
+    #     try:
+    #         return self.mfcc_queue.get(timeout=0.1)
+    #     except queue.Empty:
+    #         return None
+
+    # def get_fft(self):
+    #     try:
+    #         return self.fft_queue.get(timeout=0.1)
+    #     except queue.Empty:
+    #         return None 
+
+    def get_mfft(self):
         try:
-            return self.mfcc_queue.get(timeout=0.1)
+            return self.mfft_queue.get(timeout=0.1)
         except queue.Empty:
             return None
-
-    def get_fft(self):
-        try:
-            return self.fft_queue.get(timeout=0.1)
-        except queue.Empty:
-            return None 
 
 def main():
     scene_manager = SceneManager('scenes')
@@ -240,11 +266,16 @@ def main():
     try:
         while True:
             try:
-                mfcc_data = controller.mfcc_queue.get(timeout=0.1)
-                print(mfcc_data)
+                mfft_data = controller.get_mfft()
+                print(mfft_data)
+                print("MFFT data shape: ", mfft_data.shape)
                 time.sleep(0.1)
 
             except queue.Empty:
+                pass
+
+            except Exception as e:
+                print(f"Error processing audio data: {str(e)}")
                 pass
 
             except KeyboardInterrupt:
