@@ -4,6 +4,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
 from PyQt5.QtCore import QTimer
 import pyqtgraph as pg
 from oculizer import Oculizer, SceneManager
+from oculizer.config import audio_parameters
+
+nmfft = audio_parameters['NMFFT']
 
 class FeatureVisualizer(QMainWindow):
     def __init__(self):
@@ -17,13 +20,13 @@ class FeatureVisualizer(QMainWindow):
 
         # Create two plots: one for energy, one for other coefficients
         self.energy_plot = pg.PlotWidget(title='mfft Energy Term (Coefficient 0)')
-        self.coeff_plot = pg.PlotWidget(title='mfft Coefficients 1-12')
+        self.coeff_plot = pg.PlotWidget(title='Mel-scaled FFT Coefficients')
         layout.addWidget(self.energy_plot)
         layout.addWidget(self.coeff_plot)
 
         # Set up bar graphs
         self.energy_bar = pg.BarGraphItem(x=[0], height=[0], width=0.8, brush='r')
-        self.coeff_bars = pg.BarGraphItem(x=range(12), height=[0]*12, width=0.8, brush='b')
+        self.coeff_bars = pg.BarGraphItem(x=range(nmfft), height=[0]*nmfft, width=0.8, brush='b')
         self.energy_plot.addItem(self.energy_bar)
         self.coeff_plot.addItem(self.coeff_bars)
 
@@ -31,21 +34,20 @@ class FeatureVisualizer(QMainWindow):
         self.energy_plot.setLabel('left', 'Magnitude')
         self.energy_plot.showGrid(y=True)
         self.energy_plot.setYRange(0, 100)  # Adjust based on your typical energy values
-        self.energy_plot.setXRange(-0.5, 0.5)
+        self.energy_plot.setXRange(0, nmfft)
         self.energy_plot.getAxis('bottom').setTicks([[(0, 'Energy')]])
 
         self.coeff_plot.setLabel('left', 'Magnitude')
         self.coeff_plot.setLabel('bottom', 'mfft Coefficient')
         self.coeff_plot.showGrid(y=True)
         self.coeff_plot.setYRange(0, 20)  # Adjust based on your typical coefficient values
-        self.coeff_plot.setXRange(-0.5, 11.5)
+        self.coeff_plot.setXRange(-0.5, nmfft+0.5)
         x_axis = self.coeff_plot.getAxis('bottom')
-        x_axis.setTicks([[(i, str(i+1)) for i in range(12)]])
+        x_axis.setTicks([[(i, str(i+1)) for i in range(nmfft)]])
 
         # Initialize Oculizer controller
         scene_manager = SceneManager('scenes')
         self.controller = Oculizer('testing', scene_manager)
-        self.controller.control_lights = False
         self.controller.start()
 
         # Set up timer for updating plots
@@ -54,13 +56,13 @@ class FeatureVisualizer(QMainWindow):
         self.timer.start(10)  # Update every 10 ms
 
     def update_plot(self):
-        mfft = self.controller.get_features()
-        if mfft is not None and len(mfft) == 13:
+        mfft = self.controller.mfft_queue.get()
+        if mfft is not None and len(mfft) == nmfft:
             # Update energy term (first coefficient)
             self.energy_bar.setOpts(height=[mfft[0]])
             
             # Update other mfft coefficients
-            self.coeff_bars.setOpts(height=mfft[1:])
+            self.coeff_bars.setOpts(height=mfft)
 
     def closeEvent(self, event):
         self.controller.stop()
