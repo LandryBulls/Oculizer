@@ -8,7 +8,7 @@ from oculizer import Oculizer, SceneManager
 class FeatureVisualizer(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("MFCC Feature Visualizer")
+        self.setWindowTitle("mfft Feature Visualizer")
         self.setGeometry(100, 100, 1000, 800)
 
         central_widget = QWidget()
@@ -16,8 +16,8 @@ class FeatureVisualizer(QMainWindow):
         layout = QVBoxLayout(central_widget)
 
         # Create two plots: one for energy, one for other coefficients
-        self.energy_plot = pg.PlotWidget(title='MFCC Energy Term (Coefficient 0)')
-        self.coeff_plot = pg.PlotWidget(title='MFCC Coefficients 1-12')
+        self.energy_plot = pg.PlotWidget(title='mfft Energy Term (Coefficient 0)')
+        self.coeff_plot = pg.PlotWidget(title='mfft Coefficients 1-12')
         layout.addWidget(self.energy_plot)
         layout.addWidget(self.coeff_plot)
 
@@ -35,7 +35,7 @@ class FeatureVisualizer(QMainWindow):
         self.energy_plot.getAxis('bottom').setTicks([[(0, 'Energy')]])
 
         self.coeff_plot.setLabel('left', 'Magnitude')
-        self.coeff_plot.setLabel('bottom', 'MFCC Coefficient')
+        self.coeff_plot.setLabel('bottom', 'mfft Coefficient')
         self.coeff_plot.showGrid(y=True)
         self.coeff_plot.setYRange(0, 20)  # Adjust based on your typical coefficient values
         self.coeff_plot.setXRange(-0.5, 11.5)
@@ -54,13 +54,13 @@ class FeatureVisualizer(QMainWindow):
         self.timer.start(10)  # Update every 10 ms
 
     def update_plot(self):
-        mfcc = self.controller.get_features()
-        if mfcc is not None and len(mfcc) == 13:
+        mfft = self.controller.get_features()
+        if mfft is not None and len(mfft) == 13:
             # Update energy term (first coefficient)
-            self.energy_bar.setOpts(height=[mfcc[0]])
+            self.energy_bar.setOpts(height=[mfft[0]])
             
-            # Update other MFCC coefficients
-            self.coeff_bars.setOpts(height=mfcc[1:])
+            # Update other mfft coefficients
+            self.coeff_bars.setOpts(height=mfft[1:])
 
     def closeEvent(self, event):
         self.controller.stop()

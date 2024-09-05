@@ -8,168 +8,81 @@ Author: Landry Bulls
 Date: 8/20/24
 """
 
+import numpy as np
+import sounddevice as sd
+from librosa.feature import melspectrogram
 from PyDMXControl.controllers import OpenDMXController
-from PyDMXControl.profiles.Generic import Dimmer, Custom
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
-from oculizer.audio import AudioListener
 from oculizer.scenes import SceneManager
-from oculizer.light.mapping import process_light, color_to_index
+from oculizer.light.mapping import process_light
 from oculizer.config import audio_parameters
+from oculizer.utils import load_json
 import threading
 import queue
-import os
-import json
-from pathlib import Path
-import sounddevice as sd
-import numpy as np
-from scipy.fftpack import rfft
-from librosa.feature import melspectrogram, mfcc
-
-from oculizer.utils import load_json 
 import time
-
-SAMPLERATE = audio_parameters['SAMPLERATE']
-BLOCKSIZE = audio_parameters['BLOCKSIZE']
-HOP_Length = audio_parameters['HOP_LENGTH']
-
-def get_blackhole_device_idx():
-    devices = sd.query_devices()
-    for i, device in enumerate(devices):
-        if 'BlackHole' in device['name']:
-            return i, device['name']
-    return None, None
-
-def load_profile(profile_name):
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent.parent
-    profile_path = project_root / 'profiles' / f'{profile_name}.json'
-    with open(profile_path, 'r') as f:
-        profile = json.load(f)
-    
-    return profile
-
-def get_mfcc(audio_data, sr, n_mfcc=13):
-
-    try:
-        mfcc_features = mfcc(y=audio_data, sr=sr, n_mfcc=n_mfcc)
-    except Exception as e:
-        return None
-    mfcc_mean = np.mean(np.abs(mfcc_features), axis=1)
-    #mfcc_std = np.std(mfcc_features, axis=1)
-    
-    # Concatenate mean and std to get a feature vector
-    feature_vector = np.concatenate([mfcc_mean])#, mfcc_std])
-    
-    return feature_vector
-
-def get_fft(audio_data):
-    return np.abs(rfft(audio_data))
-
-def get_mfft(audio_data, sr):
-    try:
-        return np.mean(melspectrogram(y=audio_data, sr=sr, n_fft=audio_parameters['BLOCKSIZE'], hop_length=audio_parameters['HOP_LENGTH']), axis=1)
-
-    except Exception as e:
-        print(f'Error getting MFFT: {str(e)}')
-        return None
-
-def load_controller(profile):
-    try:
-        controller = OpenDMXController()
-    except Exception as e:
-        print(f"Error loading DMX controller: {str(e)}")
-        return None, None
-    control_dict = {}
-    curr_channel = 1
-    for light in profile['lights']:
-        if light['type'] == 'dimmer':
-            control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
-            # flash the light to make sure it's working
-            control_dict[light['name']].dim(255)
-            time.sleep(0.5)
-            control_dict[light['name']].dim(0)
-            curr_channel += 1
-        elif light['type'] == 'rgb':
-            control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
-            # flash the light to make sure it's working
-            control_dict[light['name']].set_channels([255,255,255,255,0,0])
-            time.sleep(0.5)
-            control_dict[light['name']].set_channels([0,0,0,0,0,0])
-            curr_channel += 6
-        elif light['type'] == 'strobe':
-            control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
-            # flash the light to make sure it's working
-            control_dict[light['name']].set_channels([255,255])
-            time.sleep(0.5)
-            control_dict[light['name']].set_channels([0,0])
-            curr_channel += 2
-
-    return controller, control_dict
+from pathlib import Path
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, hop_length=audio_parameters['HOP_LENGTH'], channels=1):
+    def __init__(self, profile_name, scene_manager):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.hop_length = audio_parameters['HOP_LENGTH']
-        self.channels = channels
-        #self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
-        #self.mfcc_queue = queue.Queue(maxsize=1)  # Only keep the most recent MFCC data
-        self.audio_queue = queue.Queue(maxsize=1)
+        self.channels = 1
         self.mfft_queue = queue.Queue(maxsize=1)
-        self.device_idx, self.device_name = get_blackhole_device_idx()
+        self.device_idx = self._get_blackhole_device_idx()
         self.running = threading.Event()
-        self.error_queue = queue.Queue()
         self.scene_manager = scene_manager
-        
-        # Light controller initialization
-        self.profile = load_profile(self.profile_name)
+        self.profile = self._load_profile()
         self.light_names = [i['name'] for i in self.profile['lights']]
-        self.dmx_controller, self.controller_dict = load_controller(self.profile)
-        self.scene_manager = SceneManager('scenes')
+        self.dmx_controller, self.controller_dict = self._load_controller()
         self.scene_changed = threading.Event()
-        self.control_lights = True # Whether to control lights or not
+
+    def _get_blackhole_device_idx(self):
+        devices = sd.query_devices()
+        for i, device in enumerate(devices):
+            if 'BlackHole' in device['name']:
+                return i
+        return None
+
+    def _load_profile(self):
+        current_dir = Path(__file__).resolve().parent
+        project_root = current_dir.parent.parent
+        profile_path = project_root / 'profiles' / f'{self.profile_name}.json'
+        return load_json(profile_path)
+
+    def _load_controller(self):
+        controller = OpenDMXController()
+        control_dict = {}
+        curr_channel = 1
+        for light in self.profile['lights']:
+            if light['type'] == 'dimmer':
+                control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
+                curr_channel += 1
+            elif light['type'] == 'rgb':
+                control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
+                curr_channel += 6
+            elif light['type'] == 'strobe':
+                control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
+                curr_channel += 2
+        return controller, control_dict
 
     def audio_callback(self, indata, frames, time, status):
         if status:
-            self.error_queue.put(f"Audio callback error: {status}")
-
-        try:
-            audio_data = indata.copy().flatten()
-            if self.audio_queue.full():
-                try:
-                    self.audio_queue.get_nowait()  # Discard old data
-                except queue.Empty:
-                    pass
-            self.audio_queue.put(audio_data)
-
-        except Exception as e:
-            self.error_queue.put(f"Error processing audio data: {str(e)}")
-
-        try:
-            mfft_data = get_mfft(audio_data, self.sample_rate)
-            if self.mfft_queue.full():
-                try:
-                    self.mfft_queue.get_nowait()  # Discard old data
-                except queue.Empty:
-                    pass  # Queue was emptied by another thread, which is fine
-            self.mfft_queue.put(mfft_data)
-
-        except Exception as e:
-            self.error_queue.put(f"Error processing MFFT data: {str(e)}")
-
-        # try:
-        #     fft_data = get_fft(audio_data)
-        #     if self.fft_queue.full():
-        #         try:
-        #             self.fft_queue.get_nowait()  # Discard old data
-        #         except queue.Empty:
-        #             pass  # Queue was emptied by another thread, which is fine
-        #     self.fft_queue.put(fft_data)
-        # except Exception as e:
-        #     self.error_queue.put(f"Error processing FFT data: {str(e)}")
+            print(f"Audio callback error: {status}")
+            return
+        
+        audio_data = indata.copy().flatten()
+        mfft_data = np.mean(melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
+        
+        if self.mfft_queue.full():
+            try:
+                self.mfft_queue.get_nowait()
+            except queue.Empty:
+                pass
+        self.mfft_queue.put(mfft_data)
 
     def run(self):
         self.running.set()
@@ -182,13 +95,11 @@ class Oculizer(threading.Thread):
                 callback=self.audio_callback
             ):
                 while self.running.is_set():
-                    if self.control_lights:
-                        self.process_audio_and_lights()
-                        time.sleep(0.001)  # Small delay to prevent busy-waiting
-                    else:
-                        time.sleep(0.1)
+                    self.process_audio_and_lights()
+                    time.sleep(0.001)
         except Exception as e:
-            self.error_queue.put(f"Error in audio stream: {str(e)}")
+            print(f"Error in audio stream: {str(e)}")
+            print(f"Origin script: {e.__traceback__.tb_frame.f_globals['__file__']}")    
 
     def process_audio_and_lights(self):
         if self.scene_changed.is_set():
@@ -196,11 +107,9 @@ class Oculizer(threading.Thread):
             self.turn_off_all_lights()
 
         try:
-            #mfcc_data = self.mfcc_queue.get(block=False)
-            #fft_data = self.fft_queue.get(block=False)
             mfft_data = self.mfft_queue.get(block=False)
         except queue.Empty:
-            return  # No new data, skip this iteration
+            return
 
         current_time = time.time()
 
@@ -208,7 +117,6 @@ class Oculizer(threading.Thread):
             if light['name'] not in self.light_names:
                 continue
 
-            #dmx_values = process_light(light, mfcc_data, current_time)
             dmx_values = process_light(light, mfft_data, current_time)
             
             if dmx_values is not None:
@@ -225,65 +133,25 @@ class Oculizer(threading.Thread):
         for light in self.profile['lights']:
             if light['type'] == 'dimmer':
                 self.controller_dict[light['name']].dim(0)
-            elif light['type'] == 'rgb':
+            elif light['type'] in ['rgb', 'strobe']:
                 self.controller_dict[light['name']].set_channels([0,0,0,0,0,0])
-            elif light['type'] == 'strobe':
-                self.controller_dict[light['name']].set_channels([0,0])
 
     def stop(self):
         self.running.clear()
 
-    def get_errors(self):
-        errors = []
-        while not self.error_queue.empty():
-            errors.append(self.error_queue.get_nowait())
-        return errors
-
-    # def get_mfcc(self):
-    #     try:
-    #         return self.mfcc_queue.get(timeout=0.1)
-    #     except queue.Empty:
-    #         return None
-
-    # def get_fft(self):
-    #     try:
-    #         return self.fft_queue.get(timeout=0.1)
-    #     except queue.Empty:
-    #         return None 
-
-    def get_mfft(self):
-        try:
-            return self.mfft_queue.get(timeout=0.1)
-        except queue.Empty:
-            return None
-
 def main():
+    # init scene manager
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('hell')
+    # set the initial scene to the test scene
+    scene_manager.set_scene('testing')  
+    # init the light controller with the name of the profile and the scene manager
     controller = Oculizer('testing', scene_manager)
     print("Starting Oculizer...")
     controller.start()
+    
     try:
         while True:
-            try:
-                mfft_data = controller.get_mfft()
-                print(mfft_data)
-                print("MFFT data shape: ", mfft_data.shape)
-                time.sleep(0.1)
-
-            except queue.Empty:
-                pass
-
-            except Exception as e:
-                print(f"Error processing audio data: {str(e)}")
-                pass
-
-            except KeyboardInterrupt:
-                print("Stopping Oculizer...")
-                controller.stop()
-                controller.join()
-                break
-
+            time.sleep(1)  # Main thread does nothing but keep the program alive
     except KeyboardInterrupt:
         print("Stopping Oculizer...")
         controller.stop()

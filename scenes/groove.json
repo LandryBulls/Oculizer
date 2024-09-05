@@ -6,9 +6,9 @@
         {
             "name": "rgb1", 
             "type": "rgb",
-            "modulator": "mfcc",
+            "modulator": "mfft",
             "brightness_range": [0, 255],
-            "mfcc_range": [1, 3],
+            "mfft_range": [1, 3],
             "power_range": [2, 15],
             "color": "pink",
             "strobe": 0
@@ -16,11 +16,11 @@
         {
             "name": "rgb2",
             "type": "rgb",
-            "modulator": "mfcc",
+            "modulator": "mfft",
             "brightness": 100,
             "color": "white",
             "strobe": 255,
-            "mfcc_range": [10, 13],
+            "mfft_range": [10, 13],
             "power_range": [0, 1],
             "brightness_range": [0, 255]
 

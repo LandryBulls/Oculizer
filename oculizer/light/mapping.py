@@ -29,29 +29,37 @@ def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
 def freq_to_index(freq):
     return int(freq * BLOCKSIZE / SAMPLERATE)
 
-def mfcc_to_brightness(mfcc_vec, mfcc_range, power_range, brightness_range):
-    mfcc_low, mfcc_high = mfcc_range
-    mfcc_mean = np.mean(mfcc_vec[mfcc_low:mfcc_high])
-    return power_to_brightness(mfcc_mean, power_range[0], power_range[1], brightness_range[0], brightness_range[1])
+def power_to_brightness(power, power_low, power_high, brightness_low, brightness_high):
+    if power < power_low:
+        return brightness_low
+    elif power > power_high:
+        return brightness_high
+    else:
+        return int((power - power_low) / (power_high - power_low) * (brightness_high - brightness_low) + brightness_low)
 
-def mfcc_to_rgb(mfcc_vec, mfcc_range, power_range, brightness_range, color, strobe):
-    brightness = mfcc_to_brightness(mfcc_vec, mfcc_range, power_range, brightness_range)
+def mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range):
+    mfft_low, mfft_high = mfft_range
+    mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+    return power_to_brightness(mfft_mean, power_range[0], power_range[1], brightness_range[0], brightness_range[1])
+
+def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, strobe):
+    brightness = mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range)
     
     if color == 'random':
         color = random_color()
-    color = colors[color]
+    color = COLORS[color]
     
     return [brightness, color[0], color[1], color[2], strobe, 0]
 
-def mfcc_to_dimmer(mfcc_vec, mfcc_range, prange, brange):
+def mfft_to_dimmer(mfft_vec, mfft_range, prange, brange):
     freq_low, freq_high = freq_to_index(frange[0]), freq_to_index(frange[1])
-    mfcc_mean = np.mean(mfcc_vec[freq_low:freq_high])
-    return int(power_to_brightness(mfcc_mean, prange[0], prange[1], brange[0], brange[1]))
+    mfft_mean = np.mean(mfft_vec[freq_low:freq_high])
+    return int(power_to_brightness(mfft_mean, prange[0], prange[1], brange[0], brange[1]))
 
-def mfcc_to_strobe(mfcc_vec, mfcc_range, threshold):
-    mfcc_low, mfcc_high = mfcc_range
-    mfcc_mean = np.mean(mfcc_vec[mfcc_low:mfcc_high])
-    return [255, 255] if mfcc_mean >= threshold else [0, 0]
+def mfft_to_strobe(mfft_vec, mfft_range, threshold):
+    mfft_low, mfft_high = mfft_range
+    mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+    return [255, 255] if mfft_mean >= threshold else [0, 0]
 
 def bool_rgb(brightness, color_index, strobe, colorfade):
     color = COLORS[color_index]
@@ -98,9 +106,9 @@ def color_to_index(color_name):
     return COLOR_NAMES.index(color_name) if color_name in COLOR_NAMES else -1
 
 # Non-JIT functions that interface with the JIT functions
-def process_mfcc_to_rgb(mfcc_vec, light):
-    return mfcc_to_rgb(mfcc_vec, 
-                       light['mfcc_range'], 
+def process_mfft_to_rgb(mfft_vec, light):
+    return mfft_to_rgb(mfft_vec, 
+                       light['mfft_range'], 
                        light['power_range'], 
                        light['brightness_range'], 
                        light.get('color', 'random'), 
@@ -127,17 +135,17 @@ def process_time_strobe(light, t):
                        light['frequency'], function_index, target_index)
 
 # Main processing function
-def process_light(light, mfcc_vec, current_time):
+def process_light(light, mfft_vec, current_time):
     modulator = light['modulator']
     light_type = light['type']
 
-    if modulator == 'mfcc':
+    if modulator == 'mfft':
         if light_type == 'dimmer':
-            return [mfcc_to_brightness(mfcc_vec, light['mfcc_range'], light['power_range'], light['brightness_range'])]
+            return [mfft_to_brightness(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'])]
         elif light_type == 'rgb':
-            return mfcc_to_rgb(mfcc_vec, light['mfcc_range'], light['power_range'], light['brightness_range'], light['color'], light['strobe'])
+            return mfft_to_rgb(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'], light['color'], light['strobe'])
         elif light_type == 'strobe':
-            return mfcc_to_strobe(mfcc_vec, light['mfcc_range'], light['threshold'])
+            return mfft_to_strobe(mfft_vec, light['mfft_range'], light['threshold'])
 
     elif modulator == 'bool':
         if light_type == 'dimmer':
@@ -157,5 +165,29 @@ def process_light(light, mfcc_vec, current_time):
             return process_time_strobe(light, t)
 
     return None  # Return None if no valid combination is found
+
+
+def main():
+    # random 128 length mfft vector
+    mfft_data = np.random.rand(128)
+
+    # random light profile
+    light = {
+        'modulator': 'mfft',
+        'type': 'rgb',
+        'mfft_range': (0, 128),
+        'power_range': (0, 1),
+        'brightness_range': (0, 255),
+        'color': 'random',
+        'strobe': 0
+    }
+
+    # process the light
+    dmx_values = process_light(light, mfft_data, time.time())
+    print(dmx_values)
+
+if __name__ == "__main__":
+    main()
+
 
 
