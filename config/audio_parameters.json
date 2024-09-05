@@ -1,4 +1,5 @@
 {
     "SAMPLERATE": 44100,
-    "BLOCKSIZE": 1024
+    "BLOCKSIZE": 1024,
+    "NMFFT": 128
 }

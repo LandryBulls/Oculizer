@@ -15,7 +15,7 @@ from PyDMXControl.controllers import OpenDMXController
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
-from oculizer.light.mapping import process_light
+from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
 from oculizer.utils import load_json
 import threading
@@ -87,7 +87,7 @@ class Oculizer(threading.Thread):
         
         audio_data = indata.copy().flatten()
         mfft_data = np.mean(melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
-        #print(mfft_data)
+        mfft_data = scale_mfft(mfft_data)
         
         if self.mfft_queue.full():
             try:
@@ -120,7 +120,6 @@ class Oculizer(threading.Thread):
 
         try:
             mfft_data = self.mfft_queue.get(block=False)
-            print(f'Mean of idx 0-20: {np.mean(mfft_data[0:20])}')
         except queue.Empty:
             return
 

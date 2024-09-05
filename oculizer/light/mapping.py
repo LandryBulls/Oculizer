@@ -19,6 +19,39 @@ COLORS = np.array([
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
+import numpy as np
+
+def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
+    """
+    Scale the MFFT vector to boost higher frequencies.
+    
+    :param mfft_vec: The input MFFT vector
+    :param scaling_factor: Controls the intensity of scaling (higher values = more intense scaling)
+    :param scaling_method: The method of scaling ('log', 'exp', or 'linear')
+    :return: Scaled MFFT vector
+    """
+    num_bins = len(mfft_vec)
+    
+    if scaling_method == 'log':
+        # Logarithmic scaling
+        scaling = np.log1p(np.arange(num_bins) / num_bins) * scaling_factor + 1
+    elif scaling_method == 'exp':
+        # Exponential scaling
+        scaling = np.exp(np.arange(num_bins) / num_bins * scaling_factor)
+    elif scaling_method == 'linear':
+        # Linear scaling
+        scaling = np.linspace(1, 1 + scaling_factor, num_bins)
+    else:
+        raise ValueError("Invalid scaling method. Choose 'log', 'exp', or 'linear'.")
+    
+    # Normalize the scaling factor
+    scaling /= scaling.mean()
+    
+    # Apply scaling
+    scaled_mfft = mfft_vec * scaling
+    
+    return scaled_mfft
+
 def color_to_rgb(color_name):
     return COLORS[COLOR_NAMES.index(color_name)]
 
@@ -44,7 +77,7 @@ def mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range):
     mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
     if mfft_low < 0 or mfft_high > len(mfft_vec):
         raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
-    mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+    mfft_mean = np.max(mfft_vec[mfft_low:mfft_high])
     return power_to_brightness(mfft_mean, power_range[0], power_range[1], brightness_range[0], brightness_range[1])
 
 def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, strobe):
@@ -52,7 +85,7 @@ def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, stro
         brightness = mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range)
         
         if color == 'random':
-            color = random_color()
+            color = color_to_rgb(random_color())
         else:
             color = color_to_rgb(color)
         

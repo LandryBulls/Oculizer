@@ -7,10 +7,10 @@
             "name": "rgb1", 
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 255],
-            "mfft_range": [1, 2],
-            "power_range": [100,200],
-            "color": "white",
+            "brightness_range": [0, 255],
+            "mfft_range": [1, 9],
+            "power_range": [5,50],
+            "color": "pink",
             "strobe": 255
         },
         {
@@ -20,8 +20,8 @@
             "brightness": 100,
             "color": "green",
             "strobe": 0,
-            "mfft_range": [10, 12],
-            "power_range": [100,200],
+            "mfft_range": [110, 127],
+            "power_range": [0.01,0.1],
             "brightness_range": [0, 255]
 
         }

@@ -18,24 +18,11 @@ class FeatureVisualizer(QMainWindow):
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # Create two plots: one for energy, one for other coefficients
-        self.energy_plot = pg.PlotWidget(title='mfft Energy Term (Coefficient 0)')
         self.coeff_plot = pg.PlotWidget(title='Mel-scaled FFT Coefficients')
-        layout.addWidget(self.energy_plot)
         layout.addWidget(self.coeff_plot)
 
-        # Set up bar graphs
-        self.energy_bar = pg.BarGraphItem(x=[0], height=[0], width=0.8, brush='r')
         self.coeff_bars = pg.BarGraphItem(x=range(nmfft), height=[0]*nmfft, width=0.8, brush='b')
-        self.energy_plot.addItem(self.energy_bar)
         self.coeff_plot.addItem(self.coeff_bars)
-
-        # Customize the plots
-        self.energy_plot.setLabel('left', 'Magnitude')
-        self.energy_plot.showGrid(y=True)
-        self.energy_plot.setYRange(0, 100)  # Adjust based on your typical energy values
-        self.energy_plot.setXRange(0, nmfft)
-        self.energy_plot.getAxis('bottom').setTicks([[(0, 'Energy')]])
 
         self.coeff_plot.setLabel('left', 'Magnitude')
         self.coeff_plot.setLabel('bottom', 'mfft Coefficient')
@@ -43,7 +30,8 @@ class FeatureVisualizer(QMainWindow):
         self.coeff_plot.setYRange(0, 20)  # Adjust based on your typical coefficient values
         self.coeff_plot.setXRange(-0.5, nmfft+0.5)
         x_axis = self.coeff_plot.getAxis('bottom')
-        x_axis.setTicks([[(i, str(i+1)) for i in range(nmfft)]])
+        x_axis.setTicks([[(i, str(i+1)) if (i+1) % 5 == 0 else (i, '') for i in range(nmfft)]])
+        x_axis.setStyle(tickTextOffset=10, tickLength=-15)
 
         # Initialize Oculizer controller
         scene_manager = SceneManager('scenes')
@@ -58,10 +46,6 @@ class FeatureVisualizer(QMainWindow):
     def update_plot(self):
         mfft = self.controller.mfft_queue.get()
         if mfft is not None and len(mfft) == nmfft:
-            # Update energy term (first coefficient)
-            self.energy_bar.setOpts(height=[mfft[0]])
-            
-            # Update other mfft coefficients
             self.coeff_bars.setOpts(height=mfft)
 
     def closeEvent(self, event):
