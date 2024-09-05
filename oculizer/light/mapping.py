@@ -19,6 +19,9 @@ COLORS = np.array([
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
+def color_to_rgb(color_name):
+    return COLORS[COLOR_NAMES.index(color_name)]
+
 def random_color():
     return np.random.randint(0, len(COLORS))
 
@@ -38,28 +41,47 @@ def power_to_brightness(power, power_low, power_high, brightness_low, brightness
         return int((power - power_low) / (power_high - power_low) * (brightness_high - brightness_low) + brightness_low)
 
 def mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range):
-    mfft_low, mfft_high = mfft_range
+    mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+    if mfft_low < 0 or mfft_high > len(mfft_vec):
+        raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
     mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
     return power_to_brightness(mfft_mean, power_range[0], power_range[1], brightness_range[0], brightness_range[1])
 
 def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, strobe):
-    brightness = mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range)
-    
-    if color == 'random':
-        color = random_color()
-    color = COLORS[color]
-    
-    return [brightness, color[0], color[1], color[2], strobe, 0]
+    try:
+        brightness = mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range)
+        
+        if color == 'random':
+            color = random_color()
+        else:
+            color = color_to_rgb(color)
+        
+        return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
+    except Exception as e:
+        print(f"Error in mfft_to_rgb: {str(e)}")
+        return [0, 0, 0, 0, 0, 0]  # Return a safe default value
 
 def mfft_to_dimmer(mfft_vec, mfft_range, prange, brange):
-    freq_low, freq_high = freq_to_index(frange[0]), freq_to_index(frange[1])
-    mfft_mean = np.mean(mfft_vec[freq_low:freq_high])
-    return int(power_to_brightness(mfft_mean, prange[0], prange[1], brange[0], brange[1]))
+    try:
+        mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+        if mfft_low < 0 or mfft_high > len(mfft_vec):
+            raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
+        mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+        return int(power_to_brightness(mfft_mean, prange[0], prange[1], brange[0], brange[1]))
+    except Exception as e:
+        print(f"Error in mfft_to_dimmer: {str(e)}")
+        return 0  # Return a safe default value
 
 def mfft_to_strobe(mfft_vec, mfft_range, threshold):
-    mfft_low, mfft_high = mfft_range
-    mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
-    return [255, 255] if mfft_mean >= threshold else [0, 0]
+    try:
+        mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+        if mfft_low < 0 or mfft_high > len(mfft_vec):
+            raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
+        mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+        return [255, 255] if mfft_mean >= threshold else [0, 0]
+    except Exception as e:
+        print(f"Error in mfft_to_strobe: {str(e)}")
+        return [0, 0]  # Return a safe default value
 
 def bool_rgb(brightness, color_index, strobe, colorfade):
     color = COLORS[color_index]
@@ -105,14 +127,14 @@ def time_strobe(t, speed_range, brightness_range, frequency, function, target):
 def color_to_index(color_name):
     return COLOR_NAMES.index(color_name) if color_name in COLOR_NAMES else -1
 
-# Non-JIT functions that interface with the JIT functions
-def process_mfft_to_rgb(mfft_vec, light):
-    return mfft_to_rgb(mfft_vec, 
-                       light['mfft_range'], 
-                       light['power_range'], 
-                       light['brightness_range'], 
-                       light.get('color', 'random'), 
-                       light.get('strobe', 0))
+# # Non-JIT functions that interface with the JIT functions
+# def process_mfft_to_rgb(mfft_vec, light):
+#     return mfft_to_rgb(mfft_vec, 
+#                        light['mfft_range'], 
+#                        light['power_range'], 
+#                        light['brightness_range'], 
+#                        light.get('color', 'random'), 
+#                        light.get('strobe', 0))
 
 def process_bool_rgb(light):
     brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
@@ -139,12 +161,18 @@ def process_light(light, mfft_vec, current_time):
     modulator = light['modulator']
     light_type = light['type']
 
+    #print(f"Processing light: {light['name']}, modulator: {modulator}, type: {light_type}")
+    #print(f"MFFT vector shape: {mfft_vec.shape}")
+
     if modulator == 'mfft':
         if light_type == 'dimmer':
-            return [mfft_to_brightness(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'])]
+            #print(f"MFFT range: {light['mfft_range']}")
+            return [mfft_to_dimmer(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'])]
         elif light_type == 'rgb':
-            return mfft_to_rgb(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'], light['color'], light['strobe'])
+            #print(f"MFFT range: {light['mfft_range']}")
+            return mfft_to_rgb(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'], light.get('color', 'random'), light.get('strobe', 0))
         elif light_type == 'strobe':
+            #print(f"MFFT range: {light['mfft_range']}")
             return mfft_to_strobe(mfft_vec, light['mfft_range'], light['threshold'])
 
     elif modulator == 'bool':
