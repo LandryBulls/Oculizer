@@ -16,14 +16,13 @@
         {
             "name": "rgb2",
             "type": "rgb",
-            "modulator": "mfft",
-            "brightness": 100,
-            "color": "white",
-            "strobe": 255,
-            "mfft_range": [10, 13],
-            "power_range": [0, 1],
-            "brightness_range": [0, 255]
-
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue",
+            "strobe": 0
         }
     ]
 

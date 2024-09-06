@@ -13,7 +13,7 @@
             "name": "rgb1",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 100,
+            "brightness": 10,
             "colorfade": 100
         },
         {

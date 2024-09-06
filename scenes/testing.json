@@ -8,9 +8,9 @@
             "type": "rgb",
             "modulator": "mfft",
             "brightness_range": [0, 255],
-            "mfft_range": [1, 15],
-            "power_range": [5,50],
-            "color": "red",
+            "mfft_range": [1, 3],
+            "power_range": [0,30],
+            "color": "pink",
             "strobe": 0
         },
         {
@@ -18,7 +18,7 @@
             "type": "rgb",
             "modulator": "mfft",
             "brightness": 100,
-            "color": "green",
+            "color": "yellow",
             "strobe":255,
             "mfft_range": [110, 127],
             "power_range": [0.01,0.1],

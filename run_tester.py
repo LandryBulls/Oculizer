@@ -8,6 +8,7 @@ import threading
 import queue
 import numpy as np
 import curses
+import time
 
 #from control import load_json, load_profile, load_controller, LightController
 from oculizer.light import Oculizer
@@ -31,12 +32,8 @@ def main():
         stdscr.addstr(1, 0, "Available scenes:")
         for i, scene in enumerate(scene_manager.scenes):
             stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
-        
-        # Print any errors from the audio listener
-        # errors = light_controller.get_errors()
-        # if errors:
-        #     for i, error in enumerate(errors):
-        #         stdscr.addstr(i+len(scene_manager.scenes)+3, 0, f"Error: {error}")
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+
         
         stdscr.refresh()
 
@@ -48,15 +45,17 @@ def main():
         elif key in scene_commands:
             try:
                 light_controller.change_scene(scene_commands[key])
-                stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Changed to scene: {scene_commands[key]}")
+                #stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Changed to scene: {scene_commands[key]}")
             except Exception as e:
                 stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
         elif key == ord('r'):
             scene_manager.reload_scenes()
             light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
-            stdscr.addstr(len(scene_manager.scenes) + 4, 0, "Scenes reloaded")
+            #stdscr.addstr(len(scene_manager.scenes) + 4, 0, "Scenes reloaded")
+
         
         stdscr.refresh()
+        time.sleep(0.1)
 
     curses.endwin()
 

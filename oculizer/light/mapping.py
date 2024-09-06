@@ -171,18 +171,23 @@ def color_to_index(color_name):
 #                        light.get('strobe', 0))
 
 def process_bool_rgb(light):
-    brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
-    color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
-    strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
-    colorfade = light.get('colorfade', 0)
-    return bool_rgb(brightness, color, strobe, colorfade)
+    if 'colorfade' in light:
+        colorfade = light['colorfade']
+        color = [255,255,255]
+        brightness = light['brightness']
+        return bool_rgb(brightness, color, 0, colorfade)
+    else:
+        brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
+        color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
+        strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
+        return bool_rgb(brightness, color, strobe, 0)
 
 def process_time_rgb(light, t):
     color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
     strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
     function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
     return time_rgb(t, light['min_brightness'], light['max_brightness'], 
-                    light['frequency'], function_index, color_index, strobe)
+                    light['frequency'], function_index, color, strobe)
 
 def process_time_strobe(light, t):
     function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
