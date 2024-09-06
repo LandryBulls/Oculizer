@@ -25,6 +25,7 @@ def main():
     scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
 
     light_controller.start()
+    reload_timer = 2
 
     while True:
         stdscr.clear()
@@ -32,9 +33,9 @@ def main():
         stdscr.addstr(1, 0, "Available scenes:")
         for i, scene in enumerate(scene_manager.scenes):
             stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
+        # highlight the current scene
+        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
         stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
-
-        
         stdscr.refresh()
 
         key = stdscr.getch()
@@ -45,15 +46,19 @@ def main():
         elif key in scene_commands:
             try:
                 light_controller.change_scene(scene_commands[key])
-                #stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Changed to scene: {scene_commands[key]}")
             except Exception as e:
                 stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+
         elif key == ord('r'):
             scene_manager.reload_scenes()
             light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
-            #stdscr.addstr(len(scene_manager.scenes) + 4, 0, "Scenes reloaded")
+            while reload_timer > 0:
+                stdscr.addstr(len(scene_manager.scenes)+4, 0, f"Scenes reloaded.")
+                stdscr.refresh()
+                time.sleep(1)
+                reload_timer -= 1
+            reload_timer = 2
 
-        
         stdscr.refresh()
         time.sleep(0.1)
 
