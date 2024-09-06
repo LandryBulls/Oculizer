@@ -9,8 +9,8 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 255,
-            "color": "pink",
-            "strobe": 100
+            "color": "purple",
+            "strobe": 0
         },
         {
             "name": "rgb2",

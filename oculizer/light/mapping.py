@@ -53,14 +53,16 @@ def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
     return scaled_mfft
 
 def color_to_rgb(color_name):
+    # returns the RGB value of the color
     return COLORS[COLOR_NAMES.index(color_name)]
 
 def random_color():
-    return np.random.randint(0, len(COLORS))
+    # choose a random color and returns its rgb value
+    return color_to_rgb(COLOR_NAMES[np.random.randint(0, len(COLOR_NAMES))])
 
-def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
-    color = COLORS[color_index]
-    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
+# def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
+#     color = COLORS[color_index]
+#     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
 
 def freq_to_index(freq):
     return int(freq * BLOCKSIZE / SAMPLERATE)
@@ -116,8 +118,8 @@ def mfft_to_strobe(mfft_vec, mfft_range, threshold):
         print(f"Error in mfft_to_strobe: {str(e)}")
         return [0, 0]  # Return a safe default value
 
-def bool_rgb(brightness, color_index, strobe, colorfade):
-    color = COLORS[color_index]
+def bool_rgb(brightness, color, strobe, colorfade):
+    # expects color to be DMX value
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
 
 def bool_strobe(speed, brightness):
@@ -139,9 +141,8 @@ def time_dimmer(t, min_brightness, max_brightness, frequency, function):
     range_brightness = max_brightness - min_brightness
     return int(min_brightness + range_brightness * time_function(t, frequency, function))
 
-def time_rgb(t, min_brightness, max_brightness, frequency, function, color_index, strobe):
+def time_rgb(t, min_brightness, max_brightness, frequency, function, color, strobe):
     brightness = time_dimmer(t, min_brightness, max_brightness, frequency, function)
-    color = COLORS[color_index]
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
 
 def time_strobe(t, speed_range, brightness_range, frequency, function, target):
@@ -171,13 +172,13 @@ def color_to_index(color_name):
 
 def process_bool_rgb(light):
     brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
-    color_index = random_color() if light['color'] == 'random' else color_to_index(light['color'])
+    color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
     strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
     colorfade = light.get('colorfade', 0)
-    return bool_rgb(brightness, color_index, strobe, colorfade)
+    return bool_rgb(brightness, color, strobe, colorfade)
 
 def process_time_rgb(light, t):
-    color_index = random_color() if light['color'] == 'random' else color_to_index(light['color'])
+    color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
     strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
     function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
     return time_rgb(t, light['min_brightness'], light['max_brightness'], 
@@ -218,12 +219,12 @@ def process_light(light, mfft_vec, current_time):
             
     elif modulator == 'time':
         if light_type == 'dimmer':
-            return [time_dimmer(t, light['min_brightness'], light['max_brightness'], 
+            return [time_dimmer(current_time, light['min_brightness'], light['max_brightness'], 
                                 light['frequency'], light['function'])]
         elif light_type == 'rgb':
-            return process_time_rgb(light, t)
+            return process_time_rgb(light, current_time)
         elif light_type == 'strobe':
-            return process_time_strobe(light, t)
+            return process_time_strobe(light, current_time)
 
     return None  # Return None if no valid combination is found
 
