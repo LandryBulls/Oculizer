@@ -3,7 +3,6 @@ Description: Provides Spotifizer class which runs a thread to continuously pull 
 Must have a Spotify Premium account, the app on the same device, have set up the app, etc. 
 """
 
-
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
 import threading
@@ -13,13 +12,13 @@ import curses
 import os
 
 # get the client id and client secret from the text file
+# get the client id and client secret from the text file
 with open('../../spotify_credentials.txt') as f:
     client_id = f.readline().strip().split(' ')[1]
     client_secret = f.readline().strip().split(' ')[1]
     uri = f.readline().split(' ')[1][:-1]
     username = f.readline().split(' ')[1][:-1]
-
-uri = 'http://localhost:8000'
+    token = f.readline().split(' ')[1][:-1]
 
 # set the environment variables
 os.environ['SPOTIPY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_ID'] = client_id, client_id
@@ -29,6 +28,7 @@ os.environ['SPOTIPY_REDIRECT_URI'], os.environ['SPOTIFY_REDIRECT_URI'] = uri, ur
 auth_manager = SpotifyClientCredentials()
 sp = spotipy.Spotify(auth_manager=auth_manager)
 
+# just add all the scopes
 scopes = ['user-library-read',
             'user-read-recently-played',
             'user-top-read',
@@ -42,8 +42,6 @@ scopes = ['user-library-read',
             'playlist-read-collaborative',
             'playlist-modify-public',
             'playlist-modify-private']
-
-token = spotipy.util.prompt_for_user_token(username, scopes)
 
 if token:
     sp = spotipy.Spotify(auth=token)
@@ -64,47 +62,36 @@ class Spotifizer(threading.Thread):
         self.playing = False
         self.volume = 0
         self.current_track_id = None
-        self.current_track_info = None
+        self.current_track_info = None 
+        self.artist = None
+        self.title = None
         self.update_interval = update_interval
         self.progress = 0
+        self.suggested_scene = 'testing'
 
     def run(self):
         self.running.set()
         try:
             while self.running.is_set():
-                #t0 = time.time()
                 self.update_current_track()
-                #t1 = time.time()
-                #print(f'Took {t1-t0} seconds to update current track.')
-                #time.sleep(self.update_interval)
-                # this usually takes somewhere between 0.1 and 0.2 seconds
         except Exception as e:
             self.error_queue.put(f"Error in Spotifizer: {str(e)}")
 
     def update_current_track(self):
         current_playback = self.spotify.current_playback()
         if current_playback is not None:
-            new_track_id = current_playback['item']['id']
-            if new_track_id != self.current_track_id:
-                self.current_track_id = new_track_id
-                self.fetch_track_info()
-            
-            self.playing = current_playback['is_playing']
-            self.volume = current_playback['device']['volume_percent']
+            if current_playback['is_playing']:
+                self.playing = True
+                self.current_track_id = current_playback['item']['id']
+                self.current_track_info = current_playback['item']
+                self.artist = current_playback['item']['artists'][0]['name']
+                self.title = current_playback['item']['name']
+                self.volume = current_playback['device']['volume_percent']
+                self.progress = current_playback['progress_ms'] + 500
         else:
             self.playing = False
             self.current_track_id = None
             self.current_track_info = None
-
-    def fetch_track_info(self):
-        track_info = {}
-        track_info['name'] = self.spotify.track(self.current_track_id)['name']
-        track_info['artist'] = self.spotify.track(self.current_track_id)['artists'][0]['name']
-        self.current_track_info = track_info
-        self.info_queue.put(track_info)
-
-    def get_current_track_info(self):
-        return self.current_track_info
 
     def play(self):
         try:
@@ -161,20 +148,18 @@ def main():
     print('Listening to Spotify...')
     try:
         while True:
-            info = spotifizer.get_current_track_info()
-            #print(f"INFO: {info}")
-            if info is not None:
+            if spotifizer.current_track_info is not None:
                 stdscr.clear()
-                stdscr.addstr(0, 0, f"Track: {info['name']}")
-                stdscr.addstr(1, 0, f"Artist: {info['artist']}")
+                stdscr.addstr(0, 0, f"Track: {spotifizer.title}")
+                stdscr.addstr(1, 0, f"Artist: {spotifizer.artist}")
                 stdscr.addstr(2, 0, f"Playing: {spotifizer.playing}")
                 stdscr.addstr(3, 0, f"Volume: {spotifizer.volume}")
-                #stdscr.addstr(4, 0, f"Genre: {info['audio_features'][0]['genre']}")
+                stdscr.addstr(4, 0, f"Progress_ms: {spotifizer.progress}")
                 stdscr.refresh()
-                time.sleep(0.5)
             else:
                 stdscr.addstr(0, 0, "No track playing...")
                 stdscr.refresh()
+
     except KeyboardInterrupt:
         spotifizer.stop()
         print('Stopped listening to Spotify...')
@@ -187,4 +172,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
