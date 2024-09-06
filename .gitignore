@@ -1,6 +1,6 @@
 spotify_credentials.txt
 spotifizer.py
-./notebooks
+notebooks/
 ./__pycache__
 ./audio
 *.pyc
