@@ -13,12 +13,13 @@ import os
 
 # get the client id and client secret from the text file
 # get the client id and client secret from the text file
-with open('../../spotify_credentials.txt') as f:
+credspath = os.path.join(os.path.dirname(__file__), '../../spotify_credentials.txt')
+with open(credspath) as f:
     client_id = f.readline().strip().split(' ')[1]
     client_secret = f.readline().strip().split(' ')[1]
     uri = f.readline().split(' ')[1][:-1]
     username = f.readline().split(' ')[1][:-1]
-    token = f.readline().split(' ')[1][:-1]
+    #token = f.readline().split(' ')[1][:-1]
 
 # set the environment variables
 os.environ['SPOTIPY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_ID'] = client_id, client_id
@@ -42,6 +43,8 @@ scopes = ['user-library-read',
             'playlist-read-collaborative',
             'playlist-modify-public',
             'playlist-modify-private']
+
+token = SpotifyOAuth(scope=' '.join(scopes)).get_access_token(as_dict=False)
 
 if token:
     sp = spotipy.Spotify(auth=token)

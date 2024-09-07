@@ -1,1 +1,1 @@
-from spotifizer import Spotifizer
+from .spotifizer import Spotifizer

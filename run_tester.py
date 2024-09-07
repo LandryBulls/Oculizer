@@ -25,7 +25,6 @@ def main():
     scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
 
     light_controller.start()
-    reload_timer = 2
 
     while True:
         stdscr.clear()
@@ -52,12 +51,9 @@ def main():
         elif key == ord('r'):
             scene_manager.reload_scenes()
             light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
-            while reload_timer > 0:
-                stdscr.addstr(len(scene_manager.scenes)+4, 0, f"Scenes reloaded.")
-                stdscr.refresh()
-                time.sleep(1)
-                reload_timer -= 1
-            reload_timer = 2
+            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
+            stdscr.refresh()
+            time.sleep(1)
 
         stdscr.refresh()
         time.sleep(0.1)

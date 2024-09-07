@@ -9,9 +9,9 @@
             "modulator": "mfft",
             "brightness_range": [0, 255],
             "mfft_range": [1, 3],
-            "power_range": [0,30],
+            "power_range": [0,20],
             "color": "pink",
-            "strobe": 0
+            "strobe": 255
         },
         {
             "name": "rgb2",
@@ -19,7 +19,7 @@
             "modulator": "mfft",
             "brightness": 100,
             "color": "yellow",
-            "strobe":255,
+            "strobe":0,
             "mfft_range": [110, 127],
             "power_range": [0.01,0.1],
             "brightness_range": [0, 255]
