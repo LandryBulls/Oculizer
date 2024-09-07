@@ -1,7 +1,8 @@
 spotify_credentials.txt
-notebooks/
+notebooks
 ./__pycache__
 ./audio
 *.pyc
 ./vscode
 .cache**
+scripts/demix
