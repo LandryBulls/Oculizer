@@ -1,0 +1,71 @@
+{
+    "name": "garage",
+    "description": "Garage",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "n_channels": 2
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "n_channels": 6
+        }, 
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "n_channels": 6
+        }
+    ]
+}

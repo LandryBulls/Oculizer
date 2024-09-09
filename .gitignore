@@ -6,3 +6,4 @@ notebooks
 ./vscode
 .cache**
 scripts/demix
+scripts/spec
