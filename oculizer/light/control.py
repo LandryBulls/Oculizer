@@ -59,6 +59,7 @@ class Oculizer(threading.Thread):
         control_dict = {}
         curr_channel = 1
         sleeptime = 0.1
+
         for light in self.profile['lights']:
             if light['type'] == 'dimmer':
                 control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
@@ -66,12 +67,14 @@ class Oculizer(threading.Thread):
                 control_dict[light['name']].dim(255)
                 time.sleep(sleeptime)
                 control_dict[light['name']].dim(0)
+
             elif light['type'] == 'rgb':
                 control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
                 curr_channel += 6
                 control_dict[light['name']].set_channels([255, 255, 255, 255, 255, 0])
                 time.sleep(sleeptime)
                 control_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+
             elif light['type'] == 'strobe':
                 control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
                 curr_channel += 2
@@ -132,12 +135,16 @@ class Oculizer(threading.Thread):
 
             try:
                 dmx_values = process_light(light, mfft_data, current_time)
-                
                 if dmx_values is not None:
                     if light['type'] == 'dimmer':
                         self.controller_dict[light['name']].dim(dmx_values[0])
-                    elif light['type'] in ['rgb', 'strobe']:
-                        self.controller_dict[light['name']].set_channels(dmx_values)
+
+                    elif light['type'] == 'rgb':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:6])
+
+                    elif light['type'] == 'strobe':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:2])
+
             except Exception as e:
                 print(f"Error processing light {light['name']}: {str(e)}")
 

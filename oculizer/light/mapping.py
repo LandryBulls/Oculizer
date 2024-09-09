@@ -19,7 +19,9 @@ COLORS = np.array([
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
-import numpy as np
+# Helper function to convert color name to index
+def color_to_index(color_name):
+    return COLOR_NAMES.index(color_name) if color_name in COLOR_NAMES else -1
 
 def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
     """
@@ -35,9 +37,11 @@ def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
     if scaling_method == 'log':
         # Logarithmic scaling
         scaling = np.log1p(np.arange(num_bins) / num_bins) * scaling_factor + 1
+
     elif scaling_method == 'exp':
         # Exponential scaling
         scaling = np.exp(np.arange(num_bins) / num_bins * scaling_factor)
+
     elif scaling_method == 'linear':
         # Linear scaling
         scaling = np.linspace(1, 1 + scaling_factor, num_bins)
@@ -92,6 +96,7 @@ def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, stro
             color = color_to_rgb(color)
         
         return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
+
     except Exception as e:
         print(f"Error in mfft_to_rgb: {str(e)}")
         return [0, 0, 0, 0, 0, 0]  # Return a safe default value
@@ -103,6 +108,7 @@ def mfft_to_dimmer(mfft_vec, mfft_range, prange, brange):
             raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
         mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
         return int(power_to_brightness(mfft_mean, prange[0], prange[1], brange[0], brange[1]))
+
     except Exception as e:
         print(f"Error in mfft_to_dimmer: {str(e)}")
         return 0  # Return a safe default value
@@ -155,17 +161,15 @@ def time_strobe(t, speed_range, brightness_range, frequency, function, target):
     if target == 0:  # speed
         speed = time_function(t, frequency, function) * (speed_range[1] - speed_range[0]) + speed_range[0]
         return [int(speed), int(brightness_range[1])]
+
     elif target == 1:  # brightness
         brightness = time_function(t, frequency, function) * (brightness_range[1] - brightness_range[0]) + brightness_range[0]
         return [int(speed_range[1]), int(brightness)]
-    else:  # both
+
+    else:  # default to both if target is invalid
         speed = time_function(t, frequency, function) * (speed_range[1] - speed_range[0]) + speed_range[0]
         brightness = time_function(t, frequency, function) * (brightness_range[1] - brightness_range[0]) + brightness_range[0]
         return [int(speed), int(brightness)]
-
-# Helper function to convert color name to index
-def color_to_index(color_name):
-    return COLOR_NAMES.index(color_name) if color_name in COLOR_NAMES else -1
 
 # # Non-JIT functions that interface with the JIT functions
 # def process_mfft_to_rgb(mfft_vec, light):
@@ -219,9 +223,11 @@ def process_light(light, mfft_vec, current_time):
         if light_type == 'dimmer':
             #print(f"MFFT range: {light['mfft_range']}")
             return [mfft_to_dimmer(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'])]
+
         elif light_type == 'rgb':
             #print(f"MFFT range: {light['mfft_range']}")
             return mfft_to_rgb(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'], light.get('color', 'random'), light.get('strobe', 0))
+
         elif light_type == 'strobe':
             #print(f"MFFT range: {light['mfft_range']}")
             return mfft_to_strobe(mfft_vec, light['mfft_range'], light['threshold'])
@@ -229,8 +235,10 @@ def process_light(light, mfft_vec, current_time):
     elif modulator == 'bool':
         if light_type == 'dimmer':
             return process_bool_dimmer(light)
+
         elif light_type == 'rgb':
             return process_bool_rgb(light)
+
         elif light_type == 'strobe':
             return process_bool_strobe(light)
             
@@ -241,6 +249,7 @@ def process_light(light, mfft_vec, current_time):
                                 
         elif light_type == 'rgb':
             return process_time_rgb(light, current_time)
+
         elif light_type == 'strobe':
             return process_time_strobe(light, current_time)
 
