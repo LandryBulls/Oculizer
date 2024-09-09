@@ -10,9 +10,9 @@
             "modulator": "time",
             "min_brightness": 0,
             "max_brightness": 255,
-            "color": "purple",
-            "frequency": 1,
-            "function": "sawtooth_backward",
+            "color": "red",
+            "frequency": 1.5,
+            "function": "sine",
             "strobe": 0
         },
         {
@@ -21,11 +21,65 @@
             "modulator": "time",
             "min_brightness": 0,
             "max_brightness": 255,
-            "color": "purple",
+            "color": "green",
+            "frequency": 2.7,
             "function": "sine",
-            "frequency": 0.5,
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "frequency": 1.8,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "yellow",
+            "frequency": 0.9,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "orange",
+            "frequency": 2.2,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "frequency": 1.3,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "green",
+            "frequency": 2.5,
+            "function": "sine",
             "strobe": 0
         }
     ]
-
 }

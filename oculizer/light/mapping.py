@@ -135,6 +135,7 @@ def bool_rgb(brightness, color, strobe, colorfade):
 
 def bool_strobe(speed, brightness):
     speed = np.random.randint(0, 256) if speed == 'random' else speed
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
     return [int(speed), int(brightness)]
 
 def time_function(t, frequency, function):
@@ -151,7 +152,11 @@ def time_function(t, frequency, function):
 
 def time_dimmer(t, min_brightness, max_brightness, frequency, function):
     range_brightness = max_brightness - min_brightness
-    return int(min_brightness + range_brightness * time_function(t, frequency, function))
+    try:
+        return int(min_brightness + range_brightness * time_function(t, frequency, function))
+    except Exception as e:
+        print(f"Error in time_dimmer0: {str(e)}")
+        print(f"t: {t}, min_brightness: {min_brightness}, max_brightness: {max_brightness}, frequency: {frequency}, function: {function}")
 
 def time_rgb(t, min_brightness, max_brightness, frequency, function, color, strobe):
     brightness = time_dimmer(t, min_brightness, max_brightness, frequency, function)
@@ -197,6 +202,10 @@ def process_bool_rgb(light):
         color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
         strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
         return bool_rgb(brightness, color, strobe, 0)
+
+def process_time_dimmer(light, t):
+    function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
+    return time_dimmer(t, light['min_brightness'], light['max_brightness'], light['frequency'], function_index)
 
 def process_time_rgb(light, t):
     color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
@@ -244,8 +253,12 @@ def process_light(light, mfft_vec, current_time):
             
     elif modulator == 'time':
         if light_type == 'dimmer':
-            return [time_dimmer(current_time, light['min_brightness'], light['max_brightness'], 
-                                light['frequency'], light['function'])]
+            try:
+                return [time_dimmer(current_time, light['min_brightness'], light['max_brightness'], 
+                                    light['frequency'], light['function'])]
+            except Exception as e:
+                print(f"Error in time_dimmer: {str(e)}")
+                return [0]
                                 
         elif light_type == 'rgb':
             return process_time_rgb(light, current_time)

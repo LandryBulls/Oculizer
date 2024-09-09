@@ -157,8 +157,10 @@ class Oculizer(threading.Thread):
         for light in self.profile['lights']:
             if light['type'] == 'dimmer':
                 self.controller_dict[light['name']].dim(0)
-            elif light['type'] in ['rgb', 'strobe']:
-                self.controller_dict[light['name']].set_channels([0,0,0,0,0,0])
+            elif light['type'] == 'rgb':
+                self.controller_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+            elif light['type'] == 'strobe':
+                self.controller_dict[light['name']].set_channels([0, 0])
 
     def stop(self):
         self.running.clear()

@@ -79,7 +79,8 @@
             "name": "strobe",
             "type": "strobe",
             "modulator": "bool",
-            "brightness": 255
+            "brightness": 10, 
+            "speed": "random"
         }, 
         {
             "name": "rgb7",
