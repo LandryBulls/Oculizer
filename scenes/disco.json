@@ -4,7 +4,7 @@
     "key_command": "d",
     "lights": [
         {
-            "name": "disco_ball",
+            "name": "discoball",
             "type": "dimmer",
             "modulator": "bool",
             "brightness": 255

@@ -23,12 +23,7 @@
             "n_channels": 6
         },
         {
-            "name": "ropes",
-            "type": "dimmer",
-            "n_channels": 1
-        },
-        {
-            "name": "discoball",
+            "name": "lasers",
             "type": "dimmer",
             "n_channels": 1
         },
@@ -38,7 +33,12 @@
             "n_channels": 1
         },
         {
-            "name": "lasers",
+            "name": "discoball",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "ropes",
             "type": "dimmer",
             "n_channels": 1
         },
@@ -59,11 +59,6 @@
         },
         {
             "name": "rgb7",
-            "type": "rgb",
-            "n_channels": 6
-        }, 
-        {
-            "name": "rgb8",
             "type": "rgb",
             "n_channels": 6
         }

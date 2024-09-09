@@ -118,11 +118,17 @@ def mfft_to_strobe(mfft_vec, mfft_range, threshold):
         print(f"Error in mfft_to_strobe: {str(e)}")
         return [0, 0]  # Return a safe default value
 
+def bool_dimmer(brightness):
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
+    return [int(brightness)]
+
 def bool_rgb(brightness, color, strobe, colorfade):
     # expects color to be DMX value
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
 
 def bool_strobe(speed, brightness):
+    speed = np.random.randint(0, 256) if speed == 'random' else speed
     return [int(speed), int(brightness)]
 
 def time_function(t, frequency, function):
@@ -170,6 +176,12 @@ def color_to_index(color_name):
 #                        light.get('color', 'random'), 
 #                        light.get('strobe', 0))
 
+def process_bool_dimmer(light): 
+    return bool_dimmer(light['brightness'])
+
+def process_bool_strobe(light):
+    return bool_strobe(light['speed'], light['brightness'])
+
 def process_bool_rgb(light):
     if 'colorfade' in light:
         colorfade = light['colorfade']
@@ -216,16 +228,17 @@ def process_light(light, mfft_vec, current_time):
 
     elif modulator == 'bool':
         if light_type == 'dimmer':
-            return [int(light['brightness'])]
+            return process_bool_dimmer(light)
         elif light_type == 'rgb':
             return process_bool_rgb(light)
         elif light_type == 'strobe':
-            return bool_strobe(light['speed'], light['brightness'])
+            return process_bool_strobe(light)
             
     elif modulator == 'time':
         if light_type == 'dimmer':
             return [time_dimmer(current_time, light['min_brightness'], light['max_brightness'], 
                                 light['frequency'], light['function'])]
+                                
         elif light_type == 'rgb':
             return process_time_rgb(light, current_time)
         elif light_type == 'strobe':

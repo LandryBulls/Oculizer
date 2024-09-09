@@ -12,6 +12,7 @@ import numpy as np
 import sounddevice as sd
 from librosa.feature import melspectrogram
 from PyDMXControl.controllers import OpenDMXController
+from PyDMXControl.profiles.Generic import Dimmer, Custom
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
