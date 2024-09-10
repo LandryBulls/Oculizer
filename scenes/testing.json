@@ -7,10 +7,10 @@
             "name": "rgb1", 
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 255],
+            "brightness_range": [1, 50],
             "mfft_range": [1, 3],
-            "power_range": [0,20],
-            "color": "green",
+            "power_range": [0,1],
+            "color": "purple",
             "strobe": 0
         },
         {
@@ -22,7 +22,7 @@
             "strobe":255,
             "mfft_range": [110, 127],
             "power_range": [0.01,0.1],
-            "brightness_range": [1, 255]
+            "brightness_range": [1, 50]
         }, 
         {
             "name": "rgb3",
@@ -33,20 +33,23 @@
             "strobe":255,
             "mfft_range": [110, 127],
             "power_range": [0.001,0.1],
-            "brightness_range": [1, 255]
+            "brightness_range": [1, 25]
         }, 
         {
             "name": "rgb4",
             "type": "rgb",
-            "modulator": "bool",
-            "brightness": 100,
-            "color": "blue"
+            "modulator": "mfft",
+            "mfft_range": [50,90],
+            "color": "blue",
+            "power_range": [0.5, 1.0],
+            "brightness_range": [0, 50],
+            "strobe": 255
         }, 
         {
             "name": "rgb5",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 255,
+            "brightness": 5,
             "color": "random"
         }, 
         {
@@ -56,30 +59,35 @@
             "function": 0,
             "frequency": 1,
             "min_brightness": 0,
-            "max_brightness": 60
+            "max_brightness": 20
         }, 
         {
             "name": "discoball", 
             "type": "dimmer",
-            "modulator": "bool", 
-            "brightness": 255
+            "modulator": "time", 
+            "function": 2, 
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 0
         }, 
         {
             "name": "lasers", 
             "type": "dimmer",
-            "modulator": "mfft", 
-            "mfft_range": [1, 3],
-            "power_range": [0, 1],
-            "brightness_range": [0, 255]
+            "modulator": "time", 
+            "function": 1,
+            "min_brightness": 0,
+            "max_brightness": 255, 
+            "frequency": 0.05
         }, 
         {
             "name": "strobe", 
             "type": "strobe",
             "modulator": "mfft",
-            "threshold": 0.01,
-            "brightness": 1,
+            "threshold": 0.1,
+            "brightness": 255,
             "mfft_range": [115, 127],
-            "power_range": [0.01, 0.1]
+            "power_range": [0.1, 1.0],
+            "speed": 1
         }
     ]
 }
