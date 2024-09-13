@@ -61,6 +61,11 @@
             "name": "rgb7",
             "type": "rgb",
             "n_channels": 6
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "n_channels": 6
         }
     ]
 }

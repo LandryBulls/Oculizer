@@ -4,26 +4,13 @@
     "key_command": "v",
     "lights": [
         {
-            "name": "disco_ball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 50
-        },
-        {
             "name": "ropes",
             "type": "dimmer",
-            "modulator": "fft",
-            "frequency_range": [20, 200],
-            "brightness_range": [30, 100],
-            "power_range": [0, 100]
-        },
-        {
-            "name": "lamp1",
-            "type": "dimmer",
-            "modulator": "fft",
-            "frequency_range": [20, 200],
-            "brightness_range": [30, 100],
-            "power_range": [0, 100]
+            "modulator": "mfft",
+            "mfft_range": [10, 100],      
+            "brightness_range": [50, 100],
+            "power_range": [0, 1]
         }
-]
-}
+    ]
+} 
+

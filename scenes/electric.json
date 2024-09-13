@@ -1,7 +1,7 @@
 {
     "name": "electric",
     "description": "Stochastic white strobe on rgbs. All else off.",
-    "key_command": "e",
+    "key_command": "5",
     "lights": [
         {
             "name": "rgb1", 

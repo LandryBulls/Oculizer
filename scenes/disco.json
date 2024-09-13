@@ -1,69 +1,54 @@
 {
     "name": "disco",
     "description": "Disco scene. Disco ball and RGB wavies.",
-    "key_command": "d",
+    "key_command": "4",
     "lights": [
         {
             "name": "discoball",
             "type": "dimmer",
             "modulator": "bool",
-            "brightness": 255
+            "brightness": 100
         },
+        {
+            "name": "ropes", 
+            "type": "dimmer",
+            "modulator": "time", 
+            "function": 0,
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 60
+        }, 
         {
             "name": "rgb1",
             "type": "rgb",
-            "modulator": "bool",
-            "brightness": 10,
-            "colorfade": 100
+            "modulator": "bool", 
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
         },
         {
             "name": "rgb2",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 10,
-            "colorfade": 100
-        },
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
+        }, 
         {
-            "name": "rgb3",
+            "name": "rgb8", 
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 100
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 150
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 100
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 150
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
         },
         {
             "name": "rgb7",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 100
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 50,
-            "colorfade": 255
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
         }
     ]
 }

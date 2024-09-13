@@ -1,7 +1,7 @@
 {
     "name": "hell",
     "description": "Stochastic red strobe on rgbs. All else off.",
-    "key_command": "h",
+    "key_command": "8",
     "lights": [
         {
             "name": "rgb1", 

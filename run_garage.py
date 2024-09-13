@@ -19,7 +19,7 @@ stdscr = curses.initscr()
 
 def main():
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('hell')
+    scene_manager.set_scene('blue')
     light_controller = Oculizer('garage', scene_manager)
 
     scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
