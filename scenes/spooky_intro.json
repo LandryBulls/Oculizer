@@ -1,0 +1,111 @@
+{
+    "name": "spooky_intro",
+    "description": "Eerie lighting inspired by a creepy TV show intro",
+    "key_command": "i",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 50,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 175,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 30],
+            "power_range": [0, 1],
+            "brightness_range": [0, 100],
+            "color": "orange",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [30, 60],
+            "power_range": [0, 1],
+            "brightness_range": [0, 150],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_backward",
+            "frequency": 0.25,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_backward",
+            "frequency": 0.25,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 2,
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 0
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 50],
+            "power_range": [0, 1],
+            "brightness_range": [0, 100]
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": 150,
+            "speed": 100
+        }
+    ]
+}

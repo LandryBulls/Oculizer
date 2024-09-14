@@ -1,7 +1,7 @@
 {
     "name": "wavies",
     "description": "Sine waves for testing.",
-    "key_command": "w",
+    "key_command": "-",
 
     "lights": [
         {

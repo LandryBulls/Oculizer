@@ -71,6 +71,83 @@ if __name__ == '__main__':
 
     ----------------------------------------
 
+    repo_overview.txt
+
+    Content of repo_overview.txt:
+    ----------------------------------------
+Oculizer/
+    run_garage.py
+
+    Content of run_garage.py:
+    ----------------------------------------
+"""
+For testing the functionality of the program.
+"""
+
+import os
+import json
+import threading
+import queue
+import numpy as np
+import curses
+import time
+
+#from control import load_json, load_profile, load_controller, LightController
+from oculizer.light import Oculizer
+from oculizer.audio import AudioListener
+from oculizer.scenes import SceneManager
+
+stdscr = curses.initscr()
+
+def main():
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('blue')
+    light_controller = Oculizer('garage', scene_manager)
+
+    scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
+
+    light_controller.start()
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
+        stdscr.addstr(1, 0, "Available scenes:")
+        for i, scene in enumerate(scene_manager.scenes):
+            stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
+
+        # highlight the current scene
+        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key == ord('q'):
+            light_controller.stop()
+            light_controller.join()
+            break
+        elif key in scene_commands:
+            try:
+                light_controller.change_scene(scene_commands[key])
+            except Exception as e:
+                stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+
+        elif key == ord('r'):
+            scene_manager.reload_scenes()
+            light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
+            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
+            stdscr.refresh()
+            time.sleep(1)
+
+        stdscr.refresh()
+        time.sleep(0.1)
+
+    curses.endwin()
+
+if __name__ == '__main__':
+    main()
+
+    ----------------------------------------
+
     .DS_Store
     requirements.txt
 
@@ -2632,6 +2709,4556 @@ def load_json(filename):
     return data
         ----------------------------------------
 
+        visualizer.py
+
+        Content of visualizer.py:
+        ----------------------------------------
+import sys
+import numpy as np
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtCore import QTimer
+import pyqtgraph as pg
+from oculizer import Oculizer, SceneManager
+from oculizer.config import audio_parameters
+
+nmfft = audio_parameters['NMFFT']
+
+class FeatureVisualizer(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("mfft Feature Visualizer")
+        self.setGeometry(100, 100, 1000, 800)
+
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+
+        self.coeff_plot = pg.PlotWidget(title='Mel-scaled FFT Coefficients')
+        layout.addWidget(self.coeff_plot)
+
+        self.coeff_bars = pg.BarGraphItem(x=range(nmfft), height=[0]*nmfft, width=0.8, brush='b')
+        self.coeff_plot.addItem(self.coeff_bars)
+
+        self.coeff_plot.setLabel('left', 'Magnitude')
+        self.coeff_plot.setLabel('bottom', 'mfft Coefficient')
+        self.coeff_plot.showGrid(y=True)
+        self.coeff_plot.setYRange(0, 20)  # Adjust based on your typical coefficient values
+        self.coeff_plot.setXRange(-0.5, nmfft+0.5)
+        x_axis = self.coeff_plot.getAxis('bottom')
+        x_axis.setTicks([[(i, str(i+1)) if (i+1) % 5 == 0 else (i, '') for i in range(nmfft)]])
+        x_axis.setStyle(tickTextOffset=10, tickLength=-15)
+
+        # Initialize Oculizer controller
+        scene_manager = SceneManager('scenes')
+        self.controller = Oculizer('testing', scene_manager)
+        self.controller.start()
+
+        # Set up timer for updating plots
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_plot)
+        self.timer.start(10)  # Update every 10 ms
+
+    def update_plot(self):
+        mfft = self.controller.mfft_queue.get()
+        if mfft is not None and len(mfft) == nmfft:
+            self.coeff_bars.setOpts(height=mfft)
+
+    def closeEvent(self, event):
+        self.controller.stop()
+        self.controller.join()
+        event.accept()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    visualizer = FeatureVisualizer()
+    visualizer.show()
+    sys.exit(app.exec_())
+        ----------------------------------------
+
+        custom_profiles/
+            __init__.py
+
+            Content of __init__.py:
+            ----------------------------------------
+from .ADJ_strobe import Strobe
+from .RGB import RGB
+            ----------------------------------------
+
+            ADJ_strobe.py
+
+            Content of ADJ_strobe.py:
+            ----------------------------------------
+from PyDMXControl.profiles.defaults import Fixture
+
+class Strobe(Fixture):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._register_channel('dimmer')
+        self._register_channel_aliases('dimmer', 'brightness', 'dim', 'd')
+        self._register_channel('strobe')
+        self._register_channel_aliases('strobe', 's')
+        self._register_channel('function')
+            ----------------------------------------
+
+            RGB.py
+
+            Content of RGB.py:
+            ----------------------------------------
+from PyDMXControl.profiles.defaults import Fixture
+
+class RGB(Fixture):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self._register_channel('dimmer')
+        self._register_channel_aliases('dimmer', 'brightness', 'dim', 'd')
+        self._register_channel('red')
+        self._register_channel_aliases('red', 'r')
+        self._register_channel('green')
+        self._register_channel_aliases('green', 'g')
+        self._register_channel('blue')
+        self._register_channel_aliases('blue', 'b')
+        self._register_channel('strobe')
+        self._register_channel_aliases('strobe', 's')
+        self._register_channel('function')
+
+    def set_color(self, color):
+        if color == 'red':
+            self.set_channels(self.get_channels()[0], 255, 0, 0)
+        elif color == 'orange':
+            self.set_channels(self.get_channels()[0], 255, 127, 0)
+        elif color == 'yellow':
+            self.set_channels(self.get_channels()[0], 255, 255, 0)
+        elif color == 'green':
+            self.set_channels(self.get_channels()[0], 0, 255, 0)
+        elif color == 'blue':
+            self.set_channels(self.get_channels()[0], 0, 0, 255)
+        elif color == 'purple':
+            self.set_channels(self.get_channels()[0], 75, 0, 130)
+        elif color == 'pink':
+            self.set_channels(self.get_channels()[0], 255, 0, 255)
+        elif color == 'white':
+            self.set_channels(self.get_channels()[0], 255, 255, 255)
+        else:
+            raise ValueError(f"Color '{color}' not found")
+
+    def set_strobe(self, speed, brightness):
+        self.set_channels(255, 255, 255, speed, brightness, 0, 0)
+
+            ----------------------------------------
+
+            __pycache__/
+                RGB.cpython-311.pyc
+                ADJ_strobe.cpython-311.pyc
+                __init__.cpython-311.pyc
+        scenes/
+            scene_manager.py
+
+            Content of scene_manager.py:
+            ----------------------------------------
+import os
+import json
+
+class SceneManager:
+    def __init__(self, scenes_directory):
+        # two dirs up from the current file
+        scenes_directory = os.path.join(os.path.dirname(__file__), '..', '..', scenes_directory)
+        self.scenes = self.load_json_files(scenes_directory)
+        self.current_scene = self.scenes[list(self.scenes.keys())[0]]
+
+    def load_json_files(self, directory):
+        data = {}
+        for filename in os.listdir(directory):
+            if filename.endswith('.json'):
+                with open(os.path.join(directory, filename), 'r') as file:
+                    data[filename[:-5]] = json.load(file)
+        return data
+
+    def set_scene(self, scene_name):
+        if scene_name in self.scenes:
+            self.current_scene = self.scenes[scene_name]
+        else:
+            raise ValueError(f"Scene '{scene_name}' not found")
+
+    def reload_scenes(self):
+        self.scenes = self.load_json_files('scenes')
+
+def main():
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('testing')
+    print(scene_manager.current_scene)
+
+if __name__ == '__main__':
+    main()
+            ----------------------------------------
+
+            scene_prediction.py
+
+            Content of scene_prediction.py:
+            ----------------------------------------
+"""
+Predict the lighting scene based on spotify features, real-time audio analysis, and user preferences. 
+"""
+
+import numpy as np
+from scipy.spatial import distance
+import time
+import threading
+import queue
+import json
+import os
+import random
+from config import audio_parameters
+import librosa
+from sklearn.cluster import KMeans
+
+
+            ----------------------------------------
+
+            __init__.py
+
+            Content of __init__.py:
+            ----------------------------------------
+from .scene_manager import SceneManager
+            ----------------------------------------
+
+            __pycache__/
+                scene_manager.cpython-311.pyc
+                __init__.cpython-311.pyc
+        spotify/
+            .cache-1260351083
+
+            .cache-1260351083
+            __init__.py
+
+            Content of __init__.py:
+            ----------------------------------------
+from .spotifizer import Spotifizer
+            ----------------------------------------
+
+            spotifizer.py
+
+            Content of spotifizer.py:
+            ----------------------------------------
+"""
+Description: Provides Spotifizer class which runs a thread to continuously pull song info from Spotify API.
+Must have a Spotify Premium account, the app on the same device, have set up the app, etc. 
+"""
+
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials, SpotifyOAuth
+import threading
+import queue
+import time
+import curses
+import os
+
+# get the client id and client secret from the text file
+# get the client id and client secret from the text file
+credspath = os.path.join(os.path.dirname(__file__), '../../spotify_credentials.txt')
+with open(credspath) as f:
+    client_id = f.readline().strip().split(' ')[1]
+    client_secret = f.readline().strip().split(' ')[1]
+    uri = f.readline().split(' ')[1][:-1]
+    username = f.readline().split(' ')[1][:-1]
+    #token = f.readline().split(' ')[1][:-1]
+
+# set the environment variables
+os.environ['SPOTIPY_CLIENT_ID'], os.environ['SPOTIFY_CLIENT_ID'] = client_id, client_id
+os.environ['SPOTIPY_CLIENT_SECRET'], os.environ['SPOTIFY_CLIENT_SECRET'] = client_secret, client_secret
+os.environ['SPOTIPY_REDIRECT_URI'], os.environ['SPOTIFY_REDIRECT_URI'] = uri, uri
+
+auth_manager = SpotifyClientCredentials()
+sp = spotipy.Spotify(auth_manager=auth_manager)
+
+# just add all the scopes
+scopes = ['user-library-read',
+            'user-read-recently-played',
+            'user-top-read',
+            'user-follow-read',
+            'user-read-playback-position',
+            'user-read-playback-state',
+            'user-read-currently-playing',
+            'user-modify-playback-state',
+            'user-read-private',
+            'playlist-read-private',
+            'playlist-read-collaborative',
+            'playlist-modify-public',
+            'playlist-modify-private']
+
+token = SpotifyOAuth(scope=' '.join(scopes)).get_access_token(as_dict=False)
+
+if token:
+    sp = spotipy.Spotify(auth=token)
+    saved_tracks_resp = sp.current_user_saved_tracks(limit=50)
+else:
+    print('Couldn\'t get token for that username')
+
+user = sp.user(username)
+sp.user = user
+
+class Spotifizer(threading.Thread):
+    def __init__(self, update_interval=0.1):
+        super().__init__()
+        self.running = threading.Event()
+        self.error_queue = queue.Queue()
+        self.info_queue = queue.Queue()
+        self.spotify = sp
+        self.playing = False
+        self.volume = 0
+        self.current_track_id = None
+        self.current_track_info = None 
+        self.artist = None
+        self.title = None
+        self.update_interval = update_interval
+        self.progress = 0
+        self.suggested_scene = 'testing'
+
+    def run(self):
+        self.running.set()
+        try:
+            while self.running.is_set():
+                self.update_current_track()
+        except Exception as e:
+            self.error_queue.put(f"Error in Spotifizer: {str(e)}")
+
+    def update_current_track(self):
+        current_playback = self.spotify.current_playback()
+        if current_playback is not None:
+            if current_playback['is_playing']:
+                self.playing = True
+                self.current_track_id = current_playback['item']['id']
+                self.current_track_info = current_playback['item']
+                self.artist = current_playback['item']['artists'][0]['name']
+                self.title = current_playback['item']['name']
+                self.volume = current_playback['device']['volume_percent']
+                self.progress = current_playback['progress_ms'] + 500
+        else:
+            self.playing = False
+            self.current_track_id = None
+            self.current_track_info = None
+
+    def play(self):
+        try:
+            if not self.playing:
+                self.spotify.start_playback()
+                self.playing = True
+        except Exception as e:
+            self.error_queue.put(f"Error playing in Spotifizer: {str(e)}")
+
+    def pause(self):
+        try:
+            if self.playing:
+                self.spotify.pause_playback()
+                self.playing = False
+        except Exception as e:
+            self.error_queue.put(f"Error pausing in Spotifizer: {str(e)}")
+
+    def quiet(self, volume=50):
+        try:
+            self.spotify.volume(volume)
+        except Exception as e:
+            self.error_queue.put(f"Error setting volume in Spotifizer: {str(e)}")
+
+    def loud(self, volume=100):
+        try:
+            self.spotify.volume(volume)
+        except Exception as e:
+            self.error_queue.put(f"Error setting volume in Spotifizer: {str(e)}")
+
+    def next(self):
+        try:
+            self.spotify.next_track()
+        except Exception as e:
+            self.error_queue.put(f"Error playing next track in Spotifizer: {str(e)}")
+
+    def previous(self):
+        try:
+            self.spotify.previous_track()
+        except Exception as e:
+            self.error_queue.put(f"Error playing previous track in Spotifizer: {str(e)}")
+
+    def stop(self):
+        self.running.clear()
+
+
+def main():
+    stdscr = curses.initscr()
+    spotifizer = Spotifizer()
+    spotifizer.start()
+    spotifizer.pause()
+    spotifizer.spotify.volume(50)
+    if not spotifizer.spotify.current_playback()['is_playing']:
+        spotifizer.play()
+    print('Listening to Spotify...')
+    try:
+        while True:
+            if spotifizer.current_track_info is not None:
+                stdscr.clear()
+                stdscr.addstr(0, 0, f"Track: {spotifizer.title}")
+                stdscr.addstr(1, 0, f"Artist: {spotifizer.artist}")
+                stdscr.addstr(2, 0, f"Playing: {spotifizer.playing}")
+                stdscr.addstr(3, 0, f"Volume: {spotifizer.volume}")
+                stdscr.addstr(4, 0, f"Progress_ms: {spotifizer.progress}")
+                stdscr.refresh()
+            else:
+                stdscr.addstr(0, 0, "No track playing...")
+                stdscr.refresh()
+
+    except KeyboardInterrupt:
+        spotifizer.stop()
+        print('Stopped listening to Spotify...')
+        time.sleep(1)
+    
+    finally:
+
+        spotifizer.join()
+        curses.endwin()
+
+if __name__ == "__main__":
+    main()
+
+            ----------------------------------------
+
+            __pycache__/
+                spotifizer.cpython-311.pyc
+                __init__.cpython-311.pyc
+        __pycache__/
+            __init__.cpython-38.pyc
+            config.cpython-311.pyc
+            utils.cpython-311.pyc
+            config.cpython-38.pyc
+            __init__.cpython-311.pyc
+        audio/
+            audio_listener.py
+
+            Content of audio_listener.py:
+            ----------------------------------------
+import threading
+import queue
+import numpy as np
+from scipy.fftpack import rfft
+import time
+import curses
+import sounddevice as sd
+from oculizer.config import audio_parameters
+
+SAMPLERATE = audio_parameters['SAMPLERATE']
+BLOCKSIZE = audio_parameters['BLOCKSIZE']
+
+def get_blackhole_device_idx():
+    devices = sd.query_devices()
+    for i, device in enumerate(devices):
+        if 'BlackHole' in device['name']:
+            return i, device['name']
+    return None, None
+
+class AudioListener(threading.Thread):
+    def __init__(self, sample_rate=SAMPLERATE, block_size=BLOCKSIZE, channels=1):
+        threading.Thread.__init__(self)
+        self.sample_rate = sample_rate
+        self.block_size = block_size
+        self.channels = channels
+        self.audio_queue = queue.Queue()
+        self.fft_queue = queue.Queue()
+        self.running = threading.Event()
+        self.error_queue = queue.Queue()
+        self.device_idx, self.device_name = get_blackhole_device_idx()
+        self.stream = None
+
+    def audio_callback(self, indata, frames, time, status):
+        if status:
+            self.error_queue.put(f"Audio callback error: {status}")
+        try:
+            audio_data = indata.copy().flatten()
+            fft_data = np.abs(rfft(audio_data))
+            self.audio_queue.put(audio_data)
+            self.fft_queue.put(fft_data)
+        except Exception as e:
+            self.error_queue.put(f"Error processing audio data: {str(e)}")
+
+    def run(self):
+        self.running.set()
+        try:
+            with sd.InputStream(
+                device=self.device_idx,
+                channels=self.channels,
+                samplerate=self.sample_rate,
+                blocksize=self.block_size,
+                callback=self.audio_callback
+            ):
+                while self.running.is_set():
+                    sd.sleep(100)
+        except Exception as e:
+            self.error_queue.put(f"Error in audio stream: {str(e)}")
+
+    def stop(self):
+        self.running.clear()
+
+    def get_audio_data(self):
+        try:
+            return self.audio_queue.get_nowait()
+        except queue.Empty:
+            return None
+
+    def get_fft_data(self, timeout=0.08):
+        try:
+            return self.fft_queue.get(timeout=timeout)
+        except queue.Empty:
+            return None
+
+    def get_errors(self):
+        errors = []
+        while not self.error_queue.empty():
+            errors.append(self.error_queue.get_nowait())
+        return errors
+
+def main():
+    stdscr = curses.initscr()
+
+    audio_listener = AudioListener()
+    audio_listener.start()
+    print('Listening to audio...')
+
+    try:
+        while True:
+            audio_data = audio_listener.get_audio_data()
+            fft_data = audio_listener.get_fft_data()
+            errors = audio_listener.get_errors()
+            
+            stdscr.clear()
+            if fft_data is not None:
+                stdscr.addstr(0, 1, f"FFT Sum: {np.sum(fft_data)}")
+                stdscr.addstr(1, 1, f'FFT Shape: {len(fft_data)}')
+            stdscr.addstr(2, 1, f"Sample rate: {audio_listener.sample_rate}")
+            stdscr.addstr(3, 1, f"Block size: {audio_listener.block_size}")
+            stdscr.refresh()
+
+            if errors:
+                print("Errors occurred:", errors)
+
+            if audio_data is not None and fft_data is not None:
+                # Process data here
+                pass
+
+            time.sleep(0.01)  # Small delay to prevent busy-waiting
+    except KeyboardInterrupt:
+        print("Stopping audio listener...")
+    finally:
+        audio_listener.stop()
+        audio_listener.join()
+        curses.endwin()
+
+if __name__ == "__main__":
+    main()
+            ----------------------------------------
+
+            __init__.py
+
+            Content of __init__.py:
+            ----------------------------------------
+from .audio_listener import AudioListener
+
+            ----------------------------------------
+
+            __pycache__/
+                __init__.cpython-38.pyc
+                audio_listener.cpython-38.pyc
+                audio_listener.cpython-311.pyc
+                __init__.cpython-311.pyc
+        light/
+            control.py
+
+            Content of control.py:
+            ----------------------------------------
+"""
+light_control.py
+
+Description: This script provides all the lighting control. It is responsible for controlling the DMX lights and RGB lights, loading profiles, 
+setting up the DMX controller, providing functions for sending signals to the DMX controller, and providing functions for controlling the RGB lights.
+
+Author: Landry Bulls
+Date: 8/20/24
+"""
+
+import numpy as np
+import sounddevice as sd
+from librosa.feature import melspectrogram
+from PyDMXControl.controllers import OpenDMXController
+from PyDMXControl.profiles.Generic import Dimmer, Custom
+from oculizer.custom_profiles.RGB import RGB
+from oculizer.custom_profiles.ADJ_strobe import Strobe
+from oculizer.scenes import SceneManager
+from oculizer.light.mapping import process_light, scale_mfft
+from oculizer.config import audio_parameters
+from oculizer.utils import load_json
+import threading
+import queue
+import time
+from pathlib import Path
+
+class Oculizer(threading.Thread):
+    def __init__(self, profile_name, scene_manager):
+        threading.Thread.__init__(self)
+        self.profile_name = profile_name
+        self.sample_rate = audio_parameters['SAMPLERATE']
+        self.block_size = audio_parameters['BLOCKSIZE']
+        self.hop_length = audio_parameters['HOP_LENGTH']
+        self.channels = 1
+        self.mfft_queue = queue.Queue(maxsize=1)
+        self.device_idx = self._get_blackhole_device_idx()
+        self.running = threading.Event()
+        self.scene_manager = scene_manager
+        self.profile = self._load_profile()
+        self.light_names = [i['name'] for i in self.profile['lights']]
+        self.dmx_controller, self.controller_dict = self._load_controller()
+        self.scene_changed = threading.Event()
+
+    def _get_blackhole_device_idx(self):
+        devices = sd.query_devices()
+        for i, device in enumerate(devices):
+            if 'BlackHole' in device['name']:
+                return i
+        return None
+
+    def _load_profile(self):
+        current_dir = Path(__file__).resolve().parent
+        project_root = current_dir.parent.parent
+        profile_path = project_root / 'profiles' / f'{self.profile_name}.json'
+        return load_json(profile_path)
+
+    def _load_controller(self):
+        controller = OpenDMXController()
+        control_dict = {}
+        curr_channel = 1
+        sleeptime = 0.1
+
+        for light in self.profile['lights']:
+            if light['type'] == 'dimmer':
+                control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
+                curr_channel += 1
+                control_dict[light['name']].dim(255)
+                time.sleep(sleeptime)
+                control_dict[light['name']].dim(0)
+
+            elif light['type'] == 'rgb':
+                control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
+                curr_channel += 6
+                control_dict[light['name']].set_channels([255, 255, 255, 255, 255, 0])
+                time.sleep(sleeptime)
+                control_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+
+            elif light['type'] == 'strobe':
+                control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
+                curr_channel += 2
+                control_dict[light['name']].set_channels([255, 255])
+                time.sleep(sleeptime)
+                control_dict[light['name']].set_channels([0, 0])
+
+        return controller, control_dict
+
+    def audio_callback(self, indata, frames, time, status):
+        if status:
+            print(f"Audio callback error: {status}")
+            return
+        
+        audio_data = indata.copy().flatten()
+        mfft_data = np.mean(melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
+        mfft_data = scale_mfft(mfft_data)
+        
+        if self.mfft_queue.full():
+            try:
+                self.mfft_queue.get_nowait()
+            except queue.Empty:
+                pass
+        self.mfft_queue.put(mfft_data)
+
+    def run(self):
+        self.running.set()
+        try:
+            with sd.InputStream(
+                device=self.device_idx,
+                channels=self.channels,
+                samplerate=self.sample_rate,
+                blocksize=self.block_size,
+                callback=self.audio_callback
+            ):
+                while self.running.is_set():
+                    self.process_audio_and_lights()
+                    time.sleep(0.001)
+        except Exception as e:
+            print(f"Error in audio stream: {str(e)}")
+            print(f"Origin script: {e.__traceback__.tb_frame.f_globals['__file__']}")    
+
+    def process_audio_and_lights(self):
+        if self.scene_changed.is_set():
+            self.scene_changed.clear()
+            self.turn_off_all_lights()
+
+        try:
+            mfft_data = self.mfft_queue.get(block=False)
+        except queue.Empty:
+            return
+
+        current_time = time.time()
+
+        for light in self.scene_manager.current_scene['lights']:
+            if light['name'] not in self.light_names:
+                continue
+
+            try:
+                dmx_values = process_light(light, mfft_data, current_time)
+                if dmx_values is not None:
+                    if light['type'] == 'dimmer':
+                        self.controller_dict[light['name']].dim(dmx_values[0])
+
+                    elif light['type'] == 'rgb':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:6])
+
+                    elif light['type'] == 'strobe':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:2])
+
+            except Exception as e:
+                print(f"Error processing light {light['name']}: {str(e)}")
+
+
+    def change_scene(self, scene_name):
+        self.scene_manager.set_scene(scene_name)
+        self.scene_changed.set()
+
+    def turn_off_all_lights(self):
+        for light in self.profile['lights']:
+            if light['type'] == 'dimmer':
+                self.controller_dict[light['name']].dim(0)
+            elif light['type'] == 'rgb':
+                self.controller_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+            elif light['type'] == 'strobe':
+                self.controller_dict[light['name']].set_channels([0, 0])
+
+    def stop(self):
+        self.running.clear()
+
+def main():
+    # init scene manager
+    scene_manager = SceneManager('scenes')
+    # set the initial scene to the test scene
+    scene_manager.set_scene('testing')  
+    # init the light controller with the name of the profile and the scene manager
+    controller = Oculizer('testing', scene_manager)
+    print("Starting Oculizer...")
+    controller.start()
+    
+    try:
+        while True:
+            time.sleep(1)  # Main thread does nothing but keep the program alive
+    except KeyboardInterrupt:
+        print("Stopping Oculizer...")
+        controller.stop()
+        controller.join()
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+
+
+            ----------------------------------------
+
+            __init__.py
+
+            Content of __init__.py:
+            ----------------------------------------
+#from .control import load_controller, load_json, load_profile, Oculizer
+from .control import Oculizer
+
+            ----------------------------------------
+
+            mapping.py
+
+            Content of mapping.py:
+            ----------------------------------------
+import numpy as np
+import time
+from oculizer.config import audio_parameters
+
+SAMPLERATE = audio_parameters['SAMPLERATE']
+BLOCKSIZE = audio_parameters['BLOCKSIZE']
+
+# Define colors as a numpy array for faster operations
+COLORS = np.array([
+    [255, 0, 0],    # red
+    [255, 127, 0],  # orange
+    [255, 255, 0],  # yellow
+    [0, 255, 0],    # green
+    [0, 0, 255],    # blue
+    [75, 0, 130],   # purple
+    [255, 0, 255],  # pink
+    [255, 255, 255] # white
+], dtype=np.int32)
+
+COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
+
+# Helper function to convert color name to index
+def color_to_index(color_name):
+    return COLOR_NAMES.index(color_name) if color_name in COLOR_NAMES else -1
+
+def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
+    """
+    Scale the MFFT vector to boost higher frequencies.
+    
+    :param mfft_vec: The input MFFT vector
+    :param scaling_factor: Controls the intensity of scaling (higher values = more intense scaling)
+    :param scaling_method: The method of scaling ('log', 'exp', or 'linear')
+    :return: Scaled MFFT vector
+    """
+    num_bins = len(mfft_vec)
+    
+    if scaling_method == 'log':
+        # Logarithmic scaling
+        scaling = np.log1p(np.arange(num_bins) / num_bins) * scaling_factor + 1
+
+    elif scaling_method == 'exp':
+        # Exponential scaling
+        scaling = np.exp(np.arange(num_bins) / num_bins * scaling_factor)
+
+    elif scaling_method == 'linear':
+        # Linear scaling
+        scaling = np.linspace(1, 1 + scaling_factor, num_bins)
+    else:
+        raise ValueError("Invalid scaling method. Choose 'log', 'exp', or 'linear'.")
+    
+    # Normalize the scaling factor
+    scaling /= scaling.mean()
+    
+    # Apply scaling
+    scaled_mfft = mfft_vec * scaling
+    
+    return scaled_mfft
+
+def color_to_rgb(color_name):
+    # returns the RGB value of the color
+    return COLORS[COLOR_NAMES.index(color_name)]
+
+def random_color():
+    # choose a random color and returns its rgb value
+    return color_to_rgb(COLOR_NAMES[np.random.randint(0, len(COLOR_NAMES))])
+
+# def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
+#     color = COLORS[color_index]
+#     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
+
+def freq_to_index(freq):
+    return int(freq * BLOCKSIZE / SAMPLERATE)
+
+def power_to_brightness(power, power_low, power_high, brightness_low, brightness_high):
+    if power < power_low:
+        return brightness_low
+    elif power > power_high:
+        return brightness_high
+    else:
+        return int((power - power_low) / (power_high - power_low) * (brightness_high - brightness_low) + brightness_low)
+
+def mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range):
+    mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+    if mfft_low < 0 or mfft_high > len(mfft_vec):
+        raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
+    mfft_mean = np.max(mfft_vec[mfft_low:mfft_high])
+    return power_to_brightness(mfft_mean, power_range[0], power_range[1], brightness_range[0], brightness_range[1])
+
+def mfft_to_rgb(mfft_vec, mfft_range, power_range, brightness_range, color, strobe):
+    try:
+        brightness = mfft_to_brightness(mfft_vec, mfft_range, power_range, brightness_range)
+        
+        if color == 'random':
+            color = color_to_rgb(random_color())
+        else:
+            color = color_to_rgb(color)
+        
+        return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
+
+    except Exception as e:
+        print(f"Error in mfft_to_rgb: {str(e)}")
+        return [0, 0, 0, 0, 0, 0]  # Return a safe default value
+
+def mfft_to_dimmer(mfft_vec, mfft_range, prange, brange):
+    try:
+        mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+        if mfft_low < 0 or mfft_high > len(mfft_vec):
+            raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
+        mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+        return int(power_to_brightness(mfft_mean, prange[0], prange[1], brange[0], brange[1]))
+
+    except Exception as e:
+        print(f"Error in mfft_to_dimmer: {str(e)}")
+        return 0  # Return a safe default value
+
+def mfft_to_strobe(mfft_vec, mfft_range, threshold):
+    try:
+        mfft_low, mfft_high = int(mfft_range[0]), int(mfft_range[1])
+        if mfft_low < 0 or mfft_high > len(mfft_vec):
+            raise ValueError(f"MFFT range {mfft_range} is out of bounds for MFFT vector of length {len(mfft_vec)}")
+        mfft_mean = np.mean(mfft_vec[mfft_low:mfft_high])
+        return [255, 255] if mfft_mean >= threshold else [0, 0]
+    except Exception as e:
+        print(f"Error in mfft_to_strobe: {str(e)}")
+        return [0, 0]  # Return a safe default value
+
+def bool_dimmer(brightness):
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
+    return [int(brightness)]
+
+def bool_rgb(brightness, color, strobe, colorfade):
+    # expects color to be DMX value
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
+    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
+
+def bool_strobe(speed, brightness):
+    speed = np.random.randint(0, 256) if speed == 'random' else speed
+    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
+    return [int(speed), int(brightness)]
+
+def time_function(t, frequency, function):
+    if function == 0:  # sine
+        return np.sin(t * frequency * 2 * np.pi) * 0.5 + 0.5
+    elif function == 1:  # square
+        return np.sign(np.sin(t * frequency * 2 * np.pi)) * 0.5 + 0.5
+    elif function == 2:  # triangle
+        return np.abs(((t * frequency) % 2) - 1)
+    elif function == 3:  # sawtooth_forward
+        return (t * frequency) % 1
+    elif function == 4:  # sawtooth_backward
+        return 1 - (t * frequency % 1)
+
+def time_dimmer(t, min_brightness, max_brightness, frequency, function):
+    range_brightness = max_brightness - min_brightness
+    try:
+        return int(min_brightness + range_brightness * time_function(t, frequency, function))
+    except Exception as e:
+        print(f"Error in time_dimmer0: {str(e)}")
+        print(f"t: {t}, min_brightness: {min_brightness}, max_brightness: {max_brightness}, frequency: {frequency}, function: {function}")
+
+def time_rgb(t, min_brightness, max_brightness, frequency, function, color, strobe):
+    brightness = time_dimmer(t, min_brightness, max_brightness, frequency, function)
+    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
+
+def time_strobe(t, speed_range, brightness_range, frequency, function, target):
+    if target == 0:  # speed
+        speed = time_function(t, frequency, function) * (speed_range[1] - speed_range[0]) + speed_range[0]
+        return [int(speed), int(brightness_range[1])]
+
+    elif target == 1:  # brightness
+        brightness = time_function(t, frequency, function) * (brightness_range[1] - brightness_range[0]) + brightness_range[0]
+        return [int(speed_range[1]), int(brightness)]
+
+    else:  # default to both if target is invalid
+        speed = time_function(t, frequency, function) * (speed_range[1] - speed_range[0]) + speed_range[0]
+        brightness = time_function(t, frequency, function) * (brightness_range[1] - brightness_range[0]) + brightness_range[0]
+        return [int(speed), int(brightness)]
+
+# # Non-JIT functions that interface with the JIT functions
+# def process_mfft_to_rgb(mfft_vec, light):
+#     return mfft_to_rgb(mfft_vec, 
+#                        light['mfft_range'], 
+#                        light['power_range'], 
+#                        light['brightness_range'], 
+#                        light.get('color', 'random'), 
+#                        light.get('strobe', 0))
+
+def process_bool_dimmer(light): 
+    return bool_dimmer(light['brightness'])
+
+def process_bool_strobe(light):
+    return bool_strobe(light['speed'], light['brightness'])
+
+def process_bool_rgb(light):
+    if 'colorfade' in light:
+        colorfade = light['colorfade']
+        color = [255,255,255]
+        brightness = light['brightness']
+        return bool_rgb(brightness, color, 0, colorfade)
+    else:
+        brightness = np.random.randint(0, 256) if light['brightness'] == 'random' else light['brightness']
+        color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
+        strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
+        return bool_rgb(brightness, color, strobe, 0)
+
+def process_time_dimmer(light, t):
+    function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
+    return time_dimmer(t, light['min_brightness'], light['max_brightness'], light['frequency'], function_index)
+
+def process_time_rgb(light, t):
+    color = random_color() if light['color'] == 'random' else color_to_rgb(light['color'])
+    strobe = np.random.randint(0, 256) if light.get('strobe') == 'random' else light.get('strobe', 0)
+    function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
+    return time_rgb(t, light['min_brightness'], light['max_brightness'], 
+                    light['frequency'], function_index, color, strobe)
+
+def process_time_strobe(light, t):
+    function_index = ['sine', 'square', 'triangle', 'sawtooth_forward', 'sawtooth_backward'].index(light['function'])
+    target_index = ['speed', 'brightness', 'both'].index(light['target'])
+    return time_strobe(t, light['speed_range'], light['brightness_range'], 
+                       light['frequency'], function_index, target_index)
+
+# Main processing function
+def process_light(light, mfft_vec, current_time):
+    modulator = light['modulator']
+    light_type = light['type']
+
+    #print(f"Processing light: {light['name']}, modulator: {modulator}, type: {light_type}")
+    #print(f"MFFT vector shape: {mfft_vec.shape}")
+
+    if modulator == 'mfft':
+        if light_type == 'dimmer':
+            #print(f"MFFT range: {light['mfft_range']}")
+            return [mfft_to_dimmer(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'])]
+
+        elif light_type == 'rgb':
+            #print(f"MFFT range: {light['mfft_range']}")
+            return mfft_to_rgb(mfft_vec, light['mfft_range'], light['power_range'], light['brightness_range'], light.get('color', 'random'), light.get('strobe', 0))
+
+        elif light_type == 'strobe':
+            #print(f"MFFT range: {light['mfft_range']}")
+            return mfft_to_strobe(mfft_vec, light['mfft_range'], light['threshold'])
+
+    elif modulator == 'bool':
+        if light_type == 'dimmer':
+            return process_bool_dimmer(light)
+
+        elif light_type == 'rgb':
+            return process_bool_rgb(light)
+
+        elif light_type == 'strobe':
+            return process_bool_strobe(light)
+            
+    elif modulator == 'time':
+        if light_type == 'dimmer':
+            try:
+                return [time_dimmer(current_time, light['min_brightness'], light['max_brightness'], 
+                                    light['frequency'], light['function'])]
+            except Exception as e:
+                print(f"Error in time_dimmer: {str(e)}")
+                return [0]
+                                
+        elif light_type == 'rgb':
+            return process_time_rgb(light, current_time)
+
+        elif light_type == 'strobe':
+            return process_time_strobe(light, current_time)
+
+    return None  # Return None if no valid combination is found
+
+
+def main():
+    # random 128 length mfft vector
+    mfft_data = np.random.rand(128)
+
+    # random light profile
+    light = {
+        'modulator': 'mfft',
+        'type': 'rgb',
+        'mfft_range': (0, 128),
+        'power_range': (0, 1),
+        'brightness_range': (0, 255),
+        'color': 'random',
+        'strobe': 0
+    }
+
+    # process the light
+    dmx_values = process_light(light, mfft_data, time.time())
+    print(dmx_values)
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+            ----------------------------------------
+
+            __pycache__/
+                __init__.cpython-38.pyc
+                control.cpython-311.pyc
+                control.cpython-38.pyc
+                mapping.cpython-311.pyc
+                __init__.cpython-311.pyc
+    data/
+    notebooks/
+        development.ipynb
+        .DS_Store
+        segmentation_dev.ipynb
+        .cache-1260351083
+        SAD_party.ipynb
+        dmx_dev.ipynb
+        scene_prediction_dev.ipynb
+        .cache
+        roy.ipynb
+        downloads/
+    ----------------------------------------
+
+    .DS_Store
+    requirements.txt
+
+    Content of requirements.txt:
+    ----------------------------------------
+
+    ----------------------------------------
+
+    run_full.py
+
+    Content of run_full.py:
+    ----------------------------------------
+"""
+For testing the functionality of the program.
+"""
+
+import os
+import json
+import threading
+import queue
+import numpy as np
+import curses
+import time
+
+#from control import load_json, load_profile, load_controller, LightController
+from oculizer.light import Oculizer
+from oculizer.audio import AudioListener
+from oculizer.scenes import SceneManager
+from oculizer.spotify import Spotifizer
+
+stdscr = curses.initscr()
+
+def main():
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('hell')
+    light_controller = Oculizer('garage', scene_manager)
+    spotifizer = Spotifizer()
+
+    scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
+
+    light_controller.start()
+    spotifizer.start()
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
+        stdscr.addstr(1, 0, "Available scenes:")
+        for i, scene in enumerate(scene_manager.scenes):
+            stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
+            
+        # highlight the current scene
+        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key == ord('q'):
+            light_controller.stop()
+            light_controller.join()
+            break
+        elif key in scene_commands:
+            try:
+                light_controller.change_scene(scene_commands[key])
+            except Exception as e:
+                stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+
+        elif key == ord('r'):
+            scene_manager.reload_scenes()
+            light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
+            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
+            stdscr.refresh()
+            time.sleep(1)
+
+        stdscr.refresh()
+        time.sleep(0.1)
+
+    curses.endwin()
+
+if __name__ == '__main__':
+    main()
+
+    ----------------------------------------
+
+    test_imports.py
+
+    Content of test_imports.py:
+    ----------------------------------------
+from oculizer import AudioListener, LightController, SceneManager, AudioLightController
+from oculizer.config import audio_parameters
+import time
+
+print("AudioListener imported successfully")
+print("LightController imported successfully")
+print("SceneManager imported successfully")
+print(f"Audio parameters: {audio_parameters}")
+
+# Instantiate AudioListener to ensure it works
+listener = AudioListener()
+print("AudioListener instantiated successfully")
+
+listener.start()  # Use start() instead of run()
+time.sleep(2)
+listener.stop()
+listener.join()  # Wait for the thread to finish
+print('AudioListener started, stopped, and joined successfully')
+
+# Instantiate LightController to ensure it works
+controller = LightController(listener, 'testing', SceneManager('scenes'))
+print("LightController instantiated successfully")
+
+controller.start()  # Use start() instead of run()
+time.sleep(2)
+controller.stop()
+controller.join()  # Wait for the thread to finish
+print('LightController started, stopped, and joined successfully')
+
+# Instantiate SceneManager to ensure it works
+manager = SceneManager('scenes')
+print("SceneManager instantiated successfully")
+
+print('SceneManager started, stopped, and joined successfully')
+
+print("All imports and instantiations successful")
+    ----------------------------------------
+
+    spotify_credentials.txt
+
+    Content of spotify_credentials.txt:
+    ----------------------------------------
+id d97b8894dcb848469851a24585519de8
+secret 7fcdd929f0a545bdaebfdc30c1d74993
+uri http://localhost:8000
+username 1260351083
+token BQBQeSU-AUrZhmSfOjwP1MHtniul_YZl4JjmL8yM2QbRWQDK7SmMGZjHi4WShgG6lhis9ijRKDiqV3DSenSZ0WL-3PcZhIIcDyVW1SBfdLnPkufRB9qIxyKVGOSd0tCXFncJh9Kq7dforq2F5uP4PBsNOjU85B3Tq1CaVdv01UuFCKsLue9PGEaIN_XIPCMITsBTC8j92vliY_at5fK4BvGQI2LFEZCS61OxmyXqhwSNIyr3n-no-0312CM9CHPkBEYhvAPp10GnPHJkspD-YRG0NWYG-fSDmkQ-SkvZOOJ-BWvI
+
+
+    ----------------------------------------
+
+    prepare_repo.py
+
+    Content of prepare_repo.py:
+    ----------------------------------------
+import os
+import json
+
+def generate_repo_overview(root_dir):
+    overview = []
+    for dirpath, dirnames, filenames in os.walk(root_dir):
+        level = dirpath.replace(root_dir, '').count(os.sep)
+        indent = ' ' * 4 * level
+        overview.append(f'{indent}{os.path.basename(dirpath)}/')
+        sub_indent = ' ' * 4 * (level + 1)
+        for f in filenames:
+            overview.append(f'{sub_indent}{f}')
+            file_path = os.path.join(dirpath, f)
+            if f.endswith(('.py', '.json', '.md', '.txt')):
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    content = file.read()
+                    overview.append(f'\n{sub_indent}Content of {f}:')
+                    overview.append(f'{sub_indent}' + '-' * 40)
+                    overview.append(content)
+                    overview.append(f'{sub_indent}' + '-' * 40 + '\n')
+    
+    return '\n'.join(overview)
+
+def main():
+    root_dir = os.getcwd()  # Get the current working directory
+    output_file = 'repo_overview.txt'
+    
+    repo_overview = generate_repo_overview(root_dir)
+    
+    with open(output_file, 'w', encoding='utf-8') as f:
+        f.write(repo_overview)
+    
+    print(f"Repository overview has been generated and saved to {output_file}")
+
+if __name__ == "__main__":
+    main()
+    ----------------------------------------
+
+    __init__.py
+
+    Content of __init__.py:
+    ----------------------------------------
+from .audio.audio_listener import AudioListener
+from .light.control import LightController
+from .scenes.scene_manager import SceneManager
+
+
+
+    ----------------------------------------
+
+    run_dev.py
+
+    Content of run_dev.py:
+    ----------------------------------------
+import os
+import json
+import threading
+import queue
+import numpy as np
+import curses
+import time
+import sys
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget
+from PyQt5.QtCore import QTimer
+import pyqtgraph as pg
+
+from oculizer.light import Oculizer
+from oculizer.scenes import SceneManager
+from oculizer.config import audio_parameters
+
+nmfft = audio_parameters['NMFFT']
+
+class MFFTVisualizer(QMainWindow):
+    def __init__(self, light_controller):
+        super().__init__()
+        self.setWindowTitle("MFFT Visualizer")
+        self.setGeometry(100, 100, 800, 400)
+
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout(central_widget)
+
+        self.mfft_plot = pg.PlotWidget(title='Mel-scaled FFT')
+        layout.addWidget(self.mfft_plot)
+
+        self.mfft_bars = pg.BarGraphItem(x=range(nmfft), height=[0]*nmfft, width=0.8, brush='b')
+        self.mfft_plot.addItem(self.mfft_bars)
+
+        self.mfft_plot.setLabel('left', 'Magnitude')
+        self.mfft_plot.setLabel('bottom', 'MFFT Coefficient')
+        self.mfft_plot.showGrid(y=True)
+        self.mfft_plot.setYRange(0, 20)
+        self.mfft_plot.setXRange(-0.5, nmfft+0.5)
+
+        self.light_controller = light_controller
+
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.update_plot)
+        self.timer.start(10)  # Update every 10 ms
+
+    def update_plot(self):
+        try:
+            mfft = self.light_controller.mfft_queue.get(block=False)
+            if mfft is not None and len(mfft) == nmfft:
+                self.mfft_bars.setOpts(height=mfft)
+        except queue.Empty:
+            pass
+
+def curses_thread(stdscr, scene_manager, light_controller):
+    scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
+        stdscr.addstr(1, 0, "Available scenes:")
+        for i, scene in enumerate(scene_manager.scenes):
+            stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
+
+        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key == ord('q'):
+            light_controller.stop()
+            break
+        elif key in scene_commands:
+            try:
+                light_controller.change_scene(scene_commands[key])
+            except Exception as e:
+                stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+        elif key == ord('r'):
+            scene_manager.reload_scenes()
+            light_controller.change_scene(scene_manager.current_scene['name'])
+            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
+            stdscr.refresh()
+            time.sleep(1)
+
+        stdscr.refresh()
+        time.sleep(0.1)
+
+def main(stdscr):
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('blue')
+    light_controller = Oculizer('garage', scene_manager)
+
+    light_controller.start()
+
+    app = QApplication(sys.argv)
+    visualizer = MFFTVisualizer(light_controller)
+    visualizer.show()
+
+    curses_thread_obj = threading.Thread(target=curses_thread, args=(stdscr, scene_manager, light_controller))
+    curses_thread_obj.start()
+
+    app.exec_()
+
+    light_controller.stop()
+    light_controller.join()
+    curses_thread_obj.join()
+
+if __name__ == '__main__':
+    curses.wrapper(main)
+    ----------------------------------------
+
+    README.md
+
+    Content of README.md:
+    ----------------------------------------
+```    
+          ___           ___           ___           ___                   ___           ___           ___     
+         /\  \         /\  \         /\__\         /\__\      ___        /\  \         /\  \         /\  \    
+        /::\  \       /::\  \       /:/  /        /:/  /     /\  \       \:\  \       /::\  \       /::\  \   
+       /:/\:\  \     /:/\:\  \     /:/  /        /:/  /      \:\  \       \:\  \     /:/\:\  \     /:/\:\  \  
+      /:/  \:\  \   /:/  \:\  \   /:/  /  ___   /:/  /       /::\__\       \:\  \   /::\~\:\  \   /::\~\:\  \ 
+     /:/__/ \:\__\ /:/__/ \:\__\ /:/__/  /\__\ /:/__/     __/:/\/__/ _______\:\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ 
+     \:\  \ /:/  / \:\  \  \/__/ \:\  \ /:/  / \:\  \    /\/:/  /    \::::::::/__/ \:\~\:\ \/__/ \/_|::\/:/  /
+      \:\  /:/  /   \:\  \        \:\  /:/  /   \:\  \   \::/__/      \:\~~\~~      \:\ \:\__\      |:|::/  / 
+       \:\/:/  /     \:\  \        \:\/:/  /     \:\  \   \:\__\       \:\  \        \:\ \/__/      |:|\/__/  
+        \::/  /       \:\__\        \::/  /       \:\__\   \/__/        \:\__\        \:\__\        |:|  |    
+         \/__/         \/__/         \/__/         \/__/                 \/__/         \/__/         \|__|    
+
+
+```
+
+Intelligent, real-time audio-reactive DMX lighting. 
+
+In active development. 
+
+    ----------------------------------------
+
+    setup.py
+
+    Content of setup.py:
+    ----------------------------------------
+from setuptools import setup, find_packages
+
+setup(
+    name="oculizer",
+    version="0.1",
+    packages=find_packages(),
+    install_requires=[
+        # List your dependencies here
+        'numpy',
+        'scipy',
+        'sounddevice',
+        'librosa',
+        'pydub',
+        'scipy', 
+        'sounddevice',
+        'soundfile',
+        'sklearn',
+        'PyDMXControl'
+    ],
+)
+    ----------------------------------------
+
+    audtesting.ipynb
+    .gitignore
+    .cache
+    run_tester.py
+
+    Content of run_tester.py:
+    ----------------------------------------
+"""
+For testing the functionality of the program.
+"""
+
+import os
+import json
+import threading
+import queue
+import numpy as np
+import curses
+import time
+
+#from control import load_json, load_profile, load_controller, LightController
+from oculizer.light import Oculizer
+from oculizer.audio import AudioListener
+from oculizer.scenes import SceneManager
+
+stdscr = curses.initscr()
+
+def main():
+    scene_manager = SceneManager('scenes')
+    scene_manager.set_scene('hell')
+    light_controller = Oculizer('testing', scene_manager)
+
+    scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
+
+    light_controller.start()
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
+        stdscr.addstr(1, 0, "Available scenes:")
+        for i, scene in enumerate(scene_manager.scenes):
+            stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
+        # highlight the current scene
+        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key == ord('q'):
+            light_controller.stop()
+            light_controller.join()
+            break
+        elif key in scene_commands:
+            try:
+                light_controller.change_scene(scene_commands[key])
+            except Exception as e:
+                stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+
+        elif key == ord('r'):
+            scene_manager.reload_scenes()
+            light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
+            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
+            stdscr.refresh()
+            time.sleep(1)
+
+        stdscr.refresh()
+        time.sleep(0.1)
+
+    curses.endwin()
+
+if __name__ == '__main__':
+    main()
+
+    ----------------------------------------
+
+    scenes/
+        brainblaster.json
+
+        Content of brainblaster.json:
+        ----------------------------------------
+{
+    "name": "brainblaster",
+    "description": "Rainbow strobes. All else off.",
+    "key_command": "3",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "random",
+            "strobe": "random"
+        }
+    ]
+}
+
+        ----------------------------------------
+
+        bloop.json
+
+        Content of bloop.json:
+        ----------------------------------------
+{
+    "name": "bloop",
+    "description": "Stochastic blue strobe on all RGBs. All else off.",
+    "key_command": "f",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        }
+    ]
+}
+        ----------------------------------------
+
+        groove.json
+
+        Content of groove.json:
+        ----------------------------------------
+{
+    "name": "groove",
+    "description": "Good for Gorillaz, Earth Wind Fire, Super Freak",
+    "key_command": "g",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness_range": [0, 255],
+            "mfft_range": [1, 3],
+            "power_range": [2, 15],
+            "color": "pink",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue",
+            "strobe": 0
+        }
+    ]
+
+}
+        ----------------------------------------
+
+        hell.json
+
+        Content of hell.json:
+        ----------------------------------------
+{
+    "name": "hell",
+    "description": "Stochastic red strobe on rgbs. All else off.",
+    "key_command": "8",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 50,
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        }
+    ]
+}
+        ----------------------------------------
+
+        disco.json
+
+        Content of disco.json:
+        ----------------------------------------
+{
+    "name": "disco",
+    "description": "Disco scene. Disco ball and RGB wavies.",
+    "key_command": "4",
+    "lights": [
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 100
+        },
+        {
+            "name": "ropes", 
+            "type": "dimmer",
+            "modulator": "time", 
+            "function": 0,
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 60
+        }, 
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool", 
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
+        }, 
+        {
+            "name": "rgb8", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 3,
+            "color": "blue",
+            "strobe": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        blue.json
+
+        Content of blue.json:
+        ----------------------------------------
+{
+    "name": "blue",
+    "description": "blue",
+    "key_command": "2",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "blue",
+            "brightness": 255,
+            "strobe": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        wavies.json
+
+        Content of wavies.json:
+        ----------------------------------------
+{
+    "name": "wavies",
+    "description": "Sine waves for testing.",
+    "key_command": "-",
+
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "red",
+            "frequency": 1.5,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "green",
+            "frequency": 2.7,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "frequency": 1.8,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "yellow",
+            "frequency": 0.9,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "orange",
+            "frequency": 2.2,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "frequency": 1.3,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "green",
+            "frequency": 2.5,
+            "function": "sine",
+            "strobe": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        vintage.json
+
+        Content of vintage.json:
+        ----------------------------------------
+{
+    "name": "vintage",
+    "description": "Warm and cozy for acoustic songs.",
+    "key_command": "v",
+    "lights": [
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [10, 100],      
+            "brightness_range": [50, 200],
+            "power_range": [0, 1]
+        }
+    ]
+} 
+
+
+        ----------------------------------------
+
+        slime.json
+
+        Content of slime.json:
+        ----------------------------------------
+{
+    "name": "slime",
+    "description": "Stochastic green strobe on all RGBs. All else off.",
+    "key_command": "k",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 255,
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": "random"
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": "random",
+            "speed": "random"
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        electric.json
+
+        Content of electric.json:
+        ----------------------------------------
+{
+    "name": "electric",
+    "description": "Stochastic white strobe on rgbs. All else off.",
+    "key_command": "5",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 50,
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": "random",
+            "speed": "random"
+        }
+    ]
+}
+        ----------------------------------------
+
+        white.json
+
+        Content of white.json:
+        ----------------------------------------
+{
+    "name": "white",
+    "description": "White",
+    "key_command": "0",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 1.5,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 2.7,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 1.8,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 0.9,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 2.2,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 1.3,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 2.7,
+            "function": "sine",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "min_brightness": 50,
+            "max_brightness": 255,
+            "color": "white",
+            "frequency": 1.8,
+            "function": "sine",
+            "strobe": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        buildup.json
+
+        Content of buildup.json:
+        ----------------------------------------
+{
+    "name": "buildup",
+    "description": "Gradually intensifying scene for track buildups",
+    "key_command": "b",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 16],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [16, 32],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [32, 48],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [48, 64],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [64, 80],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [80, 96],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [96, 112],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [112, 128],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 3,
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 90
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 3,
+            "frequency": 0.05,
+            "min_brightness": 0,
+            "max_brightness": 200
+        }
+    ]
+}
+        ----------------------------------------
+
+        ambient.json
+
+        Content of ambient.json:
+        ----------------------------------------
+{
+    "name": "ambient",
+    "description": "Subtle, flowing colors for calmer moments",
+    "key_command": "a",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.08,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.12,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.09,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.11,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.07,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.13,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.06,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 0,
+            "frequency": 0.05,
+            "min_brightness": 0,
+            "max_brightness": 75
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 0,
+            "frequency": 0.04,
+            "min_brightness": 0,
+            "max_brightness": 75
+        }
+    ]
+}
+        ----------------------------------------
+
+        spooky_intro.json
+
+        Content of spooky_intro.json:
+        ----------------------------------------
+{
+    "name": "spooky_intro",
+    "description": "Eerie lighting inspired by a creepy TV show intro",
+    "key_command": "i",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 50,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 175,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 30],
+            "power_range": [0, 1],
+            "brightness_range": [0, 100],
+            "color": "orange",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [30, 60],
+            "power_range": [0, 1],
+            "brightness_range": [0, 150],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_backward",
+            "frequency": 0.25,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_backward",
+            "frequency": 0.25,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 2,
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 0
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 50],
+            "power_range": [0, 1],
+            "brightness_range": [0, 100]
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": 150,
+            "speed": 100
+        }
+    ]
+}
+        ----------------------------------------
+
+        fullstrobe.json
+
+        Content of fullstrobe.json:
+        ----------------------------------------
+{
+    "name": "fullstrobe",
+    "description": "Full white strobe all (RGB+Strobe)",
+    "key_command": "6",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255,
+            "speed": 255
+        }, 
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 255
+        }
+    ]
+}
+
+        ----------------------------------------
+
+        tension.json
+
+        Content of tension.json:
+        ----------------------------------------
+{
+    "name": "tension",
+    "description": "For building towards a drop.",
+    "key_command": "9",
+    "lights": 
+    [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "fft",
+            "brightness": 100,
+            "color": "blue",
+            "strobe": 0,
+            "frequency_range": [0, 1000],
+            "power_range": [0, 1],
+            "brightness_range": [0, 255]
+
+        }
+    ]
+
+}
+        ----------------------------------------
+
+        drop.json
+
+        Content of drop.json:
+        ----------------------------------------
+{
+    "name": "drop",
+    "description": "Intense lighting for the drop",
+    "key_command": "d",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 16],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "red",
+            "strobe": 200
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [16, 32],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "orange",
+            "strobe": 200
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [32, 48],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "yellow",
+            "strobe": 200
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [48, 64],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "green",
+            "strobe": 200
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [64, 80],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "blue",
+            "strobe": 200
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [80, 96],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "purple",
+            "strobe": 200
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [96, 112],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "pink",
+            "strobe": 200
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [112, 128],
+            "power_range": [0, 2],
+            "brightness_range": [100, 255],
+            "color": "white",
+            "strobe": 200
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 255
+        }
+    ]
+}
+        ----------------------------------------
+
+        default.json
+
+        Content of default.json:
+        ----------------------------------------
+{
+    "name": "default",
+    "description": "Default basic party scene :).",
+    "key_command": "1",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness_range": [0, 20],
+            "mfft_range": [0, 20],
+            "power_range": [0,50],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2", 
+            "type": "rgb",
+            "modulator": "mfft", 
+            "brightness_range": [1, 20],
+            "mfft_range": [50, 75],
+            "power_range": [0,1],
+            "color": "pink",
+            "strobe": 0
+        }, 
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness": 100,
+            "color": "pink",
+            "strobe":255,
+            "mfft_range": [110, 127],
+            "power_range": [0.001,0.1],
+            "brightness_range": [1, 25]
+        }, 
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [50,90],
+            "color": "blue",
+            "power_range": [0.5, 1.0],
+            "brightness_range": [0, 20],
+            "strobe": 255
+        }, 
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness_range": [1, 20],
+            "mfft_range": [1, 3],
+            "power_range": [0,1],
+            "color": "purple"
+        }, 
+        {
+            "name": "ropes", 
+            "type": "dimmer",
+            "modulator": "time", 
+            "function": 0,
+            "frequency": 0.2,
+            "min_brightness": 35,
+            "max_brightness": 65
+        }, 
+        {
+            "name": "discoball", 
+            "type": "dimmer",
+            "modulator": "time", 
+            "function": 2, 
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 0
+        }, 
+        {
+            "name": "strobe", 
+            "type": "strobe",
+            "modulator": "mfft",
+            "threshold": 0.05,
+            "brightness": 255,
+            "mfft_range": [115, 127],
+            "power_range": [0.08, 1.0],
+            "speed": 255
+        },
+        {
+            "name": "rgb6", 
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness_range": [1, 50],
+            "mfft_range": [1, 3],
+            "power_range": [0,5],
+            "color": "pink",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7", 
+            "type": "rgb",
+            "modulator": "mfft",
+            "brightness_range": [1, 20],
+            "mfft_range": [15, 30],
+            "power_range": [5,100],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8", 
+            "type": "rgb",
+            "modulator": "mfft", 
+            "brightness_range": [1, 75],
+            "mfft_range": [50, 75],
+            "power_range": [0,3],
+            "color": "pink",
+            "strobe": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+        whispers.json
+
+        Content of whispers.json:
+        ----------------------------------------
+{
+    "name": "whispers",
+    "description": "A very dim, spooky scene with subtle, unsettling movements",
+    "key_command": "w",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.05,
+            "min_brightness": 0,
+            "max_brightness": 20,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.07,
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "triangle",
+            "frequency": 0.03,
+            "min_brightness": 0,
+            "max_brightness": 25,
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0, 0.5],
+            "brightness_range": [0, 30],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_backward",
+            "frequency": 0.02,
+            "min_brightness": 0,
+            "max_brightness": 20,
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [20, 40],
+            "power_range": [0, 0.5],
+            "brightness_range": [0, 25],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.04,
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "triangle",
+            "frequency": 0.06,
+            "min_brightness": 0,
+            "max_brightness": 20,
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 1,
+            "frequency": 0.01,
+            "min_brightness": 0,
+            "max_brightness": 30
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 30],
+            "power_range": [0, 0.3],
+            "brightness_range": [0, 40]
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": 0,
+            "speed": 0
+        }
+    ]
+}
+        ----------------------------------------
+
+    config/
+        audio_parameters.json
+
+        Content of audio_parameters.json:
+        ----------------------------------------
+{
+    "SAMPLERATE": 16000,
+    "BLOCKSIZE": 512,
+    "NMFFT": 128
+}
+        ----------------------------------------
+
+    tests/
+    docs/
+    oculizer.egg-info/
+        PKG-INFO
+        SOURCES.txt
+
+        Content of SOURCES.txt:
+        ----------------------------------------
+README.md
+setup.py
+custom_profiles/ADJ_strobe.py
+custom_profiles/RGB.py
+custom_profiles/__init__.py
+oculizer/__init__.py
+oculizer/config.py
+oculizer/interface.py
+oculizer/utils.py
+oculizer/visualizer.py
+oculizer.egg-info/PKG-INFO
+oculizer.egg-info/SOURCES.txt
+oculizer.egg-info/dependency_links.txt
+oculizer.egg-info/requires.txt
+oculizer.egg-info/top_level.txt
+oculizer/audio/__init__.py
+oculizer/audio/audio_listener.py
+oculizer/light/__init__.py
+oculizer/light/control.py
+oculizer/light/mapping.py
+oculizer/scenes/__init__.py
+oculizer/scenes/scene_manager.py
+oculizer/scenes/scene_prediction.py
+oculizer/spotify/__init__.py
+oculizer/spotify/spotifizer.py
+        ----------------------------------------
+
+        requires.txt
+
+        Content of requires.txt:
+        ----------------------------------------
+numpy
+scipy
+sounddevice
+librosa
+pyaudio
+pydub
+scipy
+sounddevice
+soundfile
+sklearn
+PyDMXControl
+
+        ----------------------------------------
+
+        top_level.txt
+
+        Content of top_level.txt:
+        ----------------------------------------
+custom_profiles
+oculizer
+
+        ----------------------------------------
+
+        dependency_links.txt
+
+        Content of dependency_links.txt:
+        ----------------------------------------
+
+
+        ----------------------------------------
+
+    scripts/
+        .DS_Store
+        extract_features.py
+
+        Content of extract_features.py:
+        ----------------------------------------
+
+# %%
+import librosa
+import numpy as np
+from pathlib import Path
+import allin1
+from allin1.helpers import save_results
+from tqdm import tqdm
+import json
+
+# %%
+songdir = Path('../../music/halloween2k24')
+savedir = Path('../../music/halloween2k24_features')
+songs = [str(i) for i in songdir.glob('*.mp3')]
+# %%
+
+def main():
+	for s, song in enumerate(songs):
+		# check if song has been processed
+		if not Path(f'../../music/halloween2k24_features/{Path(song).stem}.json').exists():
+			print(f"Processing song {s}: {song}")
+			result = allin1.analyze(song, demix_dir='demix', keep_byproducts=True, include_activations=True, include_embeddings=True)
+			save_results(result, savedir)
+		else:
+			print(f"{Path(song).stem} already processed. Skipping")
+		
+if __name__ == '__main__':
+	main()
+
+        ----------------------------------------
+
+    profiles/
+        testing.json
+
+        Content of testing.json:
+        ----------------------------------------
+{
+    "name": "testing",
+    "description": "Testing profile. This works as the template lighting profile for running tests with two rgbs.",
+    "lights": [
+        {"name": "rgb1", "type": "rgb", "n_channels": 6},
+        {"name": "rgb2", "type": "rgb", "n_channels": 6}
+    ]
+}
+        ----------------------------------------
+
+        garage.json
+
+        Content of garage.json:
+        ----------------------------------------
+{
+    "name": "garage",
+    "description": "Garage",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "n_channels": 2
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "n_channels": 6
+        }
+    ]
+}
+        ----------------------------------------
+
+        default.json
+
+        Content of default.json:
+        ----------------------------------------
+{
+    "name": "default",
+    "description": "Default profile. This works as the template lighting profile for running tests.",
+    "lights": [
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "disco_ball",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "lamp",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "n_channels": 2
+        },
+        {
+            "name": "rgb",
+            "type": "rgb",
+            "n_channels": 7
+        }
+    ]
+}
+        ----------------------------------------
+
+    .git/
+        ORIG_HEAD
+        config
+        HEAD
+        description
+        index
+        packed-refs
+        COMMIT_EDITMSG
+        FETCH_HEAD
+        objects/
+            61/
+                bff82138457ee213f8844b8583abaf2f1ce4c5
+                ce27b4be079e17ad144e42e5b21f1cddf8850c
+                4a584e4b30448e0e3162723cfa4eba6346d922
+                f91931f0a96884b596331cdc755b5b3bc0a373
+            0d/
+                243c13a41e0fc0892bc1d058e336826bc21a22
+                0ec262b7252b935e7e82ab12c5f974dc1a063e
+                fdc52430183161ae7b8190282f7f4c3b2272dc
+                39bbc79b43600dd2eeb2059d7ee8efeffef892
+            95/
+                0facb24cf9622468ba3aebba18fbc58de11314
+                f1e2e59f2de143fb9169c850bd92f752b0d947
+                7307079fdc441dc70052c94c91bedb3df25125
+                773479a6ae841e87c76795b4252470a7334584
+            59/
+                6d200a87742e30f31af6ad8e99d372b4f6df7e
+                4ba2a7b806d1e15a77b419a5ab3d5601e35c18
+            92/
+                0bcf14f9b6c03b4fb822431b67cab869c205b9
+                9a8193c761d2f29496bcc522999bd5403d5db3
+                374f24570ac35bf0cb170f8b3a679decb36b1f
+                e8076ed2720f148d0ad3089af84d134af297f3
+            0c/
+                ab26739d0841c08419426c4423d1166ea782cf
+                3a0f4806539cb3f2afe4e045a36c2876d6a2ef
+            66/
+                ae28fc8e4c6816804d95b4bcc1322cc7f37efc
+                e2f34d2cd0653413ba6eae134e95772d2ad043
+            3e/
+                7f10d84a435a356658ad35e0c1f5880b6efef7
+                865488ab8bf95f7487870bf9991844c52d82a2
+                18772f24484132d3b4a83abfe6479a4d452fff
+            68/
+                466b2a6435e37260cee1ea9f11ed6c98eface4
+                ccbc1895929ce89bc0460264d443416383cc99
+            57/
+                b9279c4e938802a5c8181f567cc8d8ca39bd80
+                bed826674c5b5ee8e9fa8511bd06665d6affd0
+                8cd79dde4ef2152d6cb7591249cb471addcb9f
+                bae1a381e1dcd217887664834352868d59b768
+            3b/
+                0e947123711a0a082059917d6bf7a68d16ce25
+                fedeadf6337614b4af5dd5e4aaae653ea7e37a
+            6f/
+                f04fc4206238d58ed8054ddc3b7cf56cd7c89b
+                1a2a8a14cc4545b3c6983fd3aad6a962008ffe
+            03/
+                df83dd1c0158b3169d5bc6e6cde80d7a461746
+                c72a69dce07463a2703601c99fa1fa305deb45
+            9b/
+                dea2515b30e008557f927eab7b9d8c75578ccf
+                63be0f01fb2670546599a5776ecb819b8f5464
+            9e/
+                9626f910626daf57461cfb9943b6d359b81bef
+            04/
+                e762c16f209be471b9cfe4863f23bcbaa53faa
+                c4885c9bb381de053cfafa912406cdc74208f0
+                61e59251785b0f2ef033ce852cdd1c40d096bc
+            6a/
+                ebd37987ee6923aec7155a1ec3ea354a44bdae
+            32/
+                9df6747c62f5fb82c033c3911311461dba1ed4
+                1bb3d5a847e1ca59dd9e0ac041dc35ddcd04fd
+            35/
+                f972a96527d6247fdcb9ad0b9ecc4dda218c4f
+                tmp_obj_MiJqtZ
+                7ea4d3cdcd0e0a51d23524430448279e87e9b2
+                4701ba9b285adcaed4d09dcac590d0a6c672d3
+                738470c097135d40e45527ad825c966646bd1d
+            69/
+                543c21f21c6d9a0d117d120c03a6bc4b3f33ce
+                c9782f628396372b1959d3bca47bbbd6740fa0
+                1bb7cb15689298b8ed7716d3d8fbf9fc27ba89
+            3c/
+                fd6697c834f3ebb64dfd5a03df48f1a825dfe4
+                9da449d14e304d5dfff9d9aaa4d4a3033ec242
+                e41b90399056410f05c466a756486e7689ddb1
+            56/
+                fc45c0e8997d248cc9491cec26afc00e87e485
+                c909b2f9975b1fb26655b10047c3f67020d32e
+            51/
+                0d817168b8e391f40b0d757de50a91ba4a1825
+                623eed5b2a47ef5dc8c43e87f4c271427db7d1
+                b12e9b9c174c283cff22db78d52a3475da28d7
+                f835ca3e20eb21b299375b238888f1ecfb4175
+                e788970d41e320ff51f9807cc9457a20980c9d
+            3d/
+                d4d6d7c8002ed040239a24298007cbdf3b4ece
+            58/
+                c7071d0256b2d5cf41045b1d46646b906833be
+                abfdf9c80201fcb16f7be8169bf986815b57f4
+                381842994f6be5594fd5397e8c597cd20b6fe3
+            67/
+                13e64c748ff8d32b0eef1289158fb9d869c652
+                1a3e367ab305692a340a5a2bcb8f692d5cafd1
+                b7892a13460ba6a9c3decae107e67e0ddb914a
+                600f1aeb7ab5a230569660fa1b4470e80464cb
+                0625f13dabca98ae5c917b27074a350e95b8cf
+            0b/
+                4b12b011bfdbab3703ec4d1e1664f20ad2cba2
+                0ceee587d67efeb6b8dbf042bdf551848e4e1a
+                7582d5238cdf368f25f4d1e6ff11d02e0ae00d
+            93/
+                2b479d0eb22efbb3f2e850d94ec51196cc65c9
+                722943ccce7438514822dddd9641e5cf804793
+                60e238063bae62fec42b183749f11ebe9f4610
+            94/
+                36b963412ec7a20cdb08dbfa62288ebef86e78
+                6412ca340126b4b7c22a97a10462421ec3255a
+                42ba9d2f8f3bd4bff9ce06b9f87d6bfef46ed4
+                c8cc96af65053d619c815fb2b9cd578fb8926f
+                b8a78f67515f843ae3e0e371fc4a32ce9dd945
+                b45189ec7606d5981e9630686a1f8128cbaf5f
+            0e/
+                523420568e02ab7c90eac1dc0b897d937a644d
+                9d4aca2e6338624ed36bdd840669df7a518979
+                2dc3d3d772d0da75343038538866ffb1b5c0af
+                36da49fb368bd89786babac7ebc3f043ed90f9
+                c0ea068e958291036c0ac51966f4b62804768d
+                54a04ebcd32ba03c276514c6f05aaa901aeb48
+                051786055681fb3f1b9a28c45076793c5e7191
+                f664cb1f0f9e6cac2060cbf1b948090da391c6
+            60/
+                e6e12f38ad158140e5c06a804e9bf10393fe29
+                d1912b9eaddca0ee07de520be1f751eb2595a3
+                c25739d56dcd90e72df46f1a0eaf57aa240d69
+            34/
+                eeb874b1652f47585ebe32add1f5fabb9ed120
+            5a/
+                3d5ea8c98698bf099bb51e3c72b348c9822dce
+                665bde9176422c5c0e71a8fc79285f78f6f558
+                c8e1b451e05463a61ad1a32cb363859e8c7ce4
+                325f17b5994e6ea42faa2755733a396b2c59e4
+                c6c18fcfbe43c469cc528a893ee9f808c71a64
+                6b6b1ac540e6e56657f43eb496aa088b2b5da2
+                b0946c43d9994aeadc00d19b6f836a057aa534
+            5f/
+                24ef6a94698f5f2903d9136abd1491efd53add
+                1b99e08d5d2a9f4a88c5964cb6c4bf75380f07
+                9adbbaa706d8c109750e63860dac63ca77ca2d
+                dfd98ce0193dd92e261736ed4be872f9da73b7
+                7938cc8ddff575a8b974d98265c38a5ae0b46e
+            33/
+                ec9670c96485da11b1297661438ca65c7c2fd1
+                860fba74dbb453c4063ad7e3610e4f0ea3e855
+                49d5378232faa622d8373ac044031f491c93d6
+                0972565142430121c2c69c8d672ff71fbf918f
+            05/
+                07edf31b92e081f10d1e8ccb983c0d527a0f4a
+                fa444bf014f73657f72c79c3324fb04f318feb
+                3d68298bacdedd509d0c73612a3500154ce859
+                14b3f54f8ca01755240f28800346097ad0959e
+            9d/
+                515c1f6ad7efeb5dd5a48cf7d4397a108b87f1
+                147e7dd5944d1388c2cb6ff764e60f4861e8da
+                5c03e96b1dfe2b769414fcadb54b93e7a0a79d
+                ace2c42d1e621dd3133215bcc9d299e1fa4768
+                1dcfdaf1a6857c5f83dc27019c7600e1ffaff8
+            9c/
+                482609e0839e5fbecf6d8590731372e3b60606
+                e09ff3b5da0f54eaa54c4de95cb4f6f6570e59
+                60012d99b7d964bbf65ed878255def67edae2e
+            02/
+                47cbc19f9c58f4d79a9ead8663d92ebb6f16a7
+                12e5954ce67d1c89f595f5477f6bd29dddc77a
+            a4/
+                5ea4f937b1532e1a3235f23183fcc375d53431
+                d31340cd7f2ec93a4772f301873a72111862ff
+                d87167836dd97843b463367a5ee30e07107c63
+                3e4dde001a8ee9470938dff7ad21f35ab5551f
+            a3/
+                15637273159ee9b70c12ac75c1722350d52d5e
+                061e5f5ca9a3a30ba62d7d505919beddcc5eed
+                ef5d7acc6cae138cd70a43d19559e54d0786c8
+            b5/
+                5204ba7af0bec9b5d073cff9224a26e634b609
+            b2/
+                f9388ae9d423538de5e6e8fbc03244f4c3de00
+                3910f8986a69cf6bbc06b1ca6a75971345913c
+                f55754441d2946cc11f3cf650ffb8785331b6e
+                819069a21f612a86c3c4cf06dad0cd7a698bdf
+                8151f587a0d6dd12df2b59dfec5d330af777f3
+                bdcda20f04f775918d894f138a2f69546bb76f
+                c21bc27bdeecd43c7793f1f25734dad14b376d
+                f06aee63909b94d0011f8ccfc68e57566c7627
+            d9/
+                6ccd14b08574f6087dd0154b8cdf3602ab50c4
+                9dde4f8d680e0367456b20571253d5ef5189d4
+                07bc382ab8651815a08484701a61eeededb13d
+                923a334073ce812f2dcef7790aca0ff33b58ad
+            ac/
+                29cc2069340e8539cce93797a39241ccb215c3
+                ab6ac19381a9c74a9235a862029b4c05d7c069
+                df8898784d08e7bbaddbb7c68e8d3ff87cdbd1
+                fc75fc2c4ffc4125de856af4919c460a9fef5b
+            ad/
+                baa12c69de4cf4d74cfb5d7da937a2f06a857a
+                c873b1fc8a3fd693cd239b81fc4a8dd7e9f804
+            d7/
+                bdf7f19c0a8c05b8c460527339c68ed8879857
+                c069800815747ae27663ebd03c965d9ab68674
+                55bafe80c154ef772c1bf4c9a0589ec7d74057
+                f6eeededb3632db30766789674fe21b1db96c3
+                b76ef8259f345570d6ec4bb5c975fffe2ed6b8
+            d0/
+                458d43de9299cb09fbcd920b268e245980eee2
+                5bec7bad957ed28a3426c151f2ec456eace561
+                9151e70a6dde013929f8417e80fa2da25fe74b
+            be/
+                130f0b22d79fd1ebd47e28ab91a2b0a2cdb12a
+                7d33f13e2330c59a3d88adf4715907166ae14e
+            b3/
+                aa38b296baa03758a0d13c3b3e07ade26c662e
+                5c2ebe531d79086d86e89e0c2650582e93e5b7
+                71f37307ba8039ed276ce9d5dd588954e98f0e
+            df/
+                042dc31145c739d43ff37e152055d9d18ca955
+            da/
+                cddba66e8753f104038d3254690bd13a326352
+                7e62d732c81420e565ed009f4a0d74d0894f4e
+            b4/
+                f003cca77ab169c6472a36b0432f0cbb3a411a
+                933d1dbb5de317ce552d3c99dc90c36b2bf399
+                528060f1bfb2f737dfd0a7e49e68b23a88accc
+            a2/
+                da7710db93bc6648d96feb3369de6426790280
+                2e9ea7ef610b9503c1deb790aa2ff2c09b5bad
+                bab5538774a306ea437383a53bf3d8b974087a
+                9d093b77f8f2d1d4d8a416592d540ac6fbbacd
+                902fa9278ed8842e8c0d1a27ee389f01285c93
+            a5/
+                669277acbeb8ecc62d4743afe5a2a8b6b66a41
+                d55729a298fbdd26749d81dda3a4eaebb03fca
+                27aa0e85ee31d8c3b8837af2cf1cbfff856aa0
+                d7bfaf4c05e2fa40e6d09b33a09ca0f3953d3a
+                8253988168a2381e93e2c530feab440c1f9376
+            bd/
+                ad79df951d8a8bc911dc4ccc5bf2bea0eedbff
+                cdc86d05ab74738c9054df360d905d518a1b8e
+                3b7e72e6ac842edc603d872e307d7141571f61
+                15c90056d9d24d9d01ff13d4bde53a7d6fa1d1
+            d1/
+                716d985226e659736114ac0f1534421184c4f0
+                3b970f33245fe0fc5923a09dceea1d3d21b891
+            d6/
+                5d79949cf1ea1532328573bcfd8f8e34f5659d
+                5f2ee14b9d1f87d1348f9fea31ed9ac05a99d8
+                f34c04b09e0fca94b8cd2a36e0a0d08f4b16ee
+                7b01c2723057212111e59c576147f931d7fd0e
+            bc/
+                e6c221ffa168eaa8751fa8e00facd0dc759961
+            ae/
+                4db793398c95c9dcf578ee31a3b1b1d1e17563
+            d8/
+                a4c5efcf53a05ccb1cff61d36dd46ecdc6ceeb
+                75cc49998d31564657d70d8f9795fd553ba6e1
+                e83b7f1ca7448194dc2932aaf39f37f5bf3b3d
+            ab/
+                6a0bc422b377e658b9139aa7c66b752e2adb62
+                57d7a22d41c23cc1be1db1027316b24e2d266c
+                ae8e15a39aebb38c28161982721cf0b4541d0d
+                58f894c43b961bf462e97229b214104ec88e94
+                987bd1c4de4dcbe5fa355641d72583f9abc5f0
+            e5/
+                91ff3533af49ff0ef6d601fe7dab9f268d2413
+                3616fff8a059ae43a30ce04fa9bb02c45aea18
+                eec1798542077d3fc3454f29acddd374cfc111
+            e2/
+                76245cc1d633b0f1463c8758902e7901ebdc36
+                6e223a89013376b7780b8276cd19d43164d1e1
+                b26450821687b635d4270fb80a3678b4ec332d
+            f4/
+                284062567dc429126a7d1efb71cd11ff5002aa
+                102947adefa7dc0ce0190ccc6c71fd53092454
+                e22e1ab74101e6f96c60e2c7e6cbcaac175b4e
+            f3/
+                a8cc4a34d35757a1c134d31e009533024dfec0
+            eb/
+                9143c5f782c5bc272702ec9f2d43b1d0e2fc48
+                2baceb2450cb7eae508345d6d90db821422ac9
+            c7/
+                45c92722b3b2bc39772246361500958083c8f0
+                f55c6ac171f197a2d57a7a38d1e5ab1a2d223c
+                890e6571e0323a5169f565f93b5f982a285f91
+                ec800905043dce146df16ac5a9889e9f62263c
+            c0/
+                4e084c11359deaacf810a17e745adf7e732286
+                ca48abcc94bc664399464746a46e047ba096a7
+                a45cb182d0257a2915ce8e993cdd54eac476b2
+            ee/
+                0f79173a6bd84388e07f80e7624bcebf8c1ee7
+                005767da534ab994c55469748ed4229a5595f1
+                46e8e9bcf851729097a0e882efae02e6b98fff
+                70b047c38b711f36a3ae3fd557e720985a75ef
+                6af62abccab7ea48d616c428078a53b98d03f6
+            fc/
+                ee85e3731957baba95f24d8e0bf95f88dbec21
+            fd/
+                a12e5d3fad7484357b065e9a10dc23f2b2cf3c
+                50e829ab011aafd5c001ec2f88732718b0bc4d
+            f2/
+                3edabd527482165e3f5f937974c47b7d991369
+            f5/
+                2150a69ef8f8937b835a71c9b466c782158be6
+                c38feb2e7a20a6a5a1d14991ca85daf56cfeb6
+                0d9c6f03490fc15eeda3170b189d3aef81a49a
+            e3/
+                8e9219e9d672c405baa6c98277ec42daf941c2
+                a995452142ac4f5699e10dda64bc92ee1cca86
+            cf/
+                557cd06cf51bacb06e72bf7f0c28e282d1aa26
+                7f5ca960920b9ec80c5c95c6f3ce0c0d280852
+                5d5a54db181ccf3ee242c1ab2994dd9658eea6
+            ca/
+                1794ab6b1784d9d07729aaaf948dc2f6a65412
+                041d5f2d535cc2e3d59505bfe39fba55202108
+                d263b30701bd6887bdb76bf3c44b5621d91011
+            e4/
+                e233e972a8406d677bea18d94b6c465de08a74
+                0ad67ebd1bff340dfffd23690c051d39cfc42a
+                38c44f8941dc5cdcf497023bf56534a965249d
+                821632eca564debcc13c69f3b069ac2945edb2
+                77682eb22ff399d1c2527732e26df19830945c
+                4fe203cabc64f6515e5824f2a5a3aef9d09ccc
+            fe/
+                027aa4186bd489e7fe0a954762f3475e332309
+                67a4f584f7dbce2c9dfe2afd3603ff555a6a81
+            c8/
+                ba0cec31fc862d134bd4f887206e84d824a9a6
+                9b5a53bb5127b4ed3dc7ee4d38f6700aa04fb2
+                3145da8ac238c0d30c98681f7cf5d34d918843
+            fb/
+                5519bdc6b9869537199df15c08a542ee8f6bf8
+            ed/
+                9c2569e6fae6c917d34c90a11194d31183c741
+                31a19f9a4e59cb2d5dcbcbbc610473997cada8
+                c2f47de8dbc7dafd1360ad1b353a80903560c9
+                d12312caf0252cd38518033b806a993306b828
+            c1/
+                24a787c06e40355ce37fcb538efba568683a2a
+                4151ce395b1f7e78e1d74f657df6c15af74f39
+            c6/
+                afe8a5c4dc23d3252a2e249d754b0eccbcc997
+                da85d92b12d6f2b98a4731343ac3f8a3677955
+                88d6f8627d173c70d4627bbcb69b06125ef17a
+                86f0b495967f9a9c7706098330f6ef8d8760ef
+                73445a0150cdebb08e01ea0a69c1dcea6a742c
+            ec/
+                db31d3f81c2dcddc683ad188a7e6ef12ebf46b
+                3ef23ce158826471928b357639a5b43169d390
+                ffd0bf374e83bc16fbfe01956e8c23ecd13869
+                c3e4b0bf320218c71ef6a7f37c08338511e961
+                62fe4db51a450ab9edca5c4bdcf68fa992fd47
+            4e/
+                6b8c7695681f150ce5cea4dd42e8cb6455364f
+                5291ec74d44e2ad8d22cd394dafacb67f01dce
+                3f2597b4089739a4261c7d650d7c7228ad3726
+            18/
+                ef5a6b37d6eedc444d8cdbc5c8969b4736800c
+                fa98b7e4d8f274685c916d364e21f9e99b11bb
+            27/
+                94c2b4c68e011acf632d0f9e672b33a107e353
+                e70b2c68a2ea7a081d094325b65fbd630940b7
+                2978797d30e77cdf2ce169a18f95b7b60b9dae
+            4b/
+                1306ef9f6ae48165a56f434f61096036599366
+                de302dd7e3ac597fa332c47b957390274d3619
+            pack/
+            11/
+                a82c8db86bbcee1f5bba7c6b69dcf11dcb518d
+                b807d5f2fa9df4459818702fb5fe8d9425069b
+            7d/
+                378b44627199ed82d041fb1d13e75513504200
+                c6a2daf73cb9ceb9325a77b90db8559833657c
+                27b5e1e296245e812ee90bc2c978a58c777eb5
+                d62972fd4f9b97dd1ba457dbc0bc4bbf04a96b
+            29/
+                818124ef2d8f632550ce1edbb41b47375b5308
+                2c9c018a4d791c9ec970be5459b94fa096dbb2
+                70c245efb047e1e54681358b6bc8ad09e2a1e0
+                cd9c9d5c2810dbda9765c95c0f797d42146f2e
+            7c/
+                dab572d045d3e430af1b098d9f18bb724f98d2
+            16/
+                0c6f16dfebb28ad2a063192dcc9ecfc2035aa4
+                3572ef548e9e6aad1d1111c8c8f2e6a5f5b06d
+            89/
+                41ccf3dee27390cfc7d33d7b679b749874c8c0
+                d0daffd4fd9cf8253addeabc960f839e4a0176
+                f44724d1f2ac2292611901791ca2bc90ab3a7c
+            45/
+                7071becb01bb9e963af5955310306469ed8270
+                56f0e09ccaf2f8a4b0e3f1605de067b3bdddbc
+                8abcbb3f20e659acea9e66c25b8cf9dcc98354
+                90bb0685896688adcc20dfacc3f45be0d2449f
+                041a031bb261c3bdd89071a85e32158c103327
+            1f/
+                8e7f9e4c8d75be5503c6c1e136d569f68eea4c
+                7df0b81a22b6937ddfbf07520be9da0b4f3603
+            73/
+                62b2e791f30602c2ca9cf360a9ca310e9b793f
+                8c5ade9bdee05ca5790e246de4c87f1e3ef873
+                15f63d07ef6bdaa2ddcd59858603ecfb265026
+                251ae915c1e61cf954b2562a6a7ca3b2e82e49
+            87/
+                67a023907d1c2815e4696b785274fda909d917
+                b6d3ac98aac4592f626cec5827a1e72fc1c175
+                1536677e90f458462af74246bd38262dcf3737
+                430aa6a7cc911592ff4f60c834a8b1731a94c6
+                de1b2d3b3822d7d69149a0a590a9ff5a1b50a8
+                db6b014d3c10d422a9d2d1f3b368ff2a8f0a04
+            74/
+                272cca63c613a09f3f4f2d43be1f13fe77a6cc
+                a86d5a2051e8a0ff3a622957ff6e7ab7ad4d22
+                06f5da127e3b4ca3588a4f507225011d28c20f
+            1a/
+                866b7e0e8defeaf1505b5552f4c82cb529676f
+                420db46fe868948b5f06621230fc0704ecf5a9
+                2d953011331ffeafd727d014b88a26b5794c17
+                99a598181cc8803acedba28242d358dac63e6a
+            17/
+                2d2afa07b909942f6b08a3f02f8b568988d91a
+                3fefdd3aceec2df84bf1bac59243a3c36af582
+                3a3106d3ed7daf7715f68dbc81ed8f5e177215
+            7b/
+                8b9716fc4dafa42aa9e63a88a5135cefd80d5a
+                8506c15900830f3542dfcc7cd2d76e71594d13
+                b31bf03a7655b9ed4d855c8d914a4c7d423864
+            8f/
+                11867aca33250c1947c57afa259dc4702c8ef3
+                4671cdce5ee7d239384e63cb4aca73c6cfe2fa
+                477c81a406212f6b4a646b3e60cd6ab063ab1d
+                4ad8d6d5c9484b641accc733ca3aa916926d3d
+                3e561ffc2611fe86d3eb27bfbf0ddc32571ba5
+            8a/
+                fb7fb5f0a75794f6e4d835a440f1b9427abcad
+                a1d548b8be1c8226af944951adc95e2a561ae7
+                909d15d315f55c39a72f673f73660e289a9b14
+                0db7c4a283b4022d7f37b9cfeefc8186a5c804
+                cdf312bdf5e372277c04373443227b302567b7
+                14df6155f16500f6c2828a7223c060cc79df40
+            7e/
+                db85b1ed76309a4055bf88f72e971446aa471f
+                60d8823d6385fe267cfb81aa2d81e906c3a0ef
+                89ce85c225312c2d32ca8faad7d56232077b13
+                70b69a7abc4d987eb37e55a6612f00b1442a4f
+                9ebfdc4653b3b90e9cbdb1a7c54a2c8249d382
+                c562a82fe39f6ec12885e824c7c35f2ca79525
+                63e7c68a8db3d350900dc60712b8ac27a5b0bb
+            10/
+                fcab5ea97a1a39989c11c472220924e163f720
+            19/
+                fe7c3de6542d2dad1a7afccb65574ecde1b564
+                a2b5f12ba6d424f2f36bff098692b54e909405
+                f6712985ecd04ea17ae9642bc3b423c37628de
+            4c/
+                99709ee8a7edf349d1f37e9977cf2141d92800
+                3b6c7afdcc221701905614380907ed21a2a234
+            26/
+                5abb8fd1103c35c04bb13f91ba8ccd6b58cd10
+                64210a8894f88da11fc5c27c4479791390d056
+                406f7316efe909c59a9c3a223ba18f81fd05fd
+            21/
+                a07c3524bfd162797565c23f9d3e4b5bf28357
+                35cf43716a022cdd267f6bc3eeb2254f455d2e
+            4d/
+                2266daae7354030765b34ed6450945339b48e7
+                191c2425b7a1b64b5fbefe840277e83ba7fca2
+                66f6875bb9b1c6f238aba01ef0507f54705056
+                75ce1913c211e235d6f33d75cd4b8484e6eb60
+                90ca26a8bd35046f45333b8df7f8136239be42
+            75/
+                2f7136e3995566824758de67c5a969f7639226
+                bfecf81bd29f1191b08fa243f26dfe2f75d01d
+                7e04dc7d6a823c855ee49798b8ea8a19f684f2
+            81/
+                30954a79fe1a53ed2e1ca3cbfe7d8266b2e5fe
+                9e6db2329b1001e090d64587b07c9cc0f4960e
+            86/
+                6866297d98577c058c6e53905cdc23df9615a5
+                7b99ecac0537d53c5c86f1b9300b363fdb0e13
+                11810c346cf73b24a3b9f6a0a4956010f1cbf0
+                4f5b5635f55b4b4039b76304271a402feecee8
+            72/
+                1ef22b30f892076f08b523a32fd873a9cfabc7
+                b7b65daa8e58139231cb9a331f38ed4e25a91d
+            44/
+                69688c25cf52ab573bbf04c5a3561cf46eaad1
+                fba4bd01f01621b6b6922bb5c43a70070cf588
+                e0335d0a1daeb65e485e873111f3fc4edf98e2
+                5d6bc04fc0ac79d92ff5f9b9135aa8be0949b2
+                53ddb47c831f19430dedfd08d078b3a7c9eae8
+            2a/
+                2aeca172a2f9446585012032f72617efd28acf
+                d5eba62269a5cbdfa943baefcd0433a1b6208b
+                e161695e5855eea10a0aff269de2b4eedf21e2
+                3cf0345d90f95d5f09d332e604dabb1ca4c2a5
+                d62b84cdd0d0c3851a3cd6fdfd53431e236a10
+            2f/
+                a4bc8261212fe350522435c09216bf461668fc
+                69b77b65d05acb3bdd81c73397ac0ca6f824cf
+                89071f12d730ad258cffbf75dee3d95359bf74
+                5ab04f27b70fe300b1697ebf0a88d2ec1e97b7
+            43/
+                cde0fa598ef5a5d2ae8ce0da508e176875a8d5
+                7c910907e7f7fcd212fcfbaadf46fef54fd519
+                e0438c64d664b9f82b96a96a34d8fe21394dd7
+                e14bccc9f321433600636da919a5a4a0f989b8
+            88/
+                06280802a81d9f02801149e149f3b2c3ce1174
+                aac3c234f54e3f4be66e6a1f9320e7d0123e78
+                56c0f7a9c884450b16c9a0d45b397d0c2dcc7c
+            9f/
+                201513637fdadfb5a5e2a620aa7583fc1cddee
+            6b/
+                6d66843db27da8841878d079c59605667db10d
+                14c3617e6fd2793387a3867730ea52cae7885e
+            07/
+                0f6797e2b3fceda104be45fbed1ace936cf215
+                6df6b4a3ef1c11a4282de4c5318416228d90ee
+            38/
+                c65420ae3cf92686a864bc8983e52f697ebf9f
+            00/
+                24f0874eaf500c5e7a8807358bcd82d86750c7
+            6e/
+                a7b643a3084b8b08a0c0f5317489f3dd48059a
+                5c3044506584d94d881d5dde1722488eccb570
+            9a/
+                2fa24a6a19686d517fb6c4e5dbffe602863c91
+            36/
+                133210ccf97bbeabb3531d327d23a6c4ff0b12
+                9ac465aed78d1496eccb603c9261aa0dc9ddfe
+                697a1419a9ec9915c3179d3ed5bdcc61e71449
+            5c/
+                db9893dff3a6c52bf72c86d43cb9dc0d94665d
+                78e38618e774830294337c3d52c739caf635e4
+            09/
+                edd5e6fef603aebd33f4f0f2f5c3c4b4659cc9
+                7653c3574609dc8d61d6eb6787a7bd423f3d2d
+                45e8bc4048acf807a5e7b3875b80f93ad35837
+                eb1a9747933b923fda5036dea4434aa397d032
+            5d/
+                5f2de795be5ac68badd0ea22bd48b52c798229
+            31/
+                91881db15c234d47c11d0ddd48e1196e4a37e9
+                c53f59b5a2b0b976bfab5ac2574c4c50048c1c
+                126a34494c54e00cbc3ad458528ae0f18461dd
+                b1ee43f78027a12b99de16278b27d7a7658644
+            info/
+            91/
+                5cf7f40807b5f843ef63d01eeaf2c9f5f22570
+                880af6d23dfc452b3e4038e2f9bdb0b7b3c931
+            65/
+                f916e20c9c6a09bce076aea556a63543f37467
+                f42ade8ebfa836aea5f6c1256c0e12314eb54d
+                7ec0b92d50d13f7c69fe298c049cf35d5541ac
+                99bb37cd9492473cec334ac781af8cf960f2e4
+                a052bcedbd53ed6fbad7218702587ad2650582
+                9d480379e88bfb6fa0fa99b99710418503220f
+            62/
+                69ba787ed2be000053a32919ca3315fc5bd92a
+                221925f9f5f00f7293a31a00b3b39e32b09821
+                eedfc8096874b0002fe20ce6b75d945cf4d3c4
+                51115448fd5f825f2ab45585443eb26d0df58c
+            96/
+                a4829b636498cc84a3d2321164836fefba26d0
+                71a41ce3fb17dbd2a61993e084093c7c61cad7
+                edbd498791f0c214bc20f684fcbad8a150ec3f
+            3a/
+                c3f86c8d1558014a0df7c061f74891ba21b189
+                9975138e0357b0cc4b14fdc983b8d20e57e73b
+                a09e8aae0c29e6399d3f381b84e2b7a0fb565b
+                509b953cd6f77a0030dff83cec679fa199352e
+                d931fb8dea78ab006bc5c0d5273e55b1e726b4
+            54/
+                f657bb0972cd4d4bf69ad88524d3055b9da03b
+                4b7b4ddde01a730b456b39d168580fbc83b99e
+                bc4ac43eac5daf416e63f4f243a9fa9bd6cadc
+            98/
+                861047530a2ff65cfd079c322579a5b020d193
+                9771389536d87b511ffb653908783f28f3373b
+                e31c17a6b99b5cb6ef836e312a20a712f3b098
+                4ad54f3f930ee6e1353943ac9402cefba6395b
+            53/
+                df4bf2cd6650d4b48f5751b1e73c232c85361d
+            3f/
+                364b2b315f1e0cc6a99afdd1f4de25a4363411
+                60665942fb8f17d3a44cc52d9d76818cb70c8d
+            30/
+                89b4e4c3a437f7c156f2d455f00508c982d072
+                56816c5aef55263aa5a57ca74d751d12a047e3
+                156fdf3479068bca5e456b603b17cbb4781a18
+            5e/
+                b3276aa796c5434959a74d196320782bd08feb
+                83004ce30bf199a073354e5a622df1c5878d39
+                16488b49ea8e8af54fee633bbecac6059e9c1e
+                13c314871b04223422dc886f7db0a88ff28b57
+            5b/
+                021940bee583a0588ec82ac1ea567361af32ec
+            37/
+                5418ca987c87bc869b9df3c07f5d326e6c05da
+            08/
+                5168c4cdf1ca252dc2951561d15551b4d0c56d
+                db913501b64b3e7538925b2649b435b0440885
+                5e450dc6ee521e6354dcd8c08eed8f09c16d99
+                b20de387f0059a4a8b57abd531965952bdda88
+            6d/
+                f4ee6ab9ae4ad0c8b24d45a8a162cd9e17308f
+                dbb0b43fdc1ea8e226302293cc878673ba23bb
+            01/
+                cd39af0dbe7eb568d5232194d61586950ce649
+                f52a47e70705c22b4c33c00ae13660fa655966
+            06/
+                939fd596807dc03804cc85a9da3e8e2b795078
+                8a6c97101ef3969bdf78beb54d928ab2a18862
+                2c3a76c6981d28571d8b6d5b5290c3794c24fc
+            6c/
+                19f73bd2ed7838f03bd41ad7c3a060115358c7
+                b01fadc035f68c09b18536f3be2b7042464b2c
+                ce01eb617626b4908d144e0803add8349c2a57
+                9e425f7f28b85eec33115c157e41ea97af7355
+            39/
+                b54d0fb8a98a83d3ffdaf3fe82feefc5718382
+            99/
+                b4da8522bbe8da30de66cf4aa8385622621567
+                5e59f2b714d2018f9e2c0293475262c8a308be
+                f265f89be1885dfb8b0de2997890433c4d09b8
+                d69385a0e056dd3f793e11a1ff44a9d076af8d
+                01b74c5f604a22ce00467f04bb1057108eadc9
+            52/
+                f0690d62c01119b91ec2e42781db087a7ee07b
+                2e1c5a59a2aeb59726f04fe2a536637908f8fb
+                e33a64d133d28a44e54459b1816628ba50f196
+            55/
+                49c70957885536bb8d10f5db15214b27004b7f
+            97/
+                d62bc523239ae3887008dcbda460ac6e9aab6a
+                8f3edb458345d3f6e1f67a39ad8971185d8cff
+            63/
+                eb12b75cced62efc0a7b479cab8a4d4bfed6ba
+            0f/
+                9704d14df2a864902d10ac9b5e8adbbb9222e0
+            0a/
+                a11ee634a7e297c54861829317d3b4ac179d0c
+                f2a644d95f83652213927a007ed4c6aaa64491
+                69dc194f2f780f7f4ded7f1cf3ae120b03c842
+            64/
+                450ae90058e96dc5b504155488828cffe02dd0
+                95771c13b0564cbd23aee7c8a331030ea264ea
+                95f73c23f49da1c5df165d41d0df3ad8ea943e
+            90/
+                0627d3bc3131701d57323c20b77fcbbc73889f
+            bf/
+                5042500b07fb629eea4cf8af7a0858625e3fb7
+                185be70402f423471c990f3457decba3118ea5
+                c7c43333291db1580b1a27439daca3d45733e7
+            d3/
+                4ab3f9272c3c4e1258bc61bb0704e92549915d
+                df39e9e6e25e3ff3d6df13a84d6e4b2fd14f70
+            d4/
+                b593b74db8be4cf08be4bdf6e9a836bde5db05
+                eab6902dd1d595a129463a52ca0cbc12b8a8de
+                e77db16601a6014e216dd4490e4aa9bd4cb042
+            ba/
+                81188dc16fb101c933937518f6d4cba47f5f78
+            a0/
+                5bdbd47f3a8e2b17a448c1ad0d2a53d0d0aba2
+                4cde8a4313b97d75e7e2dcb68cd3009df1d5eb
+            a7/
+                c68c3675a117cb67ddf57ef9507d83cbb9424a
+                24b47816bbf0575750b57f556fea21ef541cc1
+            b8/
+                e654b2c874bc978abd69d8af6770728e511ac4
+                c7a10cf266f7fccfe1d72c170d6c0a3ab5bc26
+                8fe963a7a9eaebfb80c6080a0f8db967394d5d
+                f6ab8a07695859083e711b6ddfe2e2b971cee8
+            b1/
+                d645318e05e980c0e144237de97eaed5ac01b8
+            dd/
+                494811c847b270469e89067a18d66e14673194
+                2b33037ae05ac41f34e6ce736d05f013175b64
+                a548fe78e5ff1710fadd7b78ebd278ca2029e6
+                0640b74f19a0d3227cd266b38d9851aff5220e
+            dc/
+                fd796265cbda81413764be225b7c7dd263180a
+                139a423c4f7ca8d7f50f579273df092a6dfe91
+            b6/
+                f6c85dbf30b870b76794ec1d8f029c425ccc41
+            a9/
+                271863b457d3bd38124e7834f370be1adbac42
+                0469a8cffb002c06f35da5bb73be9ee44efcd1
+                c7adcb8c4a039a876c485f23a32f3731962bfb
+                4ed1eeaa544c2630b1168a68b772b607f351bf
+                f8a9d91d48d17089cd582c791bc4f4caef303a
+                db017ba93db4b8b956f912b30b7a344f70d80c
+            d5/
+                57e5974e01b02a5881a6312c858d5d09d4ce22
+                2d6a0489feebe43d4a9f07905c675d3fa003f6
+                fba21b861a630a314a0e7b7f656807ed2dbcb3
+            d2/
+                f260777fb399d5c1a0b51a8b6b9eb38639d858
+                f9e36ce78ca79dd198a9c3632206b3b8e385c4
+                0dddbdf9316e63bedf920838d648a36d405001
+            aa/
+                482cb7aa6c9ceb05d3abc7d1c8cd55c01129c7
+                94d1d17a76bc8c81228aa1b588b4c2304046dc
+            af/
+                6fc1fe937ca6d185bcfb9461e72660acea15b6
+                86c21a9e638fd754dc5a0702a35931aa8cbf9c
+            b7/
+                12663125326779333921ae3226aa8716ca2445
+                1a96313a9a0985436368ac58979a0c9337ddbd
+                ca88cf2d88fc7268ff33ba1ec0d06b0f5bbf07
+                d5b616e8cb0c238bc9522f00fb1d3730447649
+                79190029a76c0be768e42930082372ccad2d7d
+            db/
+                77f8876255a01e371102b7a884a153898d1f2a
+                68636b5260f6b37ede855cebe0c77a47fbce22
+                7dacfb3fc0393cf456181fb2945a344ee0af49
+            a8/
+                1e41c5ded3389ea72202e47d1023d6e23697ec
+                8f966048c6f5bd705fccb0093edf8eda4d7392
+                85b69cb1090bd66693473ed2bde41504053aa1
+                1570cf6a690ffc91d8f791ad98e58d40886871
+                c6f50c871f0f0d3b178b6fa37e73e892bd8cb9
+            de/
+                40b0d44974ac3c3d590651171d1e1029107461
+                426ffc4461d1161bb3fe54d114fec5df25751e
+                12b8580b5a98d1734fe33df8dad6af884b9f3c
+                7a4e2aef317d816959d57067d8690a91373e60
+                33e540a726388ee518ae4b5e10978e10565149
+            b0/
+                8a540cf06a4492dd14d2b196059355339373ce
+            a6/
+                4043977ca0c0062e6a27b4af6db7c58a55542c
+                c71ad6f4fd69b614471d3d4d9ba1d134dc8f20
+                1d479b9a044b76ad986204f967207dee136dc8
+                81e5e531a0312a6a265e78e2a373e09ef17032
+                af39016bd92cbf4543100d164123ed5c374af6
+            b9/
+                5231fa006c9b8cdcdbd68a16bf9f3fe0382745
+                8cf3145f3507f036abbfd30ac7fea7a1aec411
+            a1/
+                bfec345f93a977156b7be9db8f414b9d884292
+            ef/
+                1098ce4c5b8727306e9560a6e9ab4c8fb0a791
+                779a2d0294ec779e662865ff15eb6d3539b7e4
+            c3/
+                5e2c8384a3e61714ce80f55589cdb74480ce2a
+                186937e6ce47b722aef1e361b6a530718f5951
+                715cf458156ffad1e952c801f27da0e3a36b88
+                879695694ee02f4a2466ad89fd1af16622b069
+                0c9488deccbb14359b979849f2be7a11c06454
+                e20385da4fd097951784967989250858b8c1f9
+            ea/
+                dde4d1f157a2de725635884f9055c2ba781f70
+            e1/
+                12fdb096d443b87198d6211f0a700cae86dac9
+                f4a3da0a5d979815420fb57b48a5c4e7dd12d3
+                c3cf095b85d8c32b4cc4a75477ab4b3a10848d
+                7679d61be3c464a5f32d428be79f7a8607a168
+            cd/
+                7874122ce5142f6c09564c942c415bd8648e78
+                e7f8b75d74afa9ddfbe4c394d6e78e885355af
+                87297cd9cdc3c104107eacfe8d6cfb744df6c2
+            cc/
+                0a01e4e29cf8c0fbc8ce62693ca9c31287db50
+                72b1b123193a1d562d606cf06dad1d53c08144
+                fdadc125012fd6f3c131e08786863e05c67e75
+            e6/
+                2b2679280a1cdb5d389c8539cd35df407d8556
+                ca46208b9117bec021e4534e1d3562bc1c3bc3
+                4c749e87ce2d7687ae9bc3c47083117c22c20f
+                9de29bb2d1d6434b8b29ae775ad8c2e48c5391
+                ee775c69dd851f67db2cb4beb397e24f5bf21f
+            f9/
+                9fe26b4f1c9b31270b9af57242856f351b8cbf
+                c2bdf59cc9ed66f83af78276c343b612a3cc97
+                8bc54545404f2b5754db7858d9a9b164dac1f1
+                b69a6473c01bdb036cae070400e641758a2500
+            f0/
+                fa363dee6b10e32f3844d61e05c0677f2f2ca2
+                28e28bce7375e94bd264a414a9a00ab60e0173
+            f7/
+                acb4a47f337fa5b89db1740485c890dc34db9b
+                75afcf3d7ce945484542416c546b56ee8755e7
+                95c19d7a4e860b451b915e50b47fdb24c265fa
+                9f649c5690a02b607faacb486613f5ded776c6
+            e8/
+                e5970606ae64b7e5c2851966d19418fc9c8dd2
+            fa/
+                8ed6b8e18b46cf8edbf6b4a2ea5d117b5fc6ea
+                a11cd4d318b04a44dd4b0fe6c2c9f23d463276
+                25cf1b152ae590965cc972d6f9e83b11368045
+                647998857993ba603d41ad1ea93a156521d675
+            ff/
+                9cca17105a10f9d88f903e179c920070e0b4a1
+                e19f1c6b29305c3f5ca510b6d0d5f9cf0825e6
+                aa22e0de143b26531780e8410c45045613e92c
+                58428a36c98988a0da469b1dd945c4bc47cd0f
+            c5/
+                8824a397b1087d29eaaacb4a6c891c47f3d3f1
+            c2/
+                080c133de713fe6010996f97d9847bb3e4645c
+                ddc73dfb5369921e39532f9263ea2f5860c9a3
+            f6/
+                ff29e0f7208ff7cb9bb0bd3697d3c4f9c730cf
+                70a4aa5ebd5c0f2f3d45bb40e4890516e78e84
+            e9/
+                c77d325f0a87a8979bd9280543611275e9cca5
+            f1/
+                3365ed4fd9863aaeb928c605d6e3bea2febc63
+                ab31c0be24d2dde7ecf4c9e6b2569d1c85cc13
+                8a0e00666576fcbc5b829f44efe9c16e81f2ed
+            e7/
+                37d240b9e0338a2dc9ba26f5895c441048d4e3
+            cb/
+                c3ad21416444f776c60963fa393879bc0b4101
+                bce72cf3b69fc7ec6a869332290795454253e9
+                dba6c8fdac10f6e89636098afbf3852d62b5a6
+            f8/
+                bc228ce5dd6dd7e19bd51e9876fe66a5a17ca7
+            ce/
+                97c39a5af8295898480b447c87c4be5228fe8f
+                6d5c6df10ac5fb972f90a7f427e52b0d6b27ee
+            e0/
+                5c9c9ac54c7359f4e40ab57361cbaf79d485ae
+            46/
+                f0c74eee8c531386f712cc55ff934841bb8cbb
+                07c14cf33fe249e40e0ea156909fab8f3d9258
+            2c/
+                729ea777dcd1eaea02f09e8cfb491bb6b1fd5a
+                5a5c007869e9117076a46118b0bd25099848bd
+            79/
+                9f938ecb3635eea1db6fd0e9e8ac1e24cf3441
+                5d957b67331592f2d6750202f94aefb8c0b623
+            2d/
+                5872c1b572579c4912a57f5356ff0d2168d46d
+                3d726b1b52463647f3cf01a2d188ae9dc20ea9
+                1a8cead63a0c080d22936efe7915ee38968f94
+            41/
+                4582a03323fe9ca3ada486343acc90aacb7857
+                59963285b38d7fc6194f0e15b6b7e97086791e
+                52387fd5f2e246740d6f3a95cd861094599f89
+                1b5f1ee16a325fe51a85b164616f4b5ce9fc36
+            1b/
+                127141409617712ccbc78e32890296d74f6924
+                c02a61a31ed3d6fb21d412b75f47ba35e02fce
+            77/
+                7638f2347b5bbe342fd5fd8264f4d07244b5a1
+                5a0a74d51cf82d26bde389f25ebd58e70b71fc
+            48/
+                9a8f29f2c55184721a65e263727c4f2f5eb94e
+                aaff8162d3ac74f4a44d68ba91ee3c534b660e
+            70/
+                30839f8f63f4dc1010ccfe67be7af77d394bc6
+                7d54a438f038de9cb69eb5b9f54ea60cc8ede2
+                ab9c9f1c9471ee61ddd1389b62815ca459fb87
+                e45ffb3c8158f027e049ca7310f3c2dfe2f78d
+                a1428c566b34597ca8b053585abdec65e9f2c4
+            1e/
+                baf1ce0692755b3db8a3b8f4bc01a2d65fb097
+            84/
+                cc7cca5014235d2874660f98e2d6f801d870d3
+                4b36f350d3548d91d9f658e40dc240a5035f90
+                15cb4e4f780d14a4cdb156dcf2b9b12025b04a
+                220d8e9d60d0f7451e0e8cdf99da2361c22853
+            4a/
+                045877b5a451aee706b835082ec291cab9701b
+                d8eb5731eefe7318597f3257cd4cc3f9016f7c
+                697cae71fcd399eca11554898c36eed62d6497
+                f0b3a39358105d77d54a27f51ccbbf98dcc5fa
+            24/
+                7806a2f90fdd6c6dd155c4c5720670456f56b0
+                9ab881dcc02027ce9b85bb51440a21c113923b
+                4a4b20ce1396a5f101c0ae02c1f5938e839a90
+                dc45c194f1e1a940d582a7b5b95319fd5ed24e
+                2a47c4d843e58f005bdb94a9194bd35801361f
+            23/
+                2d5801e576932662b05ef435278c922d356c58
+            4f/
+                09620baad0f2b5be190102102cd3716fa1a1c6
+            8d/
+                8e9118311cecc89af1646dbb8217a3d2f9829b
+                51f8fce6c0c3c097bcc6341f53eae2d8b30f02
+                0ac7e00574aa8d4697b0af03119b7c1e55581d
+            15/
+                1be1d3dc2289cc77a867f89191538657ab20f7
+                67231cafa580815f9b1908b09184292c0dfadc
+            12/
+                f2782d0bdac7267b319139295e4f841d7702e1
+                25e517ded0a1d431e1a0e0dcaed49a0b4b0978
+            8c/
+                8e551ceac68982d418f9b1d5e0ad200116d314
+                62ec185a7ab7b33921bde853a1457cab06c62e
+                0d8bac528351dad7727d907c0ea92669c7b443
+            85/
+                ea84f52c24b15d9dbedc029b349e6a172ceb57
+            1d/
+                992193b3c02f30844002604d638744a9f6b582
+                f4d3ee7800dfa737a82cc54da9c3ebf694ab4e
+                1e3e3fddb6fb85b7f601cdd39a96f03351a09b
+                2b1d4825c71f3090ed675d9799827917ba1401
+            71/
+                f6ce6f19bcb8b204cee16d17adf9c1dcc215ab
+                fc7871eb2099a223286912778f659762ba1514
+            76/
+                96d577f21dba947515fec9749be570ba7dcf92
+                e639114b7b95b2b895a84fb7a31d6d2bf054ba
+            1c/
+                804f4d2b8c59ea210697fd385c04d200b2c0d4
+            82/
+                e7986c3d9ac1b813dfe1ac4045241ae259fff7
+                6ae129c45355fa936100bf3e2205a603485a77
+                1d6e3015911369fe693a44053999304a963d3c
+                ada3b5287ad15af5b72931d912666858bc4c92
+            49/
+                65b3c929819887d81fe2fdd44ef795fd5b2932
+            40/
+                7925d8955c9ee62c911185a2f0d784d0e8cc31
+                57abe68ebdc6bd7ef4726b637f78d331e5c4fb
+                618ce310463333853893f794ca03d34224560f
+            2e/
+                6ca9787d43526b7f5f91b88bb3554b028d08dc
+                5e63c5b79f3cc00350b24161cd4a0be85494ed
+            47/
+                5bec57f8713d5ec13f74f48602ef0c394ecb35
+                6a030429ea19ecb61c4810400ce1d645281ae3
+                9b17bc97265b065ff9cd2611031186c5d3d423
+            78/
+                0e649222648a26c23b27bac9f9dc6515552d87
+            8b/
+                19bdc715844041f409d3b7b36a18a2c177d0fb
+                3f492361839e47316b281b65145ad5b71ff494
+                137891791fe96927ad78e64b0aad7bded08bdc
+            13/
+                fb171e60d165139f08cfaae2f513fb7a9dffdc
+                72735ea8daa5f4404799dd64b959035e98b9ac
+            7f/
+                caf6441abb1ce14ff39192c62c66239c270fe7
+            7a/
+                b6c6863a946ef8b2cf2bd7bbefc54abcb5cc10
+                ec65d4463690a6efca8ee4dd06b1ebcde46a2d
+                ff5e326d786f37c91b445f5daa094a99db342d
+            14/
+                8e3538884beeddfdf928bb9e793eb8fdfbf0b8
+                db4571e1ae4044f6eada5cd61af7f14ca68c8a
+                d1cd27266bc55bc9d7f48ca352ab8205b545df
+            8e/
+                745310b39b1680a7b689161097c3f33f4c7212
+                ba5ab220ad5a679caed3d734db1fdeec3a4631
+            22/
+                c8fd78e26413ecf7455d9235efef67abf51d8f
+                1802155da87b65ac29062ce60dd21e627e6afb
+                c3451bcfd5ecf4283c3a4048f074adafd6dd5c
+            25/
+                ed73a39fca2a06d55711616773bb04063f87da
+                b5ff8e4673fc5a99878f3d4f2db889e2626972
+        info/
+            exclude
+        logs/
+            HEAD
+            refs/
+                stash
+                heads/
+                    librosa
+                    oculizer-librosa
+                    audiolightcontroller
+                    numba
+                    main
+                remotes/
+                    origin/
+                        librosa
+                        oculizer-librosa
+                        audiolightcontroller
+                        numba
+                        main
+        hooks/
+            commit-msg.sample
+            pre-rebase.sample
+            sendemail-validate.sample
+            pre-commit.sample
+            applypatch-msg.sample
+            fsmonitor-watchman.sample
+            pre-receive.sample
+            prepare-commit-msg.sample
+            post-update.sample
+            pre-merge-commit.sample
+            pre-applypatch.sample
+            pre-push.sample
+            update.sample
+            push-to-checkout.sample
+        refs/
+            stash
+            heads/
+                librosa
+                oculizer-librosa
+                audiolightcontroller
+                numba
+                main
+            tags/
+            remotes/
+                origin/
+                    librosa
+                    oculizer-librosa
+                    audiolightcontroller
+                    numba
+                    main
+    oculizer/
+        .DS_Store
+        config.py
+
+        Content of config.py:
+        ----------------------------------------
+import json
+from pathlib import Path
+
+def load_audio_parameters():
+    current_dir = Path(__file__).resolve().parent
+    json_path = current_dir.parent / 'config' / 'audio_parameters.json'
+    
+    with open(json_path, 'r') as f:
+        return json.load(f)
+
+audio_parameters = load_audio_parameters()
+audio_parameters['HOP_LENGTH'] = int(audio_parameters['BLOCKSIZE'] / 2)
+        ----------------------------------------
+
+        interface.py
+
+        Content of interface.py:
+        ----------------------------------------
+"""
+interface.py
+
+Description: This script provides a command line interface for toggling light mappings and controlling the Spotify API.
+
+Author: Landry Bulls
+Date: 8/20/24
+"""
+
+import curses
+import keyboard
+from audio import AudioListener
+from control import LightController, SceneManager
+import time
+
+oculizer_title = """
+      ___           ___           ___           ___                   ___           ___           ___     
+     /\  \         /\  \         /\__\         /\__\      ___        /\  \         /\  \         /\  \    
+    /::\  \       /::\  \       /:/  /        /:/  /     /\  \       \:\  \       /::\  \       /::\  \   
+   /:/\:\  \     /:/\:\  \     /:/  /        /:/  /      \:\  \       \:\  \     /:/\:\  \     /:/\:\  \  
+  /:/  \:\  \   /:/  \:\  \   /:/  /  ___   /:/  /       /::\__\       \:\  \   /::\~\:\  \   /::\~\:\  \ 
+ /:/__/ \:\__\ /:/__/ \:\__\ /:/__/  /\__\ /:/__/     __/:/\/__/ _______\:\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ 
+ \:\  \ /:/  / \:\  \  \/__/ \:\  \ /:/  / \:\  \    /\/:/  /    \::::::::/__/ \:\~\:\ \/__/ \/_|::\/:/  /
+  \:\  /:/  /   \:\  \        \:\  /:/  /   \:\  \   \::/__/      \:\~~\~~      \:\ \:\__\      |:|::/  / 
+   \:\/:/  /     \:\  \        \:\/:/  /     \:\  \   \:\__\       \:\  \        \:\ \/__/      |:|\/__/  
+    \::/  /       \:\__\        \::/  /       \:\__\   \/__/        \:\__\        \:\__\        |:|  |    
+     \/__/         \/__/         \/__/         \/__/                 \/__/         \/__/         \|__|    
+"""
+
+def main(stdscr):
+    scene_manager = SceneManager('scenes_directory', 'profiles_directory')
+    audio_listener = AudioListener()
+    dmx_controller = Controller()
+    light_controller = LightController(audio_listener, dmx_controller, scene_manager)
+
+    audio_listener.start()
+    light_controller.start()
+
+    scenes = list(scene_manager.scenes.keys())
+    current_scene_index = 0
+
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, oculizer_title)
+        stdscr.addstr(1, 0, f"Current scene: {scenes[current_scene_index]}")
+        stdscr.addstr(2, 0, "Press 'n' for next scene, 'p' for previous scene, 'q' to quit")
+        stdscr.refresh()
+
+        key = stdscr.getch()
+        if key == ord('n'):
+            current_scene_index = (current_scene_index + 1) % len(scenes)
+            scene_manager.set_scene(scenes[current_scene_index])
+        elif key == ord('p'):
+            current_scene_index = (current_scene_index - 1) % len(scenes)
+            scene_manager.set_scene(scenes[current_scene_index])
+        elif key == ord('q'):
+            break
+
+    audio_listener.stop()
+    light_controller.stop()
+    audio_listener.join()
+    light_controller.join()
+
+if __name__ == "__main__":
+    curses.wrapper(main)
+
+
+
+        ----------------------------------------
+
+        __init__.py
+
+        Content of __init__.py:
+        ----------------------------------------
+from oculizer.audio import AudioListener
+from oculizer.light import Oculizer
+from oculizer.light import mapping
+from oculizer.scenes import SceneManager
+from oculizer.spotify import Spotifizer
+from oculizer.config import audio_parameters
+from oculizer.custom_profiles.RGB import RGB
+from oculizer.custom_profiles.ADJ_strobe import Strobe
+from oculizer import utils
+        ----------------------------------------
+
+        utils.py
+
+        Content of utils.py:
+        ----------------------------------------
+import os
+import json
+
+def load_json(filename):
+    with open(filename, 'r') as f:
+        data = json.load(f)
+    return data
+        ----------------------------------------
+
+        .cache
         visualizer.py
 
         Content of visualizer.py:

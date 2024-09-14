@@ -1,0 +1,72 @@
+{
+    "name": "bloop",
+    "description": "Stochastic blue strobe on all RGBs. All else off.",
+    "key_command": "f",
+    "lights": [
+        {
+            "name": "rgb1", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "blue",
+            "strobe": "random"
+        }
+    ]
+}

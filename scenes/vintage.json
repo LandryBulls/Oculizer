@@ -8,7 +8,7 @@
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [10, 100],      
-            "brightness_range": [50, 100],
+            "brightness_range": [50, 200],
             "power_range": [0, 1]
         }
     ]
