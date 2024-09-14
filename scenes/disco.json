@@ -2,6 +2,7 @@
     "name": "disco",
     "description": "Disco scene. Disco ball and RGB wavies.",
     "key_command": "4",
+    "midi": 62,
     "lights": [
         {
             "name": "discoball",

@@ -2,6 +2,7 @@
     "name": "ambient",
     "description": "Subtle, flowing colors for calmer moments",
     "key_command": "a",
+    "midi_command": 48,
     "lights": [
         {
             "name": "rgb1",

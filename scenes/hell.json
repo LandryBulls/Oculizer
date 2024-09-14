@@ -2,6 +2,7 @@
     "name": "hell",
     "description": "Stochastic red strobe on rgbs. All else off.",
     "key_command": "8",
+    "midi": 57,
     "lights": [
         {
             "name": "rgb1", 

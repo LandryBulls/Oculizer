@@ -2,6 +2,7 @@
     "name": "buildup",
     "description": "Gradually intensifying scene for track buildups",
     "key_command": "b",
+    "midi": 50,
     "lights": [
         {
             "name": "rgb1",

@@ -2,6 +2,7 @@
     "name": "default",
     "description": "Default basic party scene :).",
     "key_command": "1",
+    "midi": 60,
     "lights": [
         {
             "name": "rgb1", 

@@ -2,6 +2,7 @@
     "name": "drop",
     "description": "Intense lighting for the drop",
     "key_command": "d",
+    "midi": 52,
     "lights": [
         {
             "name": "rgb1",
