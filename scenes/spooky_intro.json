@@ -2,6 +2,7 @@
     "name": "spooky_intro",
     "description": "Eerie lighting inspired by a creepy TV show intro",
     "key_command": "i",
+    "midi": 69,
     "lights": [
         {
             "name": "rgb1",

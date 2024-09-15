@@ -2,7 +2,7 @@
     "name": "wavies",
     "description": "Sine waves for testing.",
     "key_command": "-",
-
+    "midi": 71,
     "lights": [
         {
             "name": "rgb1",
@@ -11,7 +11,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "red",
-            "frequency": 1.5,
+            "frequency": 0.75,
             "function": "sine",
             "strobe": 0
         },
@@ -22,7 +22,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "green",
-            "frequency": 2.7,
+            "frequency": 0.5,
             "function": "sine",
             "strobe": 0
         },
@@ -33,7 +33,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "blue",
-            "frequency": 1.8,
+            "frequency": 1.0,
             "function": "sine",
             "strobe": 0
         },
@@ -44,7 +44,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "yellow",
-            "frequency": 0.9,
+            "frequency": 0.4,
             "function": "sine",
             "strobe": 0
         },
@@ -55,7 +55,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "orange",
-            "frequency": 2.2,
+            "frequency": 0.3,
             "function": "sine",
             "strobe": 0
         },
@@ -66,7 +66,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "purple",
-            "frequency": 1.3,
+            "frequency": 0.5,
             "function": "sine",
             "strobe": 0
         },
@@ -77,7 +77,7 @@
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "green",
-            "frequency": 2.5,
+            "frequency": 0.1,
             "function": "sine",
             "strobe": 0
         }

@@ -17,6 +17,17 @@ def create_midi_scene_map(scenes):
             midi_scene_map[scene_data['midi']] = scene_name
     return midi_scene_map
 
+def init_colors():
+    curses.start_color()
+    curses.use_default_colors()
+    curses.init_pair(1, curses.COLOR_RED, -1)
+    curses.init_pair(2, curses.COLOR_GREEN, -1)
+    curses.init_pair(3, curses.COLOR_YELLOW, -1)
+    curses.init_pair(4, curses.COLOR_BLUE, -1)
+    curses.init_pair(5, curses.COLOR_MAGENTA, -1)
+    curses.init_pair(6, curses.COLOR_CYAN, -1)
+    curses.init_pair(7, curses.COLOR_WHITE, -1)
+
 def main(stdscr):
     scene_manager = SceneManager('scenes')
     scene_manager.set_scene('default')  # Set an initial scene
@@ -40,13 +51,13 @@ def main(stdscr):
 
     while True:
         stdscr.clear()
-        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
+        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}", curses.color_pair(2))
         stdscr.addstr(1, 0, "Available scenes:")
         for i, (scene, data) in enumerate(scene_manager.scenes.items()):
             midi_note = data.get('midi', 'N/A')
             stdscr.addstr(i+2, 0, f"{scene} | MIDI Note: {midi_note} | Key: {data.get('key_command', 'N/A')}")
 
-        stdscr.addstr(len(scene_manager.scenes)+3, 0, "Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, "Press 'q' to quit. Press 'r' to reload scenes.", curses.color_pair(5))
         stdscr.refresh()
 
         # Check for MIDI input

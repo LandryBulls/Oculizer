@@ -13,11 +13,10 @@
         {
             "name": "ropes", 
             "type": "dimmer",
-            "modulator": "time", 
-            "function": 0,
-            "frequency": 0.1,
-            "min_brightness": 0,
-            "max_brightness": 60
+            "modulator": "mfft", 
+            "mfft_range": [10, 100],
+            "brightness_range": [20, 100],
+            "power_range": [0, 1]
         }, 
         {
             "name": "rgb1",
@@ -40,15 +39,15 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 3,
-            "color": "blue",
+            "color": "pink",
             "strobe": 0
         },
         {
             "name": "rgb7",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 3,
-            "color": "blue",
+            "brightness": 10,
+            "color": "purple",
             "strobe": 0
         }
     ]

@@ -2,6 +2,7 @@
     "name": "whispers",
     "description": "A very dim, spooky scene with subtle, unsettling movements",
     "key_command": "w",
+    "midi": 47,
     "lights": [
         {
             "name": "rgb1",

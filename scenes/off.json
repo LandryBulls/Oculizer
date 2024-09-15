@@ -1,0 +1,10 @@
+{
+    "name": "off",
+    "description": "All lights off",
+    "key_command": "'",
+    "midi": 45,
+    "lights": 
+    [
+    
+    ]
+}
