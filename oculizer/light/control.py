@@ -151,6 +151,9 @@ class Oculizer(threading.Thread):
                     elif light['type'] == 'strobe':
                         self.controller_dict[light['name']].set_channels(dmx_values[:2])
 
+                    elif light['type'] == 'laser':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:10])
+
             except Exception as e:
                 print(f"Error processing light {light['name']}: {str(e)}")
 

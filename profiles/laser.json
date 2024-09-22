@@ -1,0 +1,7 @@
+{
+    "name": "laser",
+    "description": "Laser testing profile. This works as the template lighting profile for running tests with the laser.",
+    "lights": [
+        {"name": "laser", "type": "laser", "n_channels": 10}
+    ]
+}
