@@ -138,6 +138,64 @@ def bool_strobe(speed, brightness):
     brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
     return [int(speed), int(brightness)]
 
+def bool_laser():
+    """
+    Function to control the laser in bool mode.
+    This simply activates the auto mode of the laser.
+    
+    Returns:
+    list: DMX values for the 10 channels of the laser
+    """
+    return [
+        128,  # Channel 1: Set to Auto program (086-170)
+        255,  # Channel 2: Strobe On
+        0,    # Channel 3-10: Not used in Auto mode
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    ]
+
+def mfft_laserl(mfft_vec, power_range=[0.1, 0.5], speed_range=[0, 255]):
+    """
+    Function to control the laser based on MFFT data.
+    It turns the laser on/off and modulates the speed of auto patterns based on MFFT power.
+    
+    Args:
+    mfft_vec (np.array): MFFT vector
+    power_range (list): [min_power, max_power] for mapping
+    speed_range (list): [min_speed, max_speed] for mapping
+    
+    Returns:
+    list: DMX values for the 10 channels of the laser
+    """
+    mfft_power = np.mean(mfft_vec)
+    
+    if mfft_power <= power_range[0]:
+        speed = speed_range[0]
+    elif mfft_power >= power_range[1]:
+        speed = speed_range[1]
+    else:
+        # Map the power to speed
+        power_ratio = (mfft_power - power_range[0]) / (power_range[1] - power_range[0])
+        speed = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
+    
+    return [
+        128,    # Channel 1: Set to Auto program (086-170)
+        255,    # Channel 2: Strobe On
+        0,      # Channel 3-9: Not used
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        speed   # Channel 10: Scan Speed (0-255)
+    ]
+
 def time_function(t, frequency, function):
     if function == 0:  # sine
         return np.sin(t * frequency * 2 * np.pi) * 0.5 + 0.5
@@ -241,6 +299,9 @@ def process_light(light, mfft_vec, current_time):
             #print(f"MFFT range: {light['mfft_range']}")
             return mfft_to_strobe(mfft_vec, light['mfft_range'], light['threshold'])
 
+        elif light_type == 'laser':
+            return mfft_laserl(mfft_vec, light['power_range'], light['speed_range'])
+
     elif modulator == 'bool':
         if light_type == 'dimmer':
             return process_bool_dimmer(light)
@@ -250,6 +311,9 @@ def process_light(light, mfft_vec, current_time):
 
         elif light_type == 'strobe':
             return process_bool_strobe(light)
+
+        elif light_type == 'laser':
+            return bool_laser()
             
     elif modulator == 'time':
         if light_type == 'dimmer':
