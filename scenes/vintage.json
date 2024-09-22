@@ -8,9 +8,17 @@
             "name": "ropes",
             "type": "dimmer",
             "modulator": "mfft",
-            "mfft_range": [10, 100],      
+            "mfft_range": [0, 50],      
             "brightness_range": [50, 200],
-            "power_range": [0, 1]
+            "power_range": [0, 5]
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [50, 128],
+            "brightness_range": [60, 255],
+            "power_range": [0, 0.3]
         }
     ]
 } 

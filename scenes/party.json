@@ -1,5 +1,5 @@
 {
-    "name": "default",
+    "name": "party",
     "description": "Default basic party scene :).",
     "key_command": "1",
     "midi": 60,
@@ -63,6 +63,14 @@
             "min_brightness": 35,
             "max_brightness": 65
         }, 
+        {
+            "name": "orb", 
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 10],
+            "power_range": [0, 0.5],
+            "brightness_range": [0, 80]
+        },
         {
             "name": "discoball", 
             "type": "dimmer",

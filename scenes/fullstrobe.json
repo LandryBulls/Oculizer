@@ -10,7 +10,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb2",
@@ -18,7 +18,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb3",
@@ -26,7 +26,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb4",
@@ -34,7 +34,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb5",
@@ -42,7 +42,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb6",
@@ -50,7 +50,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "strobe",
@@ -59,7 +59,7 @@
             "brightness": 255,
             "color": "white",
             "strobe": 255,
-            "speed": 255
+            "speed": 245
         }, 
         {
             "name": "rgb7",
@@ -67,7 +67,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         },
         {
             "name": "rgb8",
@@ -75,7 +75,7 @@
             "modulator": "bool",
             "brightness": 255,
             "color": "white",
-            "strobe": 255
+            "strobe": 200
         }
     ]
 }

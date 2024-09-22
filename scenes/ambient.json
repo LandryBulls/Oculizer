@@ -100,7 +100,7 @@
             "function": 0,
             "frequency": 0.04,
             "min_brightness": 0,
-            "max_brightness": 75
+            "max_brightness": 100
         }
     ]
 }

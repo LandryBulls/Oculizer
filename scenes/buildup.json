@@ -89,7 +89,7 @@
             "type": "dimmer",
             "modulator": "time",
             "function": 3,
-            "frequency": 0.1,
+            "frequency": 0.5,
             "min_brightness": 0,
             "max_brightness": 90
         },
@@ -97,10 +97,10 @@
             "name": "orb",
             "type": "dimmer",
             "modulator": "time",
-            "function": 3,
-            "frequency": 0.05,
+            "function": 4,
+            "frequency": 1,
             "min_brightness": 0,
-            "max_brightness": 200
+            "max_brightness": 100
         }
     ]
 }

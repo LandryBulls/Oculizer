@@ -30,7 +30,7 @@ def init_colors():
 
 def main(stdscr):
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('default')  # Set an initial scene
+    scene_manager.set_scene('party')  # Set an initial scene
     light_controller = Oculizer('garage', scene_manager)
 
     # Create MIDI scene map from scene configurations
@@ -55,9 +55,9 @@ def main(stdscr):
         stdscr.addstr(1, 0, "Available scenes:")
         for i, (scene, data) in enumerate(scene_manager.scenes.items()):
             midi_note = data.get('midi', 'N/A')
-            stdscr.addstr(i+2, 0, f"{scene} | MIDI Note: {midi_note} | Key: {data.get('key_command', 'N/A')}")
+            stdscr.addstr(i+3, 0, f"{scene} | MIDI Note: {midi_note} | Key: {data.get('key_command', 'N/A')}")
 
-        stdscr.addstr(len(scene_manager.scenes)+3, 0, "Press 'q' to quit. Press 'r' to reload scenes.", curses.color_pair(5))
+        stdscr.addstr(len(scene_manager.scenes)+2, 0, "Press 'q' to quit. Press 'r' to reload scenes.", curses.color_pair(5))
         stdscr.refresh()
 
         # Check for MIDI input
