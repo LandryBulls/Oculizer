@@ -2,7 +2,7 @@
     "name": "ambient3",
     "description": "Subtle, flowing colors for calmer moments",
     "key_command": "a",
-    "midi": 41,
+    "midi": 40,
     "lights": [
         {
             "name": "rgb1",
@@ -12,7 +12,7 @@
             "frequency": 0.1,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "blue"
+            "color": "green"
         },
         {
             "name": "rgb2",
@@ -22,7 +22,7 @@
             "frequency": 0.08,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "purple"
+            "color": "orange"
         },
         {
             "name": "rgb3",
@@ -32,7 +32,7 @@
             "frequency": 0.12,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "blue"
+            "color": "green"
         },
         {
             "name": "rgb4",
@@ -42,7 +42,7 @@
             "frequency": 0.09,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "purple"
+            "color": "orange"
         },
         {
             "name": "rgb5",
@@ -52,7 +52,7 @@
             "frequency": 0.11,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "blue"
+            "color": "green"
         },
         {
             "name": "rgb6",
@@ -62,7 +62,7 @@
             "frequency": 0.07,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "purple"
+            "color": "orange"
         },
         {
             "name": "rgb7",
@@ -72,7 +72,7 @@
             "frequency": 0.13,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "blue"
+            "color": "green"
         },
         {
             "name": "rgb8",
@@ -82,24 +82,22 @@
             "frequency": 0.06,
             "min_brightness": 0,
             "max_brightness": 100,
-            "color": "purple"
+            "color": "orange"
         },
         {
             "name": "ropes",
             "type": "dimmer",
-            "modulator": "time",
-            "function": 0,
-            "frequency": 0.05,
-            "min_brightness": 0,
-            "max_brightness": 75
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 40,
+            "max_brightness": 70
         },
         {
             "name": "orb",
             "type": "dimmer",
-            "modulator": "time",
-            "function": 0,
-            "frequency": 0.04,
-            "min_brightness": 0,
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 50,
             "max_brightness": 100
         }
     ]

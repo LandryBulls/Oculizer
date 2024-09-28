@@ -70,25 +70,6 @@
             "strobe": "random"
         },
         {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": "random",
-            "speed": 0
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
             "name": "lasers",
             "type": "dimmer",
             "modulator": "bool",

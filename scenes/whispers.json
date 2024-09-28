@@ -108,18 +108,6 @@
             "brightness_range": [0, 70]
         },
         {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
             "name": "strobe",
             "type": "strobe",
             "modulator": "bool",

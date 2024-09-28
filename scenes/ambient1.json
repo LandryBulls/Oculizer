@@ -88,7 +88,7 @@
             "name": "ropes",
             "type": "dimmer",
             "modulator": "time",
-            "function": 0,
+            "function": "sine",
             "frequency": 0.05,
             "min_brightness": 0,
             "max_brightness": 75
@@ -97,7 +97,7 @@
             "name": "orb",
             "type": "dimmer",
             "modulator": "time",
-            "function": 0,
+            "function": "sine",
             "frequency": 0.04,
             "min_brightness": 0,
             "max_brightness": 100

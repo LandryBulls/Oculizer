@@ -7,7 +7,7 @@
         {
             "name": "rgb1",
             "type": "rgb",
-            "modulator": "mfft",
+            "modulator": "time",
             "mfft_range": [0, 16],
             "power_range": [0, 2],
             "brightness_range": [0, 255],
@@ -78,7 +78,7 @@
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [112, 128],
+            "mfft_range": [16, 32],
             "power_range": [0, 2],
             "brightness_range": [0, 255],
             "color": "purple",
@@ -88,8 +88,8 @@
             "name": "ropes",
             "type": "dimmer",
             "modulator": "time",
-            "function": 3,
-            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "frequency": 0.75,
             "min_brightness": 0,
             "max_brightness": 90
         },
@@ -97,8 +97,8 @@
             "name": "orb",
             "type": "dimmer",
             "modulator": "time",
-            "function": 4,
-            "frequency": 1,
+            "function": "sawtooth_forward",
+            "frequency": 0.25,
             "min_brightness": 0,
             "max_brightness": 100
         }

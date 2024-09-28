@@ -119,6 +119,12 @@
             "power_range": [0,3],
             "color": "pink",
             "strobe": 0
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random"
         }
     ]
 }
