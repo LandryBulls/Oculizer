@@ -1,7 +1,7 @@
 {
     "name": "blue",
     "description": "blue",
-    "key_command": "2",
+    "midi": 79,
     "lights": [
         {
             "name": "rgb1",

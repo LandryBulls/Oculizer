@@ -2,7 +2,7 @@
     "name": "vintage",
     "description": "Warm and cozy for acoustic songs.",
     "key_command": "v",
-    "midi": 67,
+    "midi": 69,
     "lights": [
         {
             "name": "ropes",

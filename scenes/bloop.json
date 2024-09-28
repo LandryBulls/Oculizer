@@ -2,7 +2,7 @@
     "name": "bloop",
     "description": "Stochastic blue strobe on all RGBs. All else off.",
     "key_command": "f",
-    "midi": 59,
+    "midi": 62,
     "lights": [
         {
             "name": "rgb1", 

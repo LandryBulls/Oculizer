@@ -2,7 +2,7 @@
     "name": "brainblaster",
     "description": "Rainbow strobes. All else off.",
     "key_command": "3",
-    "midi": 55,
+    "midi": 67,
     "lights": [
         {
             "name": "rgb1",

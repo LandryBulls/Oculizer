@@ -1,0 +1,25 @@
+{
+    "name": "flicker",
+    "description": "flicker vintage",
+    "key_command": "v",
+    "midi": 84,
+    "lights": [
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 40,
+            "max_brightness": 70
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 50,
+            "max_brightness": 100
+        }
+    ]
+} 
+

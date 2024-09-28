@@ -1,8 +1,8 @@
 {
     "name": "off",
     "description": "All lights off",
-    "key_command": "'",
-    "midi": 45,
+    "key_command": "o",
+    "midi": 36,
     "lights": 
     [
     

@@ -2,7 +2,7 @@
     "name": "party",
     "description": "Default basic party scene :).",
     "key_command": "1",
-    "midi": 60,
+    "midi": 82,
     "lights": [
         {
             "name": "rgb1", 
@@ -88,7 +88,7 @@
             "brightness": 255,
             "mfft_range": [115, 127],
             "power_range": [0.08, 1.0],
-            "speed": 255
+            "speed": 1
         },
         {
             "name": "rgb6", 

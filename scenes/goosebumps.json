@@ -1,8 +1,8 @@
 {
-    "name": "spooky_intro",
+    "name": "goosebumps",
     "description": "Eerie lighting inspired by a creepy TV show intro",
     "key_command": "i",
-    "midi": 69,
+    "midi": 77,
     "lights": [
         {
             "name": "rgb1",

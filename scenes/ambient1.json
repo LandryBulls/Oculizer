@@ -1,0 +1,106 @@
+{
+    "name": "ambient1",
+    "description": "Subtle, flowing colors for calmer moments",
+    "key_command": "a",
+    "midi": 38,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.08,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.12,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.09,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.11,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.07,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.13,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.06,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "purple"
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 0,
+            "frequency": 0.05,
+            "min_brightness": 0,
+            "max_brightness": 75
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": 0,
+            "frequency": 0.04,
+            "min_brightness": 0,
+            "max_brightness": 100
+        }
+    ]
+}

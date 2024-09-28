@@ -1,8 +1,8 @@
 {
-    "name": "ambient",
+    "name": "ambient2",
     "description": "Subtle, flowing colors for calmer moments",
     "key_command": "a",
-    "midi": 48,
+    "midi": 40,
     "lights": [
         {
             "name": "rgb1",

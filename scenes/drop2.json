@@ -1,8 +1,8 @@
 {
-    "name": "buildup",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 50,
+    "name": "drop2",
+    "description": "Intense lighting for the drop",
+    "key_command": "d",
+    "midi": 53,
     "lights": [
         {
             "name": "rgb1",
@@ -10,9 +10,9 @@
             "modulator": "mfft",
             "mfft_range": [0, 16],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "red",
+            "strobe": 200
         },
         {
             "name": "rgb2",
@@ -20,9 +20,9 @@
             "modulator": "mfft",
             "mfft_range": [16, 32],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "orange",
+            "strobe": 200
         },
         {
             "name": "rgb3",
@@ -30,9 +30,9 @@
             "modulator": "mfft",
             "mfft_range": [32, 48],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "yellow",
+            "strobe": 200
         },
         {
             "name": "rgb4",
@@ -40,9 +40,9 @@
             "modulator": "mfft",
             "mfft_range": [48, 64],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "green",
+            "strobe": 200
         },
         {
             "name": "rgb5",
@@ -50,9 +50,9 @@
             "modulator": "mfft",
             "mfft_range": [64, 80],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
+            "brightness_range": [100, 255],
             "color": "blue",
-            "strobe": 0
+            "strobe": 200
         },
         {
             "name": "rgb6",
@@ -60,9 +60,9 @@
             "modulator": "mfft",
             "mfft_range": [80, 96],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
+            "brightness_range": [100, 255],
             "color": "purple",
-            "strobe": 0
+            "strobe": 200
         },
         {
             "name": "rgb7",
@@ -70,9 +70,9 @@
             "modulator": "mfft",
             "mfft_range": [96, 112],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "pink",
+            "strobe": 200
         },
         {
             "name": "rgb8",
@@ -80,27 +80,15 @@
             "modulator": "mfft",
             "mfft_range": [112, 128],
             "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
+            "brightness_range": [100, 255],
+            "color": "white",
+            "strobe": 200
         },
         {
-            "name": "ropes",
+            "name": "lasers",
             "type": "dimmer",
-            "modulator": "time",
-            "function": 3,
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 90
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": 4,
-            "frequency": 1,
-            "min_brightness": 0,
-            "max_brightness": 100
+            "modulator": "bool",
+            "brightness": 255
         }
     ]
 }

@@ -85,6 +85,8 @@ class Oculizer(threading.Thread):
             elif light['type'] == 'laser':
                 control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
                 curr_channel += 10
+                control_dict[light['name']].set_channels([128, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                time.sleep(sleeptime)
                 control_dict[light['name']].set_channels([0] * 10)
                 time.sleep(sleeptime)
 

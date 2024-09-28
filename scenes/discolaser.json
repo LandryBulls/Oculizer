@@ -1,0 +1,21 @@
+{
+    "name": "discolaser",
+    "description": "Disco scene w/ lasers",
+    "key_command": "4",
+    "midi": 74,
+    "lights": [
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 100
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 255
+        }
+
+    ]
+}

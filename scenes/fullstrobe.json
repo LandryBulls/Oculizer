@@ -2,7 +2,7 @@
     "name": "fullstrobe",
     "description": "Full white strobe all (RGB+Strobe)",
     "key_command": "6",
-    "midi": 64,
+    "midi": 81,
     "lights": [
         {
             "name": "rgb1",

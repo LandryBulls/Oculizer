@@ -124,8 +124,8 @@ def mfft_to_strobe(mfft_vec, mfft_range, threshold):
         print(f"Error in mfft_to_strobe: {str(e)}")
         return [0, 0]  # Return a safe default value
 
-def bool_dimmer(brightness):
-    brightness = np.random.randint(0, 256) if brightness == 'random' else brightness
+def bool_dimmer(brightness, min_brightness=0, max_brightness=255):
+    brightness = np.random.randint(min_brightness, max_brightness+1) if brightness == 'random' else brightness
     return [int(brightness)]
 
 def bool_rgb(brightness, color, strobe, colorfade):
@@ -251,7 +251,9 @@ def time_strobe(t, speed_range, brightness_range, frequency, function, target):
 #                        light.get('strobe', 0))
 
 def process_bool_dimmer(light): 
-    return bool_dimmer(light['brightness'])
+    min_brightness = light.get('min_brightness', 0)
+    max_brightness = light.get('max_brightness', 255)
+    return bool_dimmer(light['brightness'], min_brightness, max_brightness)
 
 def process_bool_strobe(light):
     return bool_strobe(light['speed'], light['brightness'])
