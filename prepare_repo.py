@@ -1,7 +1,7 @@
 import os
 
 def is_relevant_file(filename):
-    relevant_extensions = ('.py', '.json', '.md', '.txt')
+    relevant_extensions = ('.py', '.json', '.md')
     irrelevant_patterns = ('__pycache__', '.vscode', '.DS_Store', '.gitignore')
     return filename.endswith(relevant_extensions) and not any(pattern in filename for pattern in irrelevant_patterns)
 
