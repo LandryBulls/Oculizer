@@ -7,3 +7,4 @@ notebooks
 .cache**
 scripts/demix
 scripts/spec
+song_data
