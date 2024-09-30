@@ -1,10 +1,8 @@
 {
-    "name": "off",
-    "description": "All lights off",
-    "key_command": "o",
-    "midi": 36,
-    "lights": 
-    [
-    
-    ]
+  "name": "off",
+  "description": "All lights off",
+  "type": "effect",
+  "midi": 36,
+  "key_command": "o",
+  "lights": []
 }

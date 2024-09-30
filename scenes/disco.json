@@ -1,14 +1,15 @@
 {
-    "name": "disco",
-    "description": "Disco scene. Disco ball and RGB wavies.",
-    "key_command": "4",
-    "midi": 72,
-    "lights": [
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 100
-        }
-    ]
+  "name": "disco",
+  "description": "Disco scene. Disco ball and RGB wavies.",
+  "type": "effect",
+  "midi": 72,
+  "key_command": "4",
+  "lights": [
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 100
+    }
+  ]
 }

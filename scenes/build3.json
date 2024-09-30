@@ -1,96 +1,97 @@
 {
-    "name": "build3",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 48,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        }
-    ]
+  "name": "build3",
+  "description": "Gradually intensifying scene for track buildups",
+  "type": "build",
+  "midi": 48,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    }
+  ]
 }

@@ -1,72 +1,73 @@
 {
-    "name": "brainblaster",
-    "description": "Rainbow strobes. All else off.",
-    "key_command": "3",
-    "midi": 67,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        }
-    ]
+  "name": "brainblaster",
+  "description": "Rainbow strobes. All else off.",
+  "type": "effect",
+  "midi": 67,
+  "key_command": "3",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    }
+  ]
 }

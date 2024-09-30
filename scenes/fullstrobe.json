@@ -1,81 +1,82 @@
 {
-    "name": "fullstrobe",
-    "description": "Full white strobe all (RGB+Strobe)",
-    "key_command": "6",
-    "midi": 81,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 255,
-            "speed": 245
-        }, 
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        }
-    ]
+  "name": "fullstrobe",
+  "description": "Full white strobe all (RGB+Strobe)",
+  "type": "effect",
+  "midi": 81,
+  "key_command": "6",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 255,
+      "speed": 245
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    }
+  ]
 }

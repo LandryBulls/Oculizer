@@ -1,104 +1,195 @@
 {
-    "name": "bluevelvet",
-    "description": "Vintage + blue",
-    "key_command": "v",
-    "midi": 71,
-    "lights": [
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [0, 50],      
-            "brightness_range": [50, 200],
-            "power_range": [0, 5]
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [50, 128],
-            "brightness_range": [0, 255],
-            "power_range": [0, 0.3]
-        },
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        }
-    ]
+  "name": "bluevelvet",
+  "description": "Vintage + blue",
+  "type": "effect",
+  "midi": 71,
+  "key_command": "v",
+  "lights": [
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        50
+      ],
+      "brightness_range": [
+        50,
+        200
+      ],
+      "power_range": [
+        0,
+        5
+      ]
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        50,
+        128
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "power_range": [
+        0,
+        0.3
+      ]
+    },
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    }
+  ]
 }

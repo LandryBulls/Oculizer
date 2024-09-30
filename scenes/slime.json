@@ -1,85 +1,86 @@
 {
-    "name": "slime",
-    "description": "Stochastic green strobe on all RGBs. All else off.",
-    "key_command": "k",
-    "midi": 60,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 255,
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        }
-    ]
+  "name": "slime",
+  "description": "Stochastic green strobe on all RGBs. All else off.",
+  "type": "effect",
+  "midi": 60,
+  "key_command": "k",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 255,
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    },
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    }
+  ]
 }

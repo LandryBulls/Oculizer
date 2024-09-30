@@ -1,102 +1,184 @@
 {
-    "name": "discovibe",
-    "description": "Disco scene + purple and pink",
-    "key_command": "4",
-    "midi": 76,
-    "lights": [
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 100
-        },
-        {
-            "name": "ropes", 
-            "type": "dimmer",
-            "modulator": "mfft", 
-            "mfft_range": [0, 128],
-            "brightness_range": [20, 60],
-            "power_range": [0, 5]
-        }, 
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [0, 60],
-            "color": "purple",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [20, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb8", 
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "pink",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "purple",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        }
-    ]
+  "name": "discovibe",
+  "description": "Disco scene + purple and pink",
+  "type": "effect",
+  "midi": 76,
+  "key_command": "4",
+  "lights": [
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 100
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "brightness_range": [
+        20,
+        60
+      ],
+      "power_range": [
+        0,
+        5
+      ]
+    },
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "purple",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        20,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "pink",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "purple",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    }
+  ]
 }
