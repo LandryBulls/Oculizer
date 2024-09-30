@@ -86,6 +86,19 @@ class Spotifizer(threading.Thread):
         self.last_update_time = current_time
 
     def fetch_audio_analysis(self):
+        filename = f"song_data/{self.current_track_id}.json"
+        
+        # Check if the audio analysis file already exists
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r') as f:
+                    self.audio_analysis = json.load(f)
+                print(f"Loaded existing audio analysis for track {self.current_track_id}")
+                return
+            except json.JSONDecodeError:
+                print(f"Error reading existing audio analysis file for track {self.current_track_id}. Will fetch from API.")
+
+        # If file doesn't exist or couldn't be read, fetch from API
         try:
             analysis = self.spotify.audio_analysis(self.current_track_id)
             with self.audio_analysis_lock:
@@ -99,8 +112,14 @@ class Spotifizer(threading.Thread):
             os.makedirs('song_data')
         
         filename = f"song_data/{self.current_track_id}.json"
-        with open(filename, 'w') as f:
-            json.dump(self.audio_analysis, f)
+        
+        # Check if the file already exists
+        if not os.path.exists(filename):
+            with open(filename, 'w') as f:
+                json.dump(self.audio_analysis, f)
+            print(f"Saved new audio analysis for track {self.current_track_id}")
+        else:
+            print(f"Audio analysis file already exists for track {self.current_track_id}. Not overwriting.")
 
     def update_current_section(self):
         with self.audio_analysis_lock:

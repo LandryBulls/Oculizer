@@ -9,7 +9,7 @@ def generate_repo_overview(root_dir):
     overview = []
     for dirpath, dirnames, filenames in os.walk(root_dir):
         # Remove hidden directories and files from the walk
-        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+        dirnames[:] = [d for d in dirnames if not d.startswith('.') and 'song_data' not in d]
         filenames = [f for f in filenames if not f.startswith('.') and is_relevant_file(f)]
         
         if not filenames:  # Skip empty directories
