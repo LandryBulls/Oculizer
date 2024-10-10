@@ -25,7 +25,7 @@
       ],
       "power_range": [
         0,
-        5
+        1
       ]
     },
     {
@@ -179,6 +179,22 @@
         0,
         7
       ]
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "mfft",
+      "threshold": 0.1,
+      "brightness": 1,
+      "mfft_range": [
+        115,
+        127
+      ],
+      "power_range": [
+        0.08,
+        1.0
+      ],
+      "speed": 1
     }
   ]
 }

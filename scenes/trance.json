@@ -1,0 +1,102 @@
+{
+    "name": "trance_purple",
+    "description": "All RGBs pulsing purple with a sine wave and maximum strobe",
+    "key_command": "v",
+    "midi": 54,
+    "lights": [
+      {
+        "name": "rgb1",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb2",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb3",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb4",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb5",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb6",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb7",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "rgb8",
+        "type": "rgb",
+        "modulator": "time",
+        "function": "sine",
+        "frequency": 0.2,
+        "min_brightness": 0,
+        "max_brightness": 255,
+        "color": "purple",
+        "strobe": 255
+      },
+      {
+        "name": "discoball",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 255
+        }
+    ]
+  }

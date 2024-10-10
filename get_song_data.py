@@ -25,18 +25,25 @@ def get_playlist_tracks(sp, playlist_id):
         tracks.extend(results['items'])
     return tracks
 
-def fetch_audio_analysis(sp, track_id):
+def fetch_audio_analysis(sp, track):
+    track_id = track['track']['id']
+    track_name = track['track']['name']
+    track_artists = ', '.join([artist['name'] for artist in track['track']['artists']])
     filename = f"song_data/{track_id}.json"
     
     if os.path.exists(filename):
-        print(f"Audio analysis for track {track_id} already exists. Skipping.")
+        print(f"Audio analysis for track '{track_name}' (ID: {track_id}) already exists. Skipping.")
         return None
 
     try:
         analysis = sp.audio_analysis(track_id)
+        # Add track name to the analysis data
+        analysis['track'] = analysis.get('track', {})
+        analysis['track']['name'] = track_name
+        analysis['track']['artists'] = track_artists
         return analysis
     except Exception as e:
-        print(f"Error fetching audio analysis for track {track_id}: {str(e)}")
+        print(f"Error fetching audio analysis for track '{track_name}' (ID: {track_id}): {str(e)}")
         return None
 
 def save_audio_analysis(track_id, analysis):
@@ -46,8 +53,8 @@ def save_audio_analysis(track_id, analysis):
     filename = f"song_data/{track_id}.json"
     
     with open(filename, 'w') as f:
-        json.dump(analysis, f)
-    print(f"Saved audio analysis for track {track_id}")
+        json.dump(analysis, f, indent=2)
+    print(f"Saved audio analysis for track '{analysis['track']['name']}' (ID: {track_id})")
 
 def analyze_playlist(playlist_url):
     client_id, client_secret = load_credentials()
@@ -61,9 +68,6 @@ def analyze_playlist(playlist_url):
     start_time = time.time()
 
     for item in tracks:
-        track = item['track']
-        track_id = track['id']
-
         if request_count >= RATE_LIMIT:
             elapsed = time.time() - start_time
             if elapsed < RATE_LIMIT_WINDOW:
@@ -73,9 +77,9 @@ def analyze_playlist(playlist_url):
             start_time = time.time()
             request_count = 0
 
-        analysis = fetch_audio_analysis(sp, track_id)
+        analysis = fetch_audio_analysis(sp, item)
         if analysis:
-            save_audio_analysis(track_id, analysis)
+            save_audio_analysis(item['track']['id'], analysis)
             request_count += 1
 
     print("Finished analyzing playlist")

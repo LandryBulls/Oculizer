@@ -1,4 +1,96 @@
 Oculizer/
+    get_song_data.py
+
+    Content of get_song_data.py:
+    ----------------------------------------
+import os
+import json
+import time
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+
+# Spotify API rate limit is 1000 requests per 5 minutes
+# We'll use a conservative limit of 100 requests per minute
+RATE_LIMIT = 100
+RATE_LIMIT_WINDOW = 60  # seconds
+
+def load_credentials():
+    credspath = os.path.join(os.path.dirname(__file__), 'spotify_credentials.txt')
+    with open(credspath) as f:
+        lines = f.readlines()
+        client_id = lines[0].strip().split(' ')[1]
+        client_secret = lines[1].strip().split(' ')[1]
+    return client_id, client_secret
+
+def get_playlist_tracks(sp, playlist_id):
+    results = sp.playlist_tracks(playlist_id)
+    tracks = results['items']
+    while results['next']:
+        results = sp.next(results)
+        tracks.extend(results['items'])
+    return tracks
+
+def fetch_audio_analysis(sp, track_id):
+    filename = f"song_data/{track_id}.json"
+    
+    if os.path.exists(filename):
+        print(f"Audio analysis for track {track_id} already exists. Skipping.")
+        return None
+
+    try:
+        analysis = sp.audio_analysis(track_id)
+        return analysis
+    except Exception as e:
+        print(f"Error fetching audio analysis for track {track_id}: {str(e)}")
+        return None
+
+def save_audio_analysis(track_id, analysis):
+    if not os.path.exists('song_data'):
+        os.makedirs('song_data')
+    
+    filename = f"song_data/{track_id}.json"
+    
+    with open(filename, 'w') as f:
+        json.dump(analysis, f)
+    print(f"Saved audio analysis for track {track_id}")
+
+def analyze_playlist(playlist_url):
+    client_id, client_secret = load_credentials()
+    client_credentials_manager = SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
+    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+
+    playlist_id = playlist_url.split('/')[-1].split('?')[0]
+    tracks = get_playlist_tracks(sp, playlist_id)
+
+    request_count = 0
+    start_time = time.time()
+
+    for item in tracks:
+        track = item['track']
+        track_id = track['id']
+
+        if request_count >= RATE_LIMIT:
+            elapsed = time.time() - start_time
+            if elapsed < RATE_LIMIT_WINDOW:
+                sleep_time = RATE_LIMIT_WINDOW - elapsed
+                print(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds")
+                time.sleep(sleep_time)
+            start_time = time.time()
+            request_count = 0
+
+        analysis = fetch_audio_analysis(sp, track_id)
+        if analysis:
+            save_audio_analysis(track_id, analysis)
+            request_count += 1
+
+    print("Finished analyzing playlist")
+
+if __name__ == "__main__":
+    playlist_url = input("Enter the Spotify playlist URL: ")
+    analyze_playlist(playlist_url)
+
+    ----------------------------------------
+
     run_garage.py
 
     Content of run_garage.py:
@@ -837,6 +929,72 @@ setup(
 )
     ----------------------------------------
 
+    reformat_scenes.py
+
+    Content of reformat_scenes.py:
+    ----------------------------------------
+import json
+import os
+from collections import OrderedDict
+
+def custom_key_order(key):
+    # Define the desired order of keys
+    order = ['name', 'description', 'type', 'midi', 'key_command', 'lights']
+    
+    # Return the index of the key if it's in the order list, otherwise return a high number
+    return order.index(key) if key in order else len(order)
+
+def order_dict(item):
+    if isinstance(item, dict):
+        
+        return OrderedDict(sorted(item.items(), key=lambda x: custom_key_order(x[0])))
+    elif isinstance(item, list):
+        return [order_dict(i) for i in item]
+    return item
+
+scene_dir = 'scenes'
+scenes = []
+
+# Load the scenes
+for scene_file in os.listdir(scene_dir):
+    if scene_file.endswith('.json'):
+        with open(os.path.join(scene_dir, scene_file)) as f:
+            scenes.append(json.load(f))
+
+# Add type to scenes (if not already done) and order the dictionaries
+ordered_scenes = []
+for scene in scenes:
+    name = scene['name']
+    if 'type' not in scene:
+        if 'build' in name:
+            scene['type'] = 'build'
+        elif 'drop' in name:
+            scene['type'] = 'drop'
+        elif 'ambient' in name:
+            scene['type'] = 'ambient'
+        else:
+            scene['type'] = 'effect'
+    
+    # Order the scene dictionary and its nested structures
+    ordered_scenes.append(order_dict(scene))
+
+# Custom JSON encoder to handle OrderedDict
+class OrderedDictEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, OrderedDict):
+            return {k: self.default(v) for k, v in obj.items()}
+        return super().default(obj)
+
+# Save scenes back to JSON files with improved formatting and custom order
+for scene in ordered_scenes:
+    filename = os.path.join(scene_dir, scene['name'] + '.json')
+    with open(filename, 'w') as f:
+        json.dump(scene, f, indent=2, cls=OrderedDictEncoder)
+
+print("All scene files have been updated with improved formatting and custom key order.")
+
+    ----------------------------------------
+
     run_printer.py
 
     Content of run_printer.py:
@@ -950,30 +1108,31 @@ if __name__ == '__main__':
         Content of build4.json:
         ----------------------------------------
 {
-    "name": "build4",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 50,
-    "lights": [
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 1,
-            "min_brightness": 0,
-            "max_brightness": 90
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 1,
-            "min_brightness": 0,
-            "max_brightness": 100
-        }
-    ]
+  "name": "build4",
+  "description": "Gradually intensifying scene for track buildups",
+  "type": "build",
+  "midi": 50,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 1,
+      "min_brightness": 0,
+      "max_brightness": 90
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 1,
+      "min_brightness": 0,
+      "max_brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -982,98 +1141,171 @@ if __name__ == '__main__':
         Content of drop2.json:
         ----------------------------------------
 {
-    "name": "drop2",
-    "description": "Intense lighting for the drop",
-    "key_command": "d",
-    "midi": 53,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 16],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "red",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "orange",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [32, 48],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "yellow",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [48, 64],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "green",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [64, 80],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "blue",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [80, 96],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "purple",
-            "strobe": 200
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [96, 112],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "pink",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [112, 128],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 255
-        }
-    ]
+  "name": "drop2",
+  "description": "Intense lighting for the drop",
+  "type": "drop",
+  "midi": 53,
+  "key_command": "d",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        16
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "red",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "orange",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        32,
+        48
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "yellow",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        48,
+        64
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "green",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        64,
+        80
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "blue",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        80,
+        96
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "purple",
+      "strobe": 200
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        96,
+        112
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "pink",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        112,
+        128
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1082,110 +1314,111 @@ if __name__ == '__main__':
         Content of ambient2.json:
         ----------------------------------------
 {
-    "name": "ambient2",
-    "description": "Subtle, flowing colors for calmer moments",
-    "key_command": "a",
-    "midi": 41,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.1,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.08,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.12,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.09,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.11,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.07,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.13,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.06,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "red"
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": 0,
-            "frequency": 0.175,
-            "min_brightness": 0,
-            "max_brightness": 75
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": 0,
-            "frequency": 0.25,
-            "min_brightness": 0,
-            "max_brightness": 100
-        }
-    ]
+  "name": "ambient2",
+  "description": "Subtle, flowing colors for calmer moments",
+  "type": "ambient",
+  "midi": 41,
+  "key_command": "a",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.08,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.12,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.09,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.11,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.07,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.13,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.06,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "red"
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 0,
+      "frequency": 0.175,
+      "min_brightness": 0,
+      "max_brightness": 75
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 0,
+      "frequency": 0.25,
+      "min_brightness": 0,
+      "max_brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1194,31 +1427,30 @@ if __name__ == '__main__':
         Content of flicker.json:
         ----------------------------------------
 {
-    "name": "flicker",
-    "description": "flicker vintage",
-    "key_command": "v",
-    "midi": 84,
-    "lights": [
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 40,
-            "max_brightness": 70
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 50,
-            "max_brightness": 100
-        }
-    ]
-} 
-
-
+  "name": "flicker",
+  "description": "flicker vintage",
+  "type": "effect",
+  "midi": 84,
+  "key_command": "v",
+  "lights": [
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 40,
+      "max_brightness": 70
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 50,
+      "max_brightness": 100
+    }
+  ]
+}
         ----------------------------------------
 
         brainblaster.json
@@ -1226,78 +1458,78 @@ if __name__ == '__main__':
         Content of brainblaster.json:
         ----------------------------------------
 {
-    "name": "brainblaster",
-    "description": "Rainbow strobes. All else off.",
-    "key_command": "3",
-    "midi": 67,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "random",
-            "strobe": "random"
-        }
-    ]
+  "name": "brainblaster",
+  "description": "Rainbow strobes. All else off.",
+  "type": "effect",
+  "midi": 67,
+  "key_command": "3",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "random",
+      "strobe": 255
+    }
+  ]
 }
-
         ----------------------------------------
 
         ambient3.json
@@ -1305,108 +1537,109 @@ if __name__ == '__main__':
         Content of ambient3.json:
         ----------------------------------------
 {
-    "name": "ambient3",
-    "description": "Subtle, flowing colors for calmer moments",
-    "key_command": "a",
-    "midi": 40,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.1,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.08,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "orange"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.12,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.09,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "orange"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.11,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.07,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "orange"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.13,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.06,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "orange"
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 40,
-            "max_brightness": 70
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 50,
-            "max_brightness": 100
-        }
-    ]
+  "name": "ambient3",
+  "description": "Subtle, flowing colors for calmer moments",
+  "type": "ambient",
+  "midi": 40,
+  "key_command": "a",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.08,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "orange"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.12,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.09,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "orange"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.11,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.07,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "orange"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.13,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.06,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "orange"
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 40,
+      "max_brightness": 70
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 50,
+      "max_brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1415,98 +1648,171 @@ if __name__ == '__main__':
         Content of drop3.json:
         ----------------------------------------
 {
-    "name": "drop3",
-    "description": "Intense lighting for the drop",
-    "key_command": "d",
-    "midi": 55,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 16],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "red",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "orange",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [32, 48],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "yellow",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [48, 64],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "green",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [64, 80],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "blue",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [80, 96],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "purple",
-            "strobe": 200
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [96, 112],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "pink",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [112, 128],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 255
-        }
-    ]
+  "name": "drop3",
+  "description": "Intense lighting for the drop",
+  "type": "drop",
+  "midi": 55,
+  "key_command": "d",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        16
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "red",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "orange",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        32,
+        48
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "yellow",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        48,
+        64
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "green",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        64,
+        80
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "blue",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        80,
+        96
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "purple",
+      "strobe": 200
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        96,
+        112
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "pink",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        112,
+        128
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1515,77 +1821,78 @@ if __name__ == '__main__':
         Content of bloop.json:
         ----------------------------------------
 {
-    "name": "bloop",
-    "description": "Stochastic blue strobe on all RGBs. All else off.",
-    "key_command": "f",
-    "midi": 62,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 255,
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "blue",
-            "strobe": "random"
-        }
-    ]
+  "name": "bloop",
+  "description": "Stochastic blue strobe on all RGBs. All else off.",
+  "type": "effect",
+  "midi": 62,
+  "key_command": "f",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 255,
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "blue",
+      "strobe": "random"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1594,92 +1901,93 @@ if __name__ == '__main__':
         Content of ambient4.json:
         ----------------------------------------
 {
-    "name": "ambient4",
-    "description": "Subtle, flowing colors for calmer moments",
-    "key_command": "a",
-    "midi": 43,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.1,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.08,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.12,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.09,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.11,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.07,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.13,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.06,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "white"
-        }
-    ]
+  "name": "ambient4",
+  "description": "Subtle, flowing colors for calmer moments",
+  "type": "ambient",
+  "midi": 43,
+  "key_command": "a",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.08,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.12,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.09,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.11,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.07,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.13,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.06,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "white"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1688,110 +1996,200 @@ if __name__ == '__main__':
         Content of bluevelvet.json:
         ----------------------------------------
 {
-    "name": "bluevelvet",
-    "description": "Vintage + blue",
-    "key_command": "v",
-    "midi": 71,
-    "lights": [
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [0, 50],      
-            "brightness_range": [50, 200],
-            "power_range": [0, 5]
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [50, 128],
-            "brightness_range": [0, 255],
-            "power_range": [0, 0.3]
-        },
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 10],
-            "brightness_range": [10, 60],
-            "color": "blue",
-            "strobe": 0
-        }
-    ]
+  "name": "bluevelvet",
+  "description": "Vintage + blue",
+  "type": "effect",
+  "midi": 71,
+  "key_command": "v",
+  "lights": [
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        50
+      ],
+      "brightness_range": [
+        50,
+        200
+      ],
+      "power_range": [
+        0,
+        5
+      ]
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        50,
+        128
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "power_range": [
+        0,
+        0.3
+      ]
+    },
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        10
+      ],
+      "brightness_range": [
+        10,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0
+    }
+  ]
 }
-
         ----------------------------------------
 
         off.json
@@ -1799,14 +2197,12 @@ if __name__ == '__main__':
         Content of off.json:
         ----------------------------------------
 {
-    "name": "off",
-    "description": "All lights off",
-    "key_command": "o",
-    "midi": 36,
-    "lights": 
-    [
-    
-    ]
+  "name": "off",
+  "description": "All lights off",
+  "type": "effect",
+  "midi": 36,
+  "key_command": "o",
+  "lights": []
 }
         ----------------------------------------
 
@@ -1815,100 +2211,101 @@ if __name__ == '__main__':
         Content of build2.json:
         ----------------------------------------
 {
-    "name": "build2",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 47,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.0,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.1,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.2,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.3,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.4,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.6,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "square",
-            "frequency": 1.7,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "red",
-            "strobe": 255
-        }
-    ]
+  "name": "build2",
+  "description": "Red echo strobe.",
+  "type": "build",
+  "midi": 47,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.0,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.1,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.2,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.3,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.4,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.6,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.7,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -1917,106 +2314,188 @@ if __name__ == '__main__':
         Content of discovibe.json:
         ----------------------------------------
 {
-    "name": "discovibe",
-    "description": "Disco scene + purple and pink",
-    "key_command": "4",
-    "midi": 76,
-    "lights": [
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 100
-        },
-        {
-            "name": "ropes", 
-            "type": "dimmer",
-            "modulator": "mfft", 
-            "mfft_range": [0, 128],
-            "brightness_range": [20, 60],
-            "power_range": [0, 5]
-        }, 
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [0, 60],
-            "color": "purple",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [20, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "blue",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb8", 
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "pink",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 60],
-            "color": "purple",
-            "strobe": 0,
-            "mfft_range": [0, 128],
-            "power_range": [0, 7]
-        }
-    ]
+  "name": "discovibe",
+  "description": "Disco scene + purple and pink",
+  "type": "effect",
+  "midi": 76,
+  "key_command": "4",
+  "lights": [
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 100
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        128
+      ],
+      "brightness_range": [
+        20,
+        60
+      ],
+      "power_range": [
+        0,
+        5
+      ]
+    },
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "purple",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        20,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "blue",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "pink",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        60
+      ],
+      "color": "purple",
+      "strobe": 0,
+      "mfft_range": [
+        0,
+        128
+      ],
+      "power_range": [
+        0,
+        7
+      ]
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2025,98 +2504,171 @@ if __name__ == '__main__':
         Content of drop4.json:
         ----------------------------------------
 {
-    "name": "drop4",
-    "description": "Intense lighting for the drop",
-    "key_command": "d",
-    "midi": 57,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 16],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "red",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "orange",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [32, 48],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "yellow",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [48, 64],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "green",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [64, 80],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "blue",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [80, 96],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "purple",
-            "strobe": 200
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [96, 112],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "pink",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [112, 128],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 255
-        }
-    ]
+  "name": "drop4",
+  "description": "Intense lighting for the drop",
+  "type": "drop",
+  "midi": 57,
+  "key_command": "d",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        16
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "red",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "orange",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        32,
+        48
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "yellow",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        48,
+        64
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "green",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        64,
+        80
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "blue",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        80,
+        96
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "purple",
+      "strobe": 200
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        96,
+        112
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "pink",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        112,
+        128
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2125,77 +2677,78 @@ if __name__ == '__main__':
         Content of hell.json:
         ----------------------------------------
 {
-    "name": "hell",
-    "description": "Stochastic red strobe on rgbs. All else off.",
-    "key_command": "8",
-    "midi": 59,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 50,
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "red",
-            "strobe": "random"
-        }
-    ]
+  "name": "hell",
+  "description": "Stochastic red strobe on rgbs. All else off.",
+  "type": "effect",
+  "midi": 59,
+  "key_command": "8",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 50,
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "red",
+      "strobe": "random"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2204,25 +2757,25 @@ if __name__ == '__main__':
         Content of discolaser.json:
         ----------------------------------------
 {
-    "name": "discolaser",
-    "description": "Disco scene w/ lasers",
-    "key_command": "4",
-    "midi": 74,
-    "lights": [
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 100
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 255
-        }
-
-    ]
+  "name": "discolaser",
+  "description": "Disco scene w/ lasers",
+  "type": "effect",
+  "midi": 74,
+  "key_command": "4",
+  "lights": [
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 100
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2231,100 +2784,101 @@ if __name__ == '__main__':
         Content of build3.json:
         ----------------------------------------
 {
-    "name": "build3",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 48,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 255,
-            "color": "white",
-            "strobe": 0
-        }
-    ]
+  "name": "build3",
+  "description": "Gradually intensifying scene for track buildups",
+  "type": "build",
+  "midi": 48,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "white",
+      "strobe": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2333,18 +2887,19 @@ if __name__ == '__main__':
         Content of disco.json:
         ----------------------------------------
 {
-    "name": "disco",
-    "description": "Disco scene. Disco ball and RGB wavies.",
-    "key_command": "4",
-    "midi": 72,
-    "lights": [
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 100
-        }
-    ]
+  "name": "disco",
+  "description": "Disco scene. Disco ball and RGB wavies.",
+  "type": "effect",
+  "midi": 72,
+  "key_command": "4",
+  "lights": [
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2353,75 +2908,76 @@ if __name__ == '__main__':
         Content of blue.json:
         ----------------------------------------
 {
-    "name": "blue",
-    "description": "blue",
-    "midi": 79,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "color": "blue",
-            "brightness": 255,
-            "strobe": 0
-        }
-    ]
+  "name": "blue",
+  "description": "blue",
+  "type": "effect",
+  "midi": 79,
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "color": "blue",
+      "brightness": 255,
+      "strobe": 0
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2430,31 +2986,48 @@ if __name__ == '__main__':
         Content of vintage.json:
         ----------------------------------------
 {
-    "name": "vintage",
-    "description": "Warm and cozy for acoustic songs.",
-    "key_command": "v",
-    "midi": 69,
-    "lights": [
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [0, 50],      
-            "brightness_range": [50, 200],
-            "power_range": [0, 5]
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [50, 128],
-            "brightness_range": [60, 255],
-            "power_range": [0, 0.3]
-        }
-    ]
-} 
-
-
+  "name": "vintage",
+  "description": "Warm and cozy for acoustic songs.",
+  "type": "effect",
+  "midi": 69,
+  "key_command": "v",
+  "lights": [
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        50
+      ],
+      "brightness_range": [
+        50,
+        200
+      ],
+      "power_range": [
+        0,
+        5
+      ]
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        50,
+        128
+      ],
+      "brightness_range": [
+        60,
+        255
+      ],
+      "power_range": [
+        0,
+        0.3
+      ]
+    }
+  ]
+}
         ----------------------------------------
 
         slime.json
@@ -2462,89 +3035,90 @@ if __name__ == '__main__':
         Content of slime.json:
         ----------------------------------------
 {
-    "name": "slime",
-    "description": "Stochastic green strobe on all RGBs. All else off.",
-    "key_command": "k",
-    "midi": 60,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 255,
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": "random"
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        },
-        {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 0
-        }
-    ]
+  "name": "slime",
+  "description": "Stochastic green strobe on all RGBs. All else off.",
+  "type": "effect",
+  "midi": 60,
+  "key_command": "k",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 255,
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": "random"
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    },
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2553,84 +3127,85 @@ if __name__ == '__main__':
         Content of electric.json:
         ----------------------------------------
 {
-    "name": "electric",
-    "description": "Stochastic white strobe on rgbs. All else off.",
-    "key_command": "5",
-    "midi": 65,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 50,
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "white",
-            "strobe": "random"
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": "random",
-            "speed": "random"
-        }
-    ]
+  "name": "electric",
+  "description": "Stochastic white strobe on rgbs. All else off.",
+  "type": "effect",
+  "midi": 65,
+  "key_command": "5",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 50,
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "white",
+      "strobe": "random"
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "bool",
+      "brightness": "random",
+      "speed": "random"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2639,110 +3214,183 @@ if __name__ == '__main__':
         Content of build1.json:
         ----------------------------------------
 {
-    "name": "build1",
-    "description": "Gradually intensifying scene for track buildups",
-    "key_command": "b",
-    "midi": 45,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "mfft_range": [0, 16],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [32, 48],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [48, 64],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [64, 80],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [80, 96],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [96, 112],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [0, 255],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.75,
-            "min_brightness": 0,
-            "max_brightness": 90
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sawtooth_forward",
-            "frequency": 0.25,
-            "min_brightness": 0,
-            "max_brightness": 100
-        }
-    ]
+  "name": "build1",
+  "description": "Gradually intensifying scene for track buildups",
+  "type": "build",
+  "midi": 45,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "mfft_range": [
+        0,
+        16
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        32,
+        48
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        48,
+        64
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        64,
+        80
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        80,
+        96
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        96,
+        112
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        0,
+        255
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.75,
+      "min_brightness": 0,
+      "max_brightness": 90
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sawtooth_forward",
+      "frequency": 0.25,
+      "min_brightness": 0,
+      "max_brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2751,87 +3399,87 @@ if __name__ == '__main__':
         Content of fullstrobe.json:
         ----------------------------------------
 {
-    "name": "fullstrobe",
-    "description": "Full white strobe all (RGB+Strobe)",
-    "key_command": "6",
-    "midi": 81,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 255,
-            "speed": 245
-        }, 
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 200
-        }
-    ]
+  "name": "fullstrobe",
+  "description": "Full white strobe all (RGB+Strobe)",
+  "type": "effect",
+  "midi": 81,
+  "key_command": "6",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 255,
+      "speed": 245
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": 255,
+      "color": "white",
+      "strobe": 200
+    }
+  ]
 }
-
         ----------------------------------------
 
         fairies.json
@@ -2839,77 +3487,78 @@ if __name__ == '__main__':
         Content of fairies.json:
         ----------------------------------------
 {
-    "name": "fairies",
-    "description": "Stochastic purple strobe on all RGBs. All else off.",
-    "key_command": "f",
-    "midi": 64,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "max_brightness": 255,
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "purple",
-            "strobe": "random"
-        }
-    ]
+  "name": "fairies",
+  "description": "Stochastic purple strobe on all RGBs. All else off.",
+  "type": "effect",
+  "midi": 64,
+  "key_command": "f",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "max_brightness": 255,
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "purple",
+      "strobe": "random"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -2918,110 +3567,111 @@ if __name__ == '__main__':
         Content of ambient1.json:
         ----------------------------------------
 {
-    "name": "ambient1",
-    "description": "Subtle, flowing colors for calmer moments",
-    "key_command": "a",
-    "midi": 38,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.1,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "blue"
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.08,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "purple"
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.12,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "blue"
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.09,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "purple"
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.11,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "blue"
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.07,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "purple"
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.13,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "blue"
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.06,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "purple"
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.05,
-            "min_brightness": 0,
-            "max_brightness": 75
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.04,
-            "min_brightness": 0,
-            "max_brightness": 100
-        }
-    ]
+  "name": "ambient1",
+  "description": "Subtle, flowing colors for calmer moments",
+  "type": "ambient",
+  "midi": 38,
+  "key_command": "a",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "blue"
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.08,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "purple"
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.12,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "blue"
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.09,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "purple"
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.11,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "blue"
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.07,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "purple"
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.13,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "blue"
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.06,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "purple"
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.05,
+      "min_brightness": 0,
+      "max_brightness": 75
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.04,
+      "min_brightness": 0,
+      "max_brightness": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -3030,134 +3680,222 @@ if __name__ == '__main__':
         Content of party.json:
         ----------------------------------------
 {
-    "name": "party",
-    "description": "Default basic party scene :).",
-    "key_command": "1",
-    "midi": 82,
-    "lights": [
-        {
-            "name": "rgb1", 
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [0, 20],
-            "mfft_range": [0, 20],
-            "power_range": [0,50],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2", 
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [1, 20],
-            "mfft_range": [50, 75],
-            "power_range": [0,1],
-            "color": "pink",
-            "strobe": 0
-        }, 
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness": 100,
-            "color": "pink",
-            "strobe":255,
-            "mfft_range": [110, 127],
-            "power_range": [0.001,0.1],
-            "brightness_range": [1, 25]
-        }, 
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [50,90],
-            "color": "blue",
-            "power_range": [0.5, 1.0],
-            "brightness_range": [0, 20],
-            "strobe": 255
-        }, 
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [1, 20],
-            "mfft_range": [1, 3],
-            "power_range": [0,1],
-            "color": "purple"
-        }, 
-        {
-            "name": "ropes", 
-            "type": "dimmer",
-            "modulator": "time", 
-            "function": 0,
-            "frequency": 0.2,
-            "min_brightness": 35,
-            "max_brightness": 65
-        }, 
-        {
-            "name": "orb", 
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [0, 10],
-            "power_range": [0, 0.5],
-            "brightness_range": [0, 80]
-        },
-        {
-            "name": "discoball", 
-            "type": "dimmer",
-            "modulator": "time", 
-            "function": 2, 
-            "frequency": 0.2,
-            "min_brightness": 0,
-            "max_brightness": 0
-        }, 
-        {
-            "name": "strobe", 
-            "type": "strobe",
-            "modulator": "mfft",
-            "threshold": 0.05,
-            "brightness": 255,
-            "mfft_range": [115, 127],
-            "power_range": [0.08, 1.0],
-            "speed": 1
-        },
-        {
-            "name": "rgb6", 
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [1, 50],
-            "mfft_range": [1, 3],
-            "power_range": [0,5],
-            "color": "pink",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7", 
-            "type": "rgb",
-            "modulator": "mfft",
-            "brightness_range": [1, 20],
-            "mfft_range": [15, 30],
-            "power_range": [5,100],
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8", 
-            "type": "rgb",
-            "modulator": "mfft", 
-            "brightness_range": [1, 75],
-            "mfft_range": [50, 75],
-            "power_range": [0,3],
-            "color": "pink",
-            "strobe": 0
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random"
-        }
-    ]
+  "name": "party",
+  "description": "Default basic party scene :).",
+  "type": "effect",
+  "midi": 82,
+  "key_command": "1",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        0,
+        20
+      ],
+      "mfft_range": [
+        0,
+        20
+      ],
+      "power_range": [
+        0,
+        50
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        1,
+        20
+      ],
+      "mfft_range": [
+        50,
+        75
+      ],
+      "power_range": [
+        0,
+        1
+      ],
+      "color": "pink",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness": 100,
+      "color": "pink",
+      "strobe": 255,
+      "mfft_range": [
+        110,
+        127
+      ],
+      "power_range": [
+        0.001,
+        0.1
+      ],
+      "brightness_range": [
+        1,
+        25
+      ]
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        50,
+        90
+      ],
+      "color": "blue",
+      "power_range": [
+        0.5,
+        1.0
+      ],
+      "brightness_range": [
+        0,
+        20
+      ],
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        1,
+        20
+      ],
+      "mfft_range": [
+        1,
+        3
+      ],
+      "power_range": [
+        0,
+        1
+      ],
+      "color": "purple"
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 0,
+      "frequency": 0.2,
+      "min_brightness": 35,
+      "max_brightness": 65
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        10
+      ],
+      "power_range": [
+        0,
+        0.5
+      ],
+      "brightness_range": [
+        0,
+        80
+      ]
+    },
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 2,
+      "frequency": 0.2,
+      "min_brightness": 0,
+      "max_brightness": 0
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "mfft",
+      "threshold": 0.05,
+      "brightness": 255,
+      "mfft_range": [
+        115,
+        127
+      ],
+      "power_range": [
+        0.08,
+        1.0
+      ],
+      "speed": 1
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        1,
+        50
+      ],
+      "mfft_range": [
+        1,
+        3
+      ],
+      "power_range": [
+        0,
+        5
+      ],
+      "color": "pink",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        1,
+        20
+      ],
+      "mfft_range": [
+        15,
+        30
+      ],
+      "power_range": [
+        5,
+        100
+      ],
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "brightness_range": [
+        1,
+        75
+      ],
+      "mfft_range": [
+        50,
+        75
+      ],
+      "power_range": [
+        0,
+        3
+      ],
+      "color": "pink",
+      "strobe": 0
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random"
+    }
+  ]
 }
         ----------------------------------------
 
@@ -3166,122 +3904,150 @@ if __name__ == '__main__':
         Content of whispers.json:
         ----------------------------------------
 {
-    "name": "whispers",
-    "description": "A very dim, spooky scene with subtle, unsettling movements",
-    "key_command": "w",
-    "midi": 83,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.05,
-            "min_brightness": 0,
-            "max_brightness": 20,
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.07,
-            "min_brightness": 0,
-            "max_brightness": 15,
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "triangle",
-            "frequency": 0.03,
-            "min_brightness": 0,
-            "max_brightness": 25,
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [0, 0.5],
-            "brightness_range": [0, 30],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_backward",
-            "frequency": 0.02,
-            "min_brightness": 0,
-            "max_brightness": 20,
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [20, 40],
-            "power_range": [0, 0.5],
-            "brightness_range": [0, 25],
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.04,
-            "min_brightness": 0,
-            "max_brightness": 15,
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "triangle",
-            "frequency": 0.06,
-            "min_brightness": 0,
-            "max_brightness": 20,
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": 1,
-            "frequency": 0.01,
-            "min_brightness": 0,
-            "max_brightness": 30
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "mfft_range": [0, 30],
-            "power_range": [0, 0.3],
-            "brightness_range": [0, 70]
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": 0,
-            "speed": 0
-        }
-    ]
+  "name": "whispers",
+  "description": "A very dim, spooky scene with subtle, unsettling movements",
+  "type": "effect",
+  "midi": 83,
+  "key_command": "w",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.05,
+      "min_brightness": 0,
+      "max_brightness": 20,
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.07,
+      "min_brightness": 0,
+      "max_brightness": 15,
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "triangle",
+      "frequency": 0.03,
+      "min_brightness": 0,
+      "max_brightness": 25,
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        20
+      ],
+      "power_range": [
+        0,
+        0.5
+      ],
+      "brightness_range": [
+        0,
+        30
+      ],
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_backward",
+      "frequency": 0.02,
+      "min_brightness": 0,
+      "max_brightness": 20,
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        20,
+        40
+      ],
+      "power_range": [
+        0,
+        0.5
+      ],
+      "brightness_range": [
+        0,
+        25
+      ],
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.04,
+      "min_brightness": 0,
+      "max_brightness": 15,
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "triangle",
+      "frequency": 0.06,
+      "min_brightness": 0,
+      "max_brightness": 20,
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 1,
+      "frequency": 0.01,
+      "min_brightness": 0,
+      "max_brightness": 30
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        30
+      ],
+      "power_range": [
+        0,
+        0.3
+      ],
+      "brightness_range": [
+        0,
+        70
+      ]
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "bool",
+      "brightness": 0,
+      "speed": 0
+    }
+  ]
 }
         ----------------------------------------
 
@@ -3290,124 +4056,143 @@ if __name__ == '__main__':
         Content of goosebumps.json:
         ----------------------------------------
 {
-    "name": "goosebumps",
-    "description": "Eerie lighting inspired by a creepy TV show intro",
-    "key_command": "i",
-    "midi": 77,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 50,
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 175,
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 30],
-            "power_range": [0, 1],
-            "brightness_range": [0, 100],
-            "color": "orange",
-            "strobe": 0
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [30, 60],
-            "power_range": [0, 1],
-            "brightness_range": [0, 150],
-            "color": "purple",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "bool",
-            "brightness": "random",
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_backward",
-            "frequency": 0.25,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "time",
-            "function": "sawtooth_backward",
-            "frequency": 0.25,
-            "min_brightness": 0,
-            "max_brightness": 100,
-            "color": "green",
-            "strobe": 0
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": 2,
-            "frequency": 0.5,
-            "min_brightness": 0,
-            "max_brightness": 0
-        },
-        {
-            "name": "orb",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 50,
-            "max_brightness": 100
-        },
-        {
-            "name": "ropes",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": "random",
-            "min_brightness": 50,
-            "max_brightness": 70
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": 150,
-            "speed": 100
-        }
-    ]
+  "name": "goosebumps",
+  "description": "Eerie lighting inspired by a creepy TV show intro",
+  "type": "effect",
+  "midi": 77,
+  "key_command": "i",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 50,
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 175,
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        30
+      ],
+      "power_range": [
+        0,
+        1
+      ],
+      "brightness_range": [
+        0,
+        100
+      ],
+      "color": "orange",
+      "strobe": 0
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        30,
+        60
+      ],
+      "power_range": [
+        0,
+        1
+      ],
+      "brightness_range": [
+        0,
+        150
+      ],
+      "color": "purple",
+      "strobe": 0
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "bool",
+      "brightness": "random",
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_backward",
+      "frequency": 0.25,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sawtooth_backward",
+      "frequency": 0.25,
+      "min_brightness": 0,
+      "max_brightness": 100,
+      "color": "green",
+      "strobe": 0
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "time",
+      "function": 2,
+      "frequency": 0.5,
+      "min_brightness": 0,
+      "max_brightness": 0
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 50,
+      "max_brightness": 100
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": "random",
+      "min_brightness": 50,
+      "max_brightness": 70
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "bool",
+      "brightness": 150,
+      "speed": 100
+    }
+  ]
 }
         ----------------------------------------
 
@@ -3416,98 +4201,171 @@ if __name__ == '__main__':
         Content of drop1.json:
         ----------------------------------------
 {
-    "name": "drop1",
-    "description": "Intense lighting for the drop",
-    "key_command": "d",
-    "midi": 52,
-    "lights": [
-        {
-            "name": "rgb1",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 16],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "red",
-            "strobe": 200
-        },
-        {
-            "name": "rgb2",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [16, 32],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "orange",
-            "strobe": 200
-        },
-        {
-            "name": "rgb3",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [32, 48],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "yellow",
-            "strobe": 200
-        },
-        {
-            "name": "rgb4",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [48, 64],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "green",
-            "strobe": 200
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [64, 80],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "blue",
-            "strobe": 200
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [80, 96],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "purple",
-            "strobe": 200
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [96, 112],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "pink",
-            "strobe": 200
-        },
-        {
-            "name": "rgb8",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [112, 128],
-            "power_range": [0, 2],
-            "brightness_range": [100, 255],
-            "color": "white",
-            "strobe": 200
-        },
-        {
-            "name": "lasers",
-            "type": "dimmer",
-            "modulator": "bool",
-            "brightness": 255
-        }
-    ]
+  "name": "drop1",
+  "description": "Intense lighting for the drop",
+  "type": "drop",
+  "midi": 52,
+  "key_command": "d",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        0,
+        16
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "red",
+      "strobe": 200
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        16,
+        32
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "orange",
+      "strobe": 200
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        32,
+        48
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "yellow",
+      "strobe": 200
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        48,
+        64
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "green",
+      "strobe": 200
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        64,
+        80
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "blue",
+      "strobe": 200
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        80,
+        96
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "purple",
+      "strobe": 200
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        96,
+        112
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "pink",
+      "strobe": 200
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "mfft",
+      "mfft_range": [
+        112,
+        128
+      ],
+      "power_range": [
+        0,
+        2
+      ],
+      "brightness_range": [
+        100,
+        255
+      ],
+      "color": "white",
+      "strobe": 200
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 255
+    }
+  ]
 }
         ----------------------------------------
 
@@ -4420,6 +5278,19 @@ class Spotifizer(threading.Thread):
         self.last_update_time = current_time
 
     def fetch_audio_analysis(self):
+        filename = f"song_data/{self.current_track_id}.json"
+        
+        # Check if the audio analysis file already exists
+        if os.path.exists(filename):
+            try:
+                with open(filename, 'r') as f:
+                    self.audio_analysis = json.load(f)
+                print(f"Loaded existing audio analysis for track {self.current_track_id}")
+                return
+            except json.JSONDecodeError:
+                print(f"Error reading existing audio analysis file for track {self.current_track_id}. Will fetch from API.")
+
+        # If file doesn't exist or couldn't be read, fetch from API
         try:
             analysis = self.spotify.audio_analysis(self.current_track_id)
             with self.audio_analysis_lock:
@@ -4433,8 +5304,14 @@ class Spotifizer(threading.Thread):
             os.makedirs('song_data')
         
         filename = f"song_data/{self.current_track_id}.json"
-        with open(filename, 'w') as f:
-            json.dump(self.audio_analysis, f)
+        
+        # Check if the file already exists
+        if not os.path.exists(filename):
+            with open(filename, 'w') as f:
+                json.dump(self.audio_analysis, f)
+            print(f"Saved new audio analysis for track {self.current_track_id}")
+        else:
+            print(f"Audio analysis file already exists for track {self.current_track_id}. Not overwriting.")
 
     def update_current_section(self):
         with self.audio_analysis_lock:

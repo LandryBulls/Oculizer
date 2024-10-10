@@ -1,0 +1,97 @@
+{
+  "name": "red_echo",
+  "description": "Red echo strobe.",
+  "type": "build",
+  "midi": 47,
+  "key_command": "b",
+  "lights": [
+    {
+      "name": "rgb1",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.0,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb2",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.1,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb3",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.2,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb4",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.3,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb5",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.4,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb6",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.5,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb7",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.6,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "square",
+      "frequency": 1.7,
+      "min_brightness": 0,
+      "max_brightness": 255,
+      "color": "red",
+      "strobe": 255
+    }
+  ]
+}
