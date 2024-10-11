@@ -2295,7 +2295,8 @@
       "mode": 1,
       "mode_confidence": 0.0,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "chill_blue"
     },
     {
       "start": 8.73026,
@@ -2309,7 +2310,8 @@
       "mode": 1,
       "mode_confidence": 0.559,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_pulse"
     },
     {
       "start": 20.60399,
@@ -2323,7 +2325,8 @@
       "mode": 1,
       "mode_confidence": 0.591,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_bass_pulse"
     },
     {
       "start": 44.74226,
@@ -2337,7 +2340,8 @@
       "mode": 1,
       "mode_confidence": 0.486,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "build1"
     },
     {
       "start": 62.56024,
@@ -2351,7 +2355,8 @@
       "mode": 0,
       "mode_confidence": 0.239,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_riser"
     },
     {
       "start": 83.5384,
@@ -2365,7 +2370,8 @@
       "mode": 0,
       "mode_confidence": 0.0,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "chill_blue"
     },
     {
       "start": 96.21141,
@@ -2379,7 +2385,8 @@
       "mode": 1,
       "mode_confidence": 0.565,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "bloop"
     },
     {
       "start": 108.87669,
@@ -2393,7 +2400,8 @@
       "mode": 1,
       "mode_confidence": 0.442,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "bloop"
     },
     {
       "start": 135.3962,
@@ -2407,7 +2415,8 @@
       "mode": 1,
       "mode_confidence": 0.0,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "chill_blue"
     }
   ],
   "segments": [

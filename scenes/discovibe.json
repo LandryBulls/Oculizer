@@ -1,6 +1,6 @@
 {
   "name": "discovibe",
-  "description": "Disco scene + purple and pink",
+  "description": "Disco scene with alternating blue and pink slow waves",
   "type": "effect",
   "midi": 76,
   "key_command": "4",
@@ -15,170 +15,97 @@
       "name": "ropes",
       "type": "dimmer",
       "modulator": "mfft",
-      "mfft_range": [
-        0,
-        128
-      ],
-      "brightness_range": [
-        20,
-        60
-      ],
-      "power_range": [
-        0,
-        1
-      ]
+      "mfft_range": [0, 128],
+      "brightness_range": [20, 60],
+      "power_range": [0, 1]
     },
     {
       "name": "rgb1",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
-      "color": "purple",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.2,
+      "min_brightness": 0,
+      "max_brightness": 60,
+      "color": "blue",
+      "strobe": 0
     },
     {
       "name": "rgb2",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
-      "color": "blue",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.24,
+      "min_brightness": 0,
+      "max_brightness": 60,
+      "color": "pink",
+      "strobe": 0
     },
     {
       "name": "rgb3",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.18,
+      "min_brightness": 0,
+      "max_brightness": 60,
       "color": "blue",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "strobe": 0
     },
     {
       "name": "rgb4",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        20,
-        60
-      ],
-      "color": "blue",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.22,
+      "min_brightness": 20,
+      "max_brightness": 60,
+      "color": "pink",
+      "strobe": 0
     },
     {
       "name": "rgb5",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.16,
+      "min_brightness": 0,
+      "max_brightness": 60,
       "color": "blue",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "strobe": 0
     },
     {
       "name": "rgb6",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
-      "color": "blue",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
-    },
-    {
-      "name": "rgb8",
-      "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.26,
+      "min_brightness": 0,
+      "max_brightness": 60,
       "color": "pink",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "strobe": 0
     },
     {
       "name": "rgb7",
       "type": "rgb",
-      "modulator": "mfft",
-      "brightness_range": [
-        0,
-        60
-      ],
-      "color": "purple",
-      "strobe": 0,
-      "mfft_range": [
-        0,
-        128
-      ],
-      "power_range": [
-        0,
-        7
-      ]
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.14,
+      "min_brightness": 0,
+      "max_brightness": 60,
+      "color": "blue",
+      "strobe": 0
+    },
+    {
+      "name": "rgb8",
+      "type": "rgb",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.28,
+      "min_brightness": 0,
+      "max_brightness": 60,
+      "color": "pink",
+      "strobe": 0
     },
     {
       "name": "strobe",
@@ -186,14 +113,8 @@
       "modulator": "mfft",
       "threshold": 0.1,
       "brightness": 1,
-      "mfft_range": [
-        115,
-        127
-      ],
-      "power_range": [
-        0.08,
-        1.0
-      ],
+      "mfft_range": [115, 127],
+      "power_range": [0.08, 1.0],
       "speed": 1
     }
   ]

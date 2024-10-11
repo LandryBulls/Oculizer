@@ -1,0 +1,124 @@
+{
+    "name": "swamp",
+    "description": "Eerie swamp scene with flickering blue and green lights",
+    "type": "effect",
+    "midi": 75,
+    "key_command": "w",
+    "lights": [
+      {
+        "name": "orb",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 20,
+        "max_brightness": 100
+      },
+      {
+        "name": "ropes",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 10,
+        "max_brightness": 50
+      },
+      {
+        "name": "rgb1",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "green",
+        "strobe": 0
+      },
+      {
+        "name": "rgb2",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "blue",
+        "strobe": 0
+      },
+      {
+        "name": "rgb3",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "green",
+        "strobe": 0
+      },
+      {
+        "name": "rgb4",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "blue",
+        "strobe": 0
+      },
+      {
+        "name": "rgb5",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "green",
+        "strobe": 0
+      },
+      {
+        "name": "rgb6",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "blue",
+        "strobe": 0
+      },
+      {
+        "name": "rgb7",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "green",
+        "strobe": 0
+      },
+      {
+        "name": "rgb8",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": "random",
+        "min_brightness": 0,
+        "max_brightness": 20,
+        "color": "blue",
+        "strobe": 0
+      },
+      {
+        "name": "lasers",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "discoball",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "strobe",
+        "type": "strobe",
+        "modulator": "bool",
+        "brightness": 0,
+        "speed": 0
+      }
+    ]
+  }

@@ -1,18 +1,17 @@
 {
-  "name": "brainblaster",
-  "description": "Bass-reactive rainbow strobes. All else off.",
-  "type": "effect",
-  "midi": 67,
-  "key_command": "3",
+  "name": "blue_bass_pulse",
+  "description": "All RGBs pulsing blue with bass, high-frequency reactive strobe",
+  "key_command": "r",
+  "midi": 52,
   "lights": [
     {
       "name": "rgb1",
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -20,9 +19,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -30,9 +29,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -40,9 +39,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -50,9 +49,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -60,9 +59,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3.5],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -70,9 +69,9 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3.5],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
     },
     {
@@ -80,10 +79,44 @@
       "type": "rgb",
       "modulator": "mfft",
       "mfft_range": [0, 20],
-      "power_range": [0, 2],
+      "power_range": [0.5, 3.5],
       "brightness_range": [0, 255],
-      "color": "random",
+      "color": "blue",
       "strobe": 255
+    },
+    {
+      "name": "strobe",
+      "type": "strobe",
+      "modulator": "mfft",
+      "threshold": 0.05,
+      "brightness": 255,
+      "mfft_range": [115, 127],
+      "power_range": [1, 4],
+      "speed": 1
+    },
+    {
+      "name": "ropes",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    },
+    {
+      "name": "orb",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    },
+    {
+      "name": "lasers",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
+    },
+    {
+      "name": "discoball",
+      "type": "dimmer",
+      "modulator": "bool",
+      "brightness": 0
     }
   ]
 }

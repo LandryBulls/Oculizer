@@ -1,0 +1,89 @@
+{
+    "name": "chill_blue",
+    "description": "All RGB lights set to blue, subtly reactive to music",
+    "type": "effect",
+    "midi": 37,
+    "key_command": "p",
+    "lights": [
+      {
+        "name": "rgb1",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb2",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb3",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb4",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb5",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb6",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb7",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      },
+      {
+        "name": "rgb8",
+        "type": "rgb",
+        "modulator": "mfft",
+        "color": "blue",
+        "mfft_range": [0, 128],
+        "power_range": [0, 0.5],
+        "brightness_range": [30, 175],
+        "strobe": 0
+      }
+    ]
+  }

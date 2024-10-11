@@ -106,7 +106,12 @@ def process_bool(light):
             brightness = light.get('brightness', 255)
         return [brightness]
     elif light['type'] == 'rgb':
-        brightness = np.random.randint(0, 256) if light.get('brightness', 'random') == 'random' else light.get('brightness', 255)
+        if light.get('brightness', 'random') == 'random':
+            min_brightness = light.get('min_brightness', 0)
+            max_brightness = light.get('max_brightness', 255)
+            brightness = np.random.randint(min_brightness, max_brightness + 1)
+        else:
+            brightness = light.get('brightness', 255)
         color = color_to_rgb(light.get('color', 'random'))
         strobe = np.random.randint(0, 256) if light.get('strobe', 'random') == 'random' else light.get('strobe', 0)
         colorfade = light.get('colorfade', 0)

@@ -2315,7 +2315,8 @@
       "mode": 0,
       "mode_confidence": 0.515,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_pulse"
     },
     {
       "start": 65.06907,
@@ -2329,7 +2330,8 @@
       "mode": 1,
       "mode_confidence": 0.604,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "trance_purple"
     },
     {
       "start": 96.29775,
@@ -2343,7 +2345,8 @@
       "mode": 1,
       "mode_confidence": 0.348,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_bass_pulse"
     },
     {
       "start": 110.01006,
@@ -2357,7 +2360,8 @@
       "mode": 1,
       "mode_confidence": 0.264,
       "time_signature": 4,
-      "time_signature_confidence": 1.0
+      "time_signature_confidence": 1.0,
+      "scene": "blue_pulse"
     },
     {
       "start": 161.7481,
@@ -2371,7 +2375,8 @@
       "mode": 1,
       "mode_confidence": 0.61,
       "time_signature": 4,
-      "time_signature_confidence": 0.9
+      "time_signature_confidence": 0.9,
+      "scene": "ambient1"
     }
   ],
   "segments": [
