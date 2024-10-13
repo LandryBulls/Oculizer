@@ -7,7 +7,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
 class Spotifizer(threading.Thread):
-    def __init__(self, client_id, client_secret, redirect_uri, update_interval=0.05, time_offset=1.0):
+    def __init__(self, client_id, client_secret, redirect_uri, update_interval=0.05, time_offset=0.6):
         super().__init__()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
@@ -39,9 +39,23 @@ class Spotifizer(threading.Thread):
 
     def _initialize_spotify(self):
         token_info = self.auth_manager.get_cached_token()
-        if not token_info or self.auth_manager.is_token_expired(token_info):
-            token_info = self.auth_manager.refresh_access_token(token_info['refresh_token'])
-        return Spotify(auth=token_info['access_token'])
+        print(f"Initial token info: {token_info}")
+        
+        if token_info is None:
+            print("No cached token found. Attempting to get new token...")
+            token_info = self.auth_manager.get_access_token()
+        elif self.auth_manager.is_token_expired(token_info):
+            print("Token expired. Attempting to refresh...")
+            if 'refresh_token' in token_info:
+                token_info = self.auth_manager.refresh_access_token(token_info['refresh_token'])
+            else:
+                print("No refresh token available. Getting new token...")
+                token_info = self.auth_manager.get_access_token()
+        
+        if token_info and 'access_token' in token_info:
+            return Spotify(auth=token_info['access_token'])
+        else:
+            raise Exception("Failed to obtain valid Spotify access token")
 
     def run(self):
         self.running.set()

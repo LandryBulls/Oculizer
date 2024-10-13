@@ -139,6 +139,15 @@ class Oculizer(threading.Thread):
 
         for light in self.scene_manager.current_scene['lights']:
             if light['name'] not in self.light_names:
+                # turn off lights that are not in the profile
+                if light['type'] == 'dimmer':
+                    self.controller_dict[light['name']].dim(0)
+                elif light['type'] == 'rgb':
+                    self.controller_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+                elif light['type'] == 'strobe':
+                    self.controller_dict[light['name']].set_channels([0, 0])
+                elif light['type'] == 'laser':
+                    self.controller_dict[light['name']].set_channels([0] * 10)
                 continue
 
             try:
@@ -161,17 +170,26 @@ class Oculizer(threading.Thread):
 
 
     def change_scene(self, scene_name):
+        self.turn_off_all_lights()
         self.scene_manager.set_scene(scene_name)
         self.scene_changed.set()
+        self.process_audio_and_lights()  # Apply the new scene immediately
+        self.dmx_controller.update()  # Ensure new scene DMX signals are sent
 
     def turn_off_all_lights(self):
-        for light in self.profile['lights']:
-            if light['type'] == 'dimmer':
-                self.controller_dict[light['name']].dim(0)
-            elif light['type'] == 'rgb':
-                self.controller_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
-            elif light['type'] == 'strobe':
-                self.controller_dict[light['name']].set_channels([0, 0])
+        for light_name, light_fixture in self.controller_dict.items():
+            if hasattr(light_fixture, 'dim'):
+                light_fixture.dim(0)
+            elif hasattr(light_fixture, 'set_channels'):
+                light_fixture.set_channels([0] * light_fixture.channels)
+        
+        # Ensure DMX signals are sent
+        self.dmx_controller.update()
+        time.sleep(0.1)  # Small delay to ensure DMX signals are processed
+
+    def update_dmx(self):
+        self.dmx_controller.update()
+        time.sleep(0.025)  # Wait for a full DMX frame to be sent
 
     def stop(self):
         self.running.clear()

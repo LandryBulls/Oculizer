@@ -1,1 +1,96 @@
-{"name": "prance", "description": "All RGBs pulsing blue with bass, high-frequency reactive strobe", "key_command": "r", "midi": 56, "lights": [{"name": "rgb1", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb2", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb3", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb4", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb5", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb6", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3.5], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb7", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3.5], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "rgb8", "type": "rgb", "modulator": "mfft", "mfft_range": [0, 20], "power_range": [0.5, 3.5], "brightness_range": [20, 255], "color": "blue", "strobe": 0}, {"name": "orb", "type": "dimmer", "modulator": "mfft", "brightness_range": [0, 255], "mfft_range": [100, 127], "power_range": [0, 0.15]}]}
+{
+    "name": "prance",
+    "description": "All RGBs pulsing blue with bass, high-frequency reactive strobe",
+    "key_command": "r",
+    "midi": 56,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [20, 255],
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "brightness_range": [0, 255],
+            "mfft_range": [100, 127],
+            "power_range": [0, 0.05]
+        }
+    ]
+}

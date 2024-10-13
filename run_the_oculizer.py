@@ -51,7 +51,7 @@ class SpotifyOculizerController:
         self.song_data_dir = 'song_data'
         self.current_song_id = None
         self.current_song_data = None
-        self.current_section_index = 0
+        self.current_section_index = None
         self.error_message = ""
         self.info_message = ""
         
@@ -105,8 +105,9 @@ class SpotifyOculizerController:
         while True:
             try:
                 if self.spotifizer.playing:
-                    self.check_and_update_song()
-                    self.update_lighting()
+                    song_changed = self.check_and_update_song()
+                    self.update_current_section()
+                    self.update_lighting(force_update=song_changed)
                 else:
                     self.scene_manager.set_scene('off')
             except spotipy.SpotifyException as e:
@@ -125,9 +126,25 @@ class SpotifyOculizerController:
         if self.spotifizer.current_track_id != self.current_song_id:
             self.current_song_id = self.spotifizer.current_track_id
             self.current_song_data = self.load_song_data(self.current_song_id)
-            self.current_section_index = 0
+            self.current_section_index = None  # Reset section index
             self.info_message = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
             logging.info(f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}")
+            return True
+        return False
+
+    def update_current_section(self):
+        if self.current_song_data is None:
+            return
+
+        current_time = self.spotifizer.progress / 1000
+        sections = self.current_song_data.get('sections', [])
+
+        new_section_index = next((i for i, section in enumerate(sections) if section['start'] <= current_time < (section['start'] + section['duration'])), None)
+        time.sleep(0.1)
+
+        if new_section_index != self.current_section_index:
+            self.current_section_index = new_section_index
+            logging.info(f"Updated to section index: {self.current_section_index}")
 
     def load_song_data(self, song_id):
         try:
@@ -151,40 +168,42 @@ class SpotifyOculizerController:
                     light_fixture.dim(0)
                 elif hasattr(light_fixture, 'set_channels'):
                     light_fixture.set_channels([0] * light_fixture.channels)
-            
-            time.sleep(0.1)
+            self.oculizer.dmx_controller.update()       # this is a magic piece of code that is broken, but it saves the day somehow
             logging.info("All lights turned off")
         except Exception as e:
-            self.error_message = f"Error turning off lights: {str(e)}"
-            logging.error(f"Error turning off lights: {str(e)}")
+            if not 'OpenDMXController' in str(e):
+                self.error_message = f"Error turning off lights: {str(e)}"
+                logging.error(f"Error turning off lights: {str(e)}")
 
-    def update_lighting(self):
+    def update_lighting(self, force_update=False):
         try:
             if self.current_song_data is None:
                 self.turn_off_all_lights()
-                self.oculizer.change_scene('suave')
+                self.scene_manager.set_scene('chill_pink')
+                self.info_message = "No song data found. Using default scene."
+                logging.info("No song data found. Using default scene.")
                 return
 
-            current_time = self.spotifizer.progress / 1000
             sections = self.current_song_data.get('sections', [])
 
             if not sections:
                 self.turn_off_all_lights()
-                self.oculizer.change_scene('suave')
+                self.scene_manager.set_scene('off')
+                self.info_message = "No sections found in song data. Using default scene."
+                logging.warning("No sections found in song data. Using default scene.")
                 return
 
-            while (self.current_section_index < len(sections) - 1 and
-                   current_time >= sections[self.current_section_index + 1]['start']):
-                self.current_section_index += 1
-
-            current_section = sections[self.current_section_index]
-            scene = current_section.get('scene', 'suave')
-            
-            if scene != self.scene_manager.current_scene['name']:
-                self.info_message = f"Changing to scene: {scene}"
-                logging.info(f"Changing to scene: {scene}")
-                self.turn_off_all_lights()
-                self.oculizer.change_scene(scene)
+            if self.current_section_index is not None:
+                current_section = sections[self.current_section_index]
+                scene = current_section.get('scene', 'off')
+                
+                if scene != self.scene_manager.current_scene['name'] or force_update:
+                    self.info_message = f"Changing to scene: {scene}"
+                    logging.info(f"Changing to scene: {scene}")
+                    self.turn_off_all_lights()
+                    self.scene_manager.set_scene(scene)
+            else:
+                logging.warning(f"Current section index is None.")
         except Exception as e:
             self.error_message = f"Error updating lighting: {str(e)}"
             logging.error(f"Error updating lighting: {str(e)}")

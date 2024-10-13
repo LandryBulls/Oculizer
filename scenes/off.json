@@ -1,1 +1,104 @@
-{"name": "off", "description": "All lights off", "type": "effect", "midi": 36, "key_command": "o", "lights": []}
+{
+    "name": "off",
+    "description": "All lights off",
+    "type": "effect",
+    "midi": 36,
+    "key_command": "o",
+    "lights": [
+      {
+        "name": "rgb1",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb2",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb3",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb4",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb5",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb6",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb7",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "rgb8",
+        "type": "rgb",
+        "modulator": "bool",
+        "brightness": 0,
+        "color": "black",
+        "strobe": 0
+      },
+      {
+        "name": "lasers",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "orb",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "discoball",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "ropes",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "strobe",
+        "type": "strobe",
+        "modulator": "bool",
+        "brightness": 0,
+        "speed": 0
+      }
+    ]
+  }
