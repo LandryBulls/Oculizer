@@ -38,7 +38,7 @@ def main():
             
         # highlight the current scene
         stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
-        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
+        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")e
         stdscr.refresh()
 
         key = stdscr.getch()

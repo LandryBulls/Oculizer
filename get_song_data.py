@@ -28,7 +28,7 @@ def get_playlist_tracks(sp, playlist_id):
 def fetch_audio_analysis(sp, track):
     track_id = track['track']['id']
     track_name = track['track']['name']
-    track_artists = ', '.join([artist['name'] for artist in track['track']['artists']])
+    track_artists = track['track']['artists'][0]['name']
     filename = f"song_data/{track_id}.json"
     
     if os.path.exists(filename):
@@ -51,10 +51,13 @@ def save_audio_analysis(track_id, analysis):
         os.makedirs('song_data')
     
     filename = f"song_data/{track_id}.json"
-    
-    with open(filename, 'w') as f:
-        json.dump(analysis, f, indent=2)
-    print(f"Saved audio analysis for track '{analysis['track']['name']}' (ID: {track_id})")
+    if os.path.exists(filename):
+        print(f"Audio analysis for track '{analysis['track']['name']}' (ID: {track_id}) already exists. Not overwriting.")
+        
+    else:
+        with open(filename, 'w') as f:
+            json.dump(analysis, f, indent=2)
+        print(f"Saved audio analysis for track '{analysis['track']['name']}' (ID: {track_id})")
 
 def analyze_playlist(playlist_url):
     client_id, client_secret = load_credentials()
