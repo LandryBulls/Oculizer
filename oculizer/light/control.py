@@ -174,7 +174,7 @@ class Oculizer(threading.Thread):
         self.scene_manager.set_scene(scene_name)
         self.scene_changed.set()
         self.process_audio_and_lights()  # Apply the new scene immediately
-        self.dmx_controller.update()  # Ensure new scene DMX signals are sent
+        #self.dmx_controller.update()  # Ensure new scene DMX signals are sent
 
     def turn_off_all_lights(self):
         for light_name, light_fixture in self.controller_dict.items():
@@ -184,12 +184,8 @@ class Oculizer(threading.Thread):
                 light_fixture.set_channels([0] * light_fixture.channels)
         
         # Ensure DMX signals are sent
-        self.dmx_controller.update()
+        #self.dmx_controller.update()
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
-
-    def update_dmx(self):
-        self.dmx_controller.update()
-        time.sleep(0.025)  # Wait for a full DMX frame to be sent
 
     def stop(self):
         self.running.clear()
