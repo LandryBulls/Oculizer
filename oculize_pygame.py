@@ -2,12 +2,29 @@ import os
 import json
 import time
 import threading
-import curses
-from curses import wrapper
+import pygame
+from pygame.locals import *
 from oculizer import Oculizer, SceneManager
 from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
+
+# Initialize Pygame
+pygame.init()
+
+# Constants
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+FPS = 30
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+CYAN = (0, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+MAGENTA = (255, 0, 255)
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
@@ -39,23 +56,6 @@ SKULL_CLOSED = """
   |||||
 """
 
-COLOR_PAIRS = {
-    'title': (curses.COLOR_CYAN, curses.COLOR_BLACK),
-    'info': (curses.COLOR_GREEN, curses.COLOR_BLACK),
-    'error': (curses.COLOR_RED, curses.COLOR_BLACK),
-    'warning': (curses.COLOR_YELLOW, curses.COLOR_BLACK),
-    'ascii_art': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
-    'log': (curses.COLOR_WHITE, curses.COLOR_BLACK),
-    'controls': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
-    'skull': (curses.COLOR_GREEN, curses.COLOR_BLACK),
-}
-
-def setup_colors():
-    curses.start_color()
-    for i, (name, (fg, bg)) in enumerate(COLOR_PAIRS.items(), start=1):
-        curses.init_pair(i, fg, bg)
-        COLOR_PAIRS[name] = i
-
 class WatchdogTimer:
     def __init__(self, timeout, callback):
         self.timeout = timeout
@@ -77,10 +77,10 @@ class WatchdogTimer:
         self.timer.cancel()
 
 class SpotifyOculizerController:
-    def __init__(self, client_id, client_secret, redirect_uri, stdscr):
-        self.stdscr = stdscr
-        curses.curs_set(0)
-        self.stdscr.nodelay(1)
+    def __init__(self, client_id, client_secret, redirect_uri):
+        self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+        pygame.display.set_caption("Spotify Oculizer Controller")
+        self.clock = pygame.time.Clock()
         
         self.scene_manager = SceneManager('scenes')
         self.oculizer = Oculizer('garage', self.scene_manager)
@@ -102,6 +102,11 @@ class SpotifyOculizerController:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.log_handler = self.LogHandler(self.log_messages)
         logging.getLogger().addHandler(self.log_handler)
+
+        # Fonts
+        self.title_font = pygame.font.Font(None, 36)
+        self.info_font = pygame.font.Font(None, 24)
+        self.log_font = pygame.font.Font(None, 18)
 
     class LogHandler(logging.Handler):
         def __init__(self, log_messages):
@@ -127,13 +132,27 @@ class SpotifyOculizerController:
         update_thread.daemon = True
         update_thread.start()
 
-        while True:
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    running = False
+                elif event.type == KEYDOWN:
+                    if event.key == K_q:
+                        running = False
+                    elif event.key == K_r:
+                        self.scene_manager.reload_scenes()
+                        self.info_message = "Scenes reloaded"
+                        logging.info("Scenes reloaded")
+
             if self.reinitialize_flag.is_set():
                 self.perform_reinitialization()
-            self.handle_user_input()
+
             self.update_display()
             self.watchdog.reset()  # Reset the watchdog timer
-            time.sleep(0.05)
+            self.clock.tick(FPS)
+
+        self.stop()
 
     def create_spotifizer(self):
         return Spotifizer(self.client_id, self.client_secret, self.redirect_uri)
@@ -156,13 +175,6 @@ class SpotifyOculizerController:
                     self.update_lighting(force_update=song_changed)
                 else:
                     self.scene_manager.set_scene('flicker')
-            except spotipy.SpotifyException as e:
-                if e.http_status == 401 and 'The access token expired' in str(e):
-                    logging.warning("Spotify access token expired. Refreshing...")
-                    self.refresh_spotify_token()
-                else:
-                    self.error_message = f"Spotify API error: {str(e)}"
-                    logging.error(f"Spotify API error: {str(e)}")
             except Exception as e:
                 self.error_message = f"Error in update loop: {str(e)}"
                 logging.error(f"Error in update loop: {str(e)}")
@@ -236,7 +248,7 @@ class SpotifyOculizerController:
                     light_fixture.dim(0)
                 elif hasattr(light_fixture, 'set_channels'):
                     light_fixture.set_channels([0] * light_fixture.channels)
-            self.oculizer.dmx_controller.update()       # this is a magic piece of code that is broken, but it saves the day somehow
+            self.oculizer.dmx_controller.update()
             logging.info("All lights turned off")
         except Exception as e:
             if not 'OpenDMXController' in str(e):
@@ -276,85 +288,77 @@ class SpotifyOculizerController:
             self.error_message = f"Error updating lighting: {str(e)}"
             logging.error(f"Error updating lighting: {str(e)}")
 
-    def handle_user_input(self):
-        try:
-            key = self.stdscr.getch()
-            if key == ord('q'):
-                self.stop()
-                exit()
-            elif key == ord('r'):
-                self.scene_manager.reload_scenes()
-                self.info_message = "Scenes reloaded"
-                logging.info("Scenes reloaded")
-        except Exception as e:
-            self.error_message = f"Error handling user input: {str(e)}"
-            logging.error(f"Error handling user input: {str(e)}")
-
     def update_display(self):
-        try:
-            self.stdscr.clear()
-            height, width = self.stdscr.getmaxyx()
+        self.screen.fill(BLACK)
 
-            # Display title
-            title = "Spotify Oculizer Controller"
-            self.stdscr.addstr(0, (width - len(title)) // 2, title, curses.color_pair(COLOR_PAIRS['title']) | curses.A_BOLD)
+        # Display title
+        title = "Spotify Oculizer Controller"
+        title_surface = self.title_font.render(title, True, CYAN)
+        title_rect = title_surface.get_rect(center=(WINDOW_WIDTH // 2, 30))
+        self.screen.blit(title_surface, title_rect)
 
-            # Display ASCII art with animated skulls
-            ascii_lines = OCULIZER_ASCII.split('\n')
-            ascii_height = len(ascii_lines)
-            start_row = (height - ascii_height) // 2
-            ascii_width = max(len(line) for line in ascii_lines)
-            ascii_start = (width - ascii_width) // 2
+        # Display ASCII art with animated skulls
+        ascii_lines = OCULIZER_ASCII.split('\n')
+        ascii_height = len(ascii_lines) * 20  # Adjust line height as needed
+        start_y = (WINDOW_HEIGHT - ascii_height) // 2
 
-            skull = SKULL_OPEN if int(time.time() * 2) % 2 == 0 else SKULL_CLOSED
-            skull_lines = skull.split('\n')
-            skull_height = len(skull_lines)
-            skull_width = max(len(line) for line in skull_lines)
+        skull = SKULL_OPEN if int(time.time() * 2) % 2 == 0 else SKULL_CLOSED
+        skull_lines = skull.split('\n')
 
-            for i, line in enumerate(ascii_lines):
-                self.stdscr.addstr(start_row + i, ascii_start, line, curses.color_pair(COLOR_PAIRS['ascii_art']))
-                
-                # Add skulls on both sides if there's enough vertical space
-                if i < skull_height:
-                    self.stdscr.addstr(start_row + i, ascii_start - skull_width - 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
-                    self.stdscr.addstr(start_row + i, ascii_start + ascii_width + 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
+        for i, line in enumerate(ascii_lines):
+            text_surface = self.info_font.render(line, True, MAGENTA)
+            text_rect = text_surface.get_rect(center=(WINDOW_WIDTH // 2, start_y + i * 20))
+            self.screen.blit(text_surface, text_rect)
 
-            # Display current song and progress (top left)
-            if self.spotifizer.playing:
-                song_info = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
-                self.stdscr.addstr(2, 0, song_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
-                progress = f"Progress: {self.spotifizer.progress / 1000:.2f}s"
-                self.stdscr.addstr(3, 0, progress, curses.color_pair(COLOR_PAIRS['info']))
-            else:
-                self.stdscr.addstr(2, 0, "No song playing", curses.color_pair(COLOR_PAIRS['warning']))
+        # Add skulls on both sides
+        skull_x_left = 50
+        skull_x_right = WINDOW_WIDTH - 150
+        for i, line in enumerate(skull_lines):
+            skull_surface_left = self.info_font.render(line, True, GREEN)
+            skull_surface_right = self.info_font.render(line, True, GREEN)
+            self.screen.blit(skull_surface_left, (skull_x_left, start_y + i * 20))
+            self.screen.blit(skull_surface_right, (skull_x_right, start_y + i * 20))
 
-            # Display current scene (top left, below song info)
-            scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
-            self.stdscr.addstr(5, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+        # Display current song and progress
+        if self.spotifizer.playing:
+            song_info = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
+            song_surface = self.info_font.render(song_info, True, GREEN)
+            self.screen.blit(song_surface, (10, WINDOW_HEIGHT - 100))
 
-            # Display log messages (bottom)
-            log_start = height - len(self.log_messages) - 3
-            self.stdscr.addstr(log_start, 0, "Log Messages:", curses.color_pair(COLOR_PAIRS['log']) | curses.A_BOLD)
-            for i, message in enumerate(self.log_messages):
-                self.stdscr.addstr(log_start + i + 1, 0, message[:width-1], curses.color_pair(COLOR_PAIRS['log']))
+            progress = f"Progress: {self.spotifizer.progress / 1000:.2f}s"
+            progress_surface = self.info_font.render(progress, True, GREEN)
+            self.screen.blit(progress_surface, (10, WINDOW_HEIGHT - 70))
+        else:
+            no_song_surface = self.info_font.render("No song playing", True, YELLOW)
+            self.screen.blit(no_song_surface, (10, WINDOW_HEIGHT - 100))
 
-            # Display info message (bottom)
-            if self.info_message:
-                self.stdscr.addstr(height-3, 0, self.info_message[:width-1], curses.color_pair(COLOR_PAIRS['info']) | curses.A_BOLD)
+        # Display current scene
+        scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
+        scene_surface = self.info_font.render(scene_info, True, GREEN)
+        self.screen.blit(scene_surface, (10, WINDOW_HEIGHT - 40))
 
-            # Display error message (bottom)
-            if self.error_message:
-                self.stdscr.addstr(height-2, 0, self.error_message[:width-1], curses.color_pair(COLOR_PAIRS['error']))
+        # Display log messages
+        log_start_y = 100
+        for i, message in enumerate(self.log_messages):
+            log_surface = self.log_font.render(message, True, WHITE)
+            self.screen.blit(log_surface, (10, log_start_y + i * 20))
 
-            # Display controls (bottom)
-            controls = "Press 'q' to quit, 'r' to reload scenes"
-            self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
+        # Display info message
+        if self.info_message:
+            info_surface = self.info_font.render(self.info_message, True, GREEN)
+            self.screen.blit(info_surface, (10, WINDOW_HEIGHT - 130))
 
-            self.stdscr.refresh()
-        except Exception as e:
-            import sys
-            print(f"Error updating display: {str(e)}", file=sys.stderr)
-            logging.error(f"Error updating display: {str(e)}")
+        # Display error message
+        if self.error_message:
+            error_surface = self.info_font.render(self.error_message, True, RED)
+            self.screen.blit(error_surface, (10, WINDOW_HEIGHT - 160))
+
+    # Display controls
+        controls = "Press 'q' to quit, 'r' to reload scenes"
+        controls_surface = self.info_font.render(controls, True, MAGENTA)
+        self.screen.blit(controls_surface, (10, WINDOW_HEIGHT - 30))
+
+        pygame.display.flip()
 
     def stop(self):
         try:
@@ -368,9 +372,7 @@ class SpotifyOculizerController:
             self.error_message = f"Error stopping controller: {str(e)}"
             logging.error(f"Error stopping controller: {str(e)}")
 
-def main(stdscr):
-    setup_colors()
-
+def main():
     try:
         credspath = os.path.join(os.path.dirname(__file__), 'spotify_credentials.txt')
         with open(credspath) as f:
@@ -379,21 +381,19 @@ def main(stdscr):
             client_secret = lines[1].strip().split(' ')[1]
             redirect_uri = lines[2].strip().split(' ')[1]
     except Exception as e:
-        stdscr.addstr(0, 0, f"Error reading Spotify credentials: {str(e)}", curses.color_pair(1))
-        stdscr.refresh()
-        time.sleep(5)
+        print(f"Error reading Spotify credentials: {str(e)}")
         return
 
-    controller = SpotifyOculizerController(client_id, client_secret, redirect_uri, stdscr)
+    controller = SpotifyOculizerController(client_id, client_secret, redirect_uri)
     
     try:
         controller.start()
     except KeyboardInterrupt:
         controller.stop()
     except Exception as e:
-        stdscr.addstr(0, 0, f"Unhandled error: {str(e)}", curses.color_pair(COLOR_PAIRS['error']))
-        stdscr.refresh()
-        time.sleep(5)
+        print(f"Unhandled error: {str(e)}")
+    finally:
+        pygame.quit()
 
 if __name__ == "__main__":
-    wrapper(main)
+    main()
