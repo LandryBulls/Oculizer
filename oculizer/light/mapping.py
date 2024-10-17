@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import time
 from oculizer.config import audio_parameters
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
@@ -18,10 +19,27 @@ COLORS = np.array([
 ], dtype=np.int32)
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
+# Define colors as a numpy array for faster operations
+COLORS = np.array([
+    [255, 0, 0],    # red
+    [255, 127, 0],  # orange
+    [255, 255, 0],  # yellow
+    [0, 255, 0],    # green
+    [0, 0, 255],    # blue
+    [75, 0, 130],   # purple
+    [255, 0, 255],  # pink
+    [255, 255, 255] # white
+], dtype=np.int32)
+
+COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
 def random_color():
     return np.random.randint(0, len(COLORS))
+    return np.random.randint(0, len(COLORS))
 
+def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
+    color = COLORS[color_index]
+    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
 def generate_RGB_signal(brightness=255, color_index=0, strobe=0, colorfade=0):
     color = COLORS[color_index]
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
@@ -38,17 +56,23 @@ def power_to_brightness(power, lower_threshold, upper_threshold, min_brightness=
         return int((power - lower_threshold) / (upper_threshold - lower_threshold) * (max_brightness - min_brightness) + min_brightness)
 
 def fft_to_rgb(fft_vec, frange, prange, brange, color_index, strobe):
+def fft_to_rgb(fft_vec, frange, prange, brange, color_index, strobe):
     freq_low, freq_high = freq_to_index(frange[0]), freq_to_index(frange[1])
     fft_mean = np.mean(fft_vec[freq_low:freq_high])
     brightness = power_to_brightness(fft_mean, prange[0], prange[1], brange[0], brange[1])
     
     color = COLORS[color_index]
     
+    color = COLORS[color_index]
+    
+    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), 0]
 
 def fft_to_dimmer(fft_vec, frange, prange, brange):
+def fft_to_dimmer(fft_vec, frange, prange, brange):
     freq_low, freq_high = freq_to_index(frange[0]), freq_to_index(frange[1])
     fft_mean = np.mean(fft_vec[freq_low:freq_high])
+    return int(power_to_brightness(fft_mean, prange[0], prange[1], brange[0], brange[1]))
     return int(power_to_brightness(fft_mean, prange[0], prange[1], brange[0], brange[1]))
 
 def fft_to_strobe(fft_vec, frange, lower_threshold=0.5):
@@ -59,7 +83,14 @@ def fft_to_strobe(fft_vec, frange, lower_threshold=0.5):
 def bool_rgb(brightness, color_index, strobe, colorfade):
     color = COLORS[color_index]
     return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
+    return [255, 255] if fft_mean >= lower_threshold else [0, 0]
 
+def bool_rgb(brightness, color_index, strobe, colorfade):
+    color = COLORS[color_index]
+    return [int(brightness), int(color[0]), int(color[1]), int(color[2]), int(strobe), int(colorfade)]
+
+def bool_strobe(speed, brightness):
+    return [int(speed), int(brightness)]
 def bool_strobe(speed, brightness):
     return [int(speed), int(brightness)]
 
@@ -74,7 +105,19 @@ def time_function(t, frequency, function):
         return (t * frequency) % 1
     elif function == 4:  # sawtooth_backward
         return 1 - (t * frequency % 1)
+def time_function(t, frequency, function):
+    if function == 0:  # sine
+        return np.sin(t * frequency * 2 * np.pi) * 0.5 + 0.5
+    elif function == 1:  # square
+        return np.sign(np.sin(t * frequency * 2 * np.pi)) * 0.5 + 0.5
+    elif function == 2:  # triangle
+        return np.abs(((t * frequency) % 2) - 1)
+    elif function == 3:  # sawtooth_forward
+        return (t * frequency) % 1
+    elif function == 4:  # sawtooth_backward
+        return 1 - (t * frequency % 1)
 
+def time_dimmer(t, min_brightness, max_brightness, frequency, function):
 def time_dimmer(t, min_brightness, max_brightness, frequency, function):
     range_brightness = max_brightness - min_brightness
     return int(min_brightness + range_brightness * time_function(t, frequency, function))
@@ -161,3 +204,5 @@ def process_light(light, fft_vec=None, t=None):
             return process_time_strobe(light, t)
 
     return None  # Return None if no valid combination is found
+
+
