@@ -40,12 +40,12 @@ SKULL_CLOSED = """
 """
 
 COLOR_PAIRS = {
-    'title': (curses.COLOR_CYAN, curses.COLOR_BLACK),
-    'info': (curses.COLOR_GREEN, curses.COLOR_BLACK),
+    'title': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'info': (curses.COLOR_CYAN, curses.COLOR_BLACK),
     'error': (curses.COLOR_RED, curses.COLOR_BLACK),
     'warning': (curses.COLOR_YELLOW, curses.COLOR_BLACK),
     'ascii_art': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
-    'log': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'log': (curses.COLOR_GREEN, curses.COLOR_BLACK),
     'controls': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
     'skull': (curses.COLOR_GREEN, curses.COLOR_BLACK),
 }
@@ -98,7 +98,7 @@ class SpotifyOculizerController:
         self.reinitialize_flag = threading.Event()
         
         # Set up logging
-        self.log_messages = deque(maxlen=10)
+        self.log_messages = deque(maxlen=9)
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.log_handler = self.LogHandler(self.log_messages)
         logging.getLogger().addHandler(self.log_handler)
@@ -296,7 +296,7 @@ class SpotifyOculizerController:
             height, width = self.stdscr.getmaxyx()
 
             # Display title
-            title = "Spotify Oculizer Controller"
+            title = "https://github.com/LandryBulls/Oculizer"
             self.stdscr.addstr(0, (width - len(title)) // 2, title, curses.color_pair(COLOR_PAIRS['title']) | curses.A_BOLD)
 
             # Display ASCII art with animated skulls
