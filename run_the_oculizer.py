@@ -11,15 +11,34 @@ from collections import deque
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
-   ____            _ _              
-  / __ \          | (_)             
- | |  | | ___ _   | |_ _______ _ __ 
+    ____            _ _              
+   / __ \          | (_)             
+  | |  | | ___ _   | |_ _______ _ __ 
   | |  | |/ __| | | | | |_  / _ \ '__|
   | |__| | (__| |_| | | |/ /  __/ |   
    \____/ \___|\__,_|_|_/___\___|_|   
 """
 
-# set up curses color pairs
+# ASCII skull animations
+SKULL_OPEN = """
+  _____ 
+ /     \\
+| () () |
+ \  ^  /
+  |||||
+
+  |||||
+"""
+
+SKULL_CLOSED = """
+  _____ 
+ /     \\
+| () () |
+ \  -  /
+  |||||
+  |||||
+"""
+
 COLOR_PAIRS = {
     'title': (curses.COLOR_CYAN, curses.COLOR_BLACK),
     'info': (curses.COLOR_GREEN, curses.COLOR_BLACK),
@@ -28,6 +47,7 @@ COLOR_PAIRS = {
     'ascii_art': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
     'log': (curses.COLOR_WHITE, curses.COLOR_BLACK),
     'controls': (curses.COLOR_BLUE, curses.COLOR_BLACK),
+    'skull': (curses.COLOR_WHITE, curses.COLOR_BLACK),
 }
 
 def setup_colors():
@@ -35,6 +55,26 @@ def setup_colors():
     for i, (name, (fg, bg)) in enumerate(COLOR_PAIRS.items(), start=1):
         curses.init_pair(i, fg, bg)
         COLOR_PAIRS[name] = i
+
+class WatchdogTimer:
+    def __init__(self, timeout, callback):
+        self.timeout = timeout
+        self.callback = callback
+        self.timer = threading.Timer(self.timeout, self.handle_timeout)
+        self.last_reset = time.time()
+
+    def reset(self):
+        self.timer.cancel()
+        self.last_reset = time.time()
+        self.timer = threading.Timer(self.timeout, self.handle_timeout)
+        self.timer.start()
+
+    def handle_timeout(self):
+        if time.time() - self.last_reset >= self.timeout:
+            self.callback()
+
+    def stop(self):
+        self.timer.cancel()
 
 class SpotifyOculizerController:
     def __init__(self, client_id, client_secret, redirect_uri, stdscr):
@@ -54,6 +94,8 @@ class SpotifyOculizerController:
         self.current_section_index = None
         self.error_message = ""
         self.info_message = ""
+        self.watchdog = WatchdogTimer(10, self.reinitialize)  # 10-second timeout
+        self.reinitialize_flag = threading.Event()
         
         # Set up logging
         self.log_messages = deque(maxlen=50)
@@ -74,6 +116,7 @@ class SpotifyOculizerController:
         try:
             self.oculizer.start()
             self.spotifizer.start()
+            self.watchdog.reset()
             self.run()
         except Exception as e:
             self.error_message = f"Error starting controller: {str(e)}"
@@ -85,8 +128,11 @@ class SpotifyOculizerController:
         update_thread.start()
 
         while True:
+            if self.reinitialize_flag.is_set():
+                self.perform_reinitialization()
             self.handle_user_input()
             self.update_display()
+            self.watchdog.reset()  # Reset the watchdog timer
             time.sleep(0.05)
 
     def create_spotifizer(self):
@@ -121,6 +167,28 @@ class SpotifyOculizerController:
                 self.error_message = f"Error in update loop: {str(e)}"
                 logging.error(f"Error in update loop: {str(e)}")
             time.sleep(0.1)
+
+    def reinitialize(self):
+        logging.warning("Watchdog detected a freeze. Triggering reinitialization.")
+        self.reinitialize_flag.set()
+
+    def perform_reinitialization(self):
+        logging.info("Performing reinitialization...")
+        self.stop()
+        time.sleep(1)  # Allow time for threads to stop
+
+        # Reinitialize components
+        self.scene_manager = SceneManager('scenes')
+        self.oculizer = Oculizer('garage', self.scene_manager)
+        self.spotifizer = self.create_spotifizer()
+
+        # Restart components
+        self.oculizer.start()
+        self.spotifizer.start()
+
+        self.reinitialize_flag.clear()
+        self.watchdog.reset()
+        logging.info("Reinitialization complete.")
 
     def check_and_update_song(self):
         if self.spotifizer.current_track_id != self.current_song_id:
@@ -231,7 +299,27 @@ class SpotifyOculizerController:
             title = "Spotify Oculizer Controller"
             self.stdscr.addstr(0, (width - len(title)) // 2, title, curses.color_pair(COLOR_PAIRS['title']) | curses.A_BOLD)
 
-            # Display current song and progress
+            # Display ASCII art with animated skulls
+            ascii_lines = OCULIZER_ASCII.split('\n')
+            ascii_height = len(ascii_lines)
+            start_row = (height - ascii_height) // 2
+            ascii_width = max(len(line) for line in ascii_lines)
+            ascii_start = (width - ascii_width) // 2
+
+            skull = SKULL_OPEN if int(time.time() * 2) % 2 == 0 else SKULL_CLOSED
+            skull_lines = skull.split('\n')
+            skull_height = len(skull_lines)
+            skull_width = max(len(line) for line in skull_lines)
+
+            for i, line in enumerate(ascii_lines):
+                self.stdscr.addstr(start_row + i, ascii_start, line, curses.color_pair(COLOR_PAIRS['ascii_art']))
+                
+                # Add skulls on both sides if there's enough vertical space
+                if i < skull_height:
+                    self.stdscr.addstr(start_row + i, ascii_start - skull_width - 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
+                    self.stdscr.addstr(start_row + i, ascii_start + ascii_width + 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
+
+            # Display current song and progress (top left)
             if self.spotifizer.playing:
                 song_info = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
                 self.stdscr.addstr(2, 0, song_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
@@ -240,31 +328,25 @@ class SpotifyOculizerController:
             else:
                 self.stdscr.addstr(2, 0, "No song playing", curses.color_pair(COLOR_PAIRS['warning']))
 
-            # Display current scene
+            # Display current scene (top left, below song info)
             scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
             self.stdscr.addstr(5, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
-            # Display ASCII art
-            ascii_lines = OCULIZER_ASCII.split('\n')
-            start_row = (height - len(ascii_lines)) // 2
-            for i, line in enumerate(ascii_lines):
-                self.stdscr.addstr(start_row + i, (width - len(line)) // 2, line, curses.color_pair(COLOR_PAIRS['ascii_art']))
-
-            # Display log messages
-            log_start = height - len(self.log_messages) - 2
-            self.stdscr.addstr(log_start - 1, 0, "Log Messages:", curses.color_pair(COLOR_PAIRS['log']) | curses.A_BOLD)
+            # Display log messages (bottom)
+            log_start = height - len(self.log_messages) - 3
+            self.stdscr.addstr(log_start, 0, "Log Messages:", curses.color_pair(COLOR_PAIRS['log']) | curses.A_BOLD)
             for i, message in enumerate(self.log_messages):
-                self.stdscr.addstr(log_start + i, 0, message[:width-1], curses.color_pair(COLOR_PAIRS['log']))
+                self.stdscr.addstr(log_start + i + 1, 0, message[:width-1], curses.color_pair(COLOR_PAIRS['log']))
 
-            # Display info message
+            # Display info message (bottom)
             if self.info_message:
                 self.stdscr.addstr(height-3, 0, self.info_message[:width-1], curses.color_pair(COLOR_PAIRS['info']) | curses.A_BOLD)
 
-            # Display error message
+            # Display error message (bottom)
             if self.error_message:
                 self.stdscr.addstr(height-2, 0, self.error_message[:width-1], curses.color_pair(COLOR_PAIRS['error']))
 
-            # Display controls
+            # Display controls (bottom)
             controls = "Press 'q' to quit, 'r' to reload scenes"
             self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
 
@@ -280,6 +362,7 @@ class SpotifyOculizerController:
             self.spotifizer.stop()
             self.oculizer.join()
             self.spotifizer.join()
+            self.watchdog.stop()
             logging.info("Spotify Oculizer Controller stopped")
         except Exception as e:
             self.error_message = f"Error stopping controller: {str(e)}"
