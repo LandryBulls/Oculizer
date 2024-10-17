@@ -6,3 +6,4 @@ spotifizer.py
 *.pyc
 ./vscode
 .cache**
+song_data/*.json
