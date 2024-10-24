@@ -7,7 +7,7 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 
 class Spotifizer(threading.Thread):
-    def __init__(self, client_id, client_secret, redirect_uri, update_interval=0.05, time_offset=0.5):
+    def __init__(self, client_id, client_secret, redirect_uri, update_interval=0.05, time_offset=1.0):
         super().__init__()
         self.running = threading.Event()
         self.error_queue = queue.Queue()

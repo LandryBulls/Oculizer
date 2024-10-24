@@ -1,16 +1,25 @@
 {
-    "name": "fullstrobe",
-    "description": "Full white strobe all (RGB+Strobe)",
-    "type": "effect",
-    "midi": 81,
-    "key_command": "6",
+    "name": "faint_flicker",
+    "description": "Orb faintly flickering in response to audio, all other lights off",
+    "type": "ambient",
+    "midi": 85,
+    "key_command": "f",
     "lights": [
+        {
+            "name": "orb",
+            "type": "dimmer",
+            "modulator": "bool",
+            "mfft_range": [0, 128],
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 100
+        },
         {
             "name": "rgb1",
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -18,7 +27,7 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -26,7 +35,7 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -34,7 +43,7 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -42,7 +51,7 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -50,24 +59,15 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
-        },
-        {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
-            "strobe": 255,
-            "speed": 245
         },
         {
             "name": "rgb7",
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
         },
         {
@@ -75,8 +75,33 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": 0,
-            "color": "white",
+            "color": "black",
             "strobe": 0
+        },
+        {
+            "name": "ropes",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 0
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "bool",
+            "brightness": 0,
+            "speed": 0
         }
     ]
 }

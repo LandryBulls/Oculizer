@@ -27,7 +27,7 @@ def save_song_data(song_data, song_data_dir):
 def get_all_sections(song_data):
     for song_id, data in song_data.items():
         for i, section in enumerate(data.get('sections', [])):
-            yield song_id, i
+            yield song_id, i, section.get('scene')
 
 def create_midi_scene_map(scenes):
     return {scene_data.get('midi'): scene_name for scene_name, scene_data in scenes.items() if 'midi' in scene_data}
@@ -36,16 +36,13 @@ def exponential_backoff(attempt, max_delay=60):
     delay = min(random.uniform(0, 2**attempt), max_delay)
     time.sleep(delay)
 
-def get_all_sections(song_data):
+def find_unassigned_sections(song_data):
+    unassigned_sections = []
     for song_id, data in song_data.items():
         for i, section in enumerate(data.get('sections', [])):
-            yield song_id, i, section.get('scene')
-
-def find_first_unassigned_section(all_sections):
-    for index, (song_id, section_index, scene) in enumerate(all_sections):
-        if scene is None:
-            return index
-    return 0  # If all sections are assigned, start from the beginning
+            if section.get('scene') is None:
+                unassigned_sections.append((song_id, i))
+    return unassigned_sections
 
 def save_song_data(song_data, song_data_dir, current_song_id):
     filepath = os.path.join(song_data_dir, f"{current_song_id}.json")
@@ -91,8 +88,8 @@ def main(stdscr):
     stdscr.nodelay(1)
 
     # Main loop
-    all_sections = list(get_all_sections(song_data))
-    current_index = find_first_unassigned_section(all_sections)
+    unassigned_sections = find_unassigned_sections(song_data)
+    current_index = 0
     max_retries = 5
     section_start_time = None
     local_progress = 0
@@ -100,18 +97,30 @@ def main(stdscr):
     while True:
         stdscr.clear()
 
-        if current_index < len(all_sections):
-            current_song_id, current_section_index, _ = all_sections[current_index]
+        if current_index < len(unassigned_sections):
+            current_song_id, current_section_index = unassigned_sections[current_index]
             current_song = song_data[current_song_id]
             current_section = current_song['sections'][current_section_index]
 
             # Display current song and section info
-            stdscr.addstr(0, 0, f"Song: {current_song['track']['name']} by {', '.join(current_song['track']['artists'])}")
-            stdscr.addstr(1, 0, f"Section: {current_section_index + 1}/{len(current_song['sections'])}")
-            stdscr.addstr(2, 0, f"Start: {current_section['start']:.2f}s, Duration: {current_section['duration']:.2f}s")
-            stdscr.addstr(3, 0, f"Loudness: {current_section['loudness']:.2f}dB, Tempo: {current_section['tempo']:.2f} BPM")
-            stdscr.addstr(4, 0, f"Current scene: {scene_manager.current_scene['name']}")
-            stdscr.addstr(5, 0, f"Assigned scene: {current_section.get('scene', 'None')}")
+            try:
+                stdscr.addstr(0, 0, f"Song: {current_song['track']['name']} by {', '.join(current_song['track']['artists'])}")
+                stdscr.addstr(1, 0, f"Section: {current_section_index + 1}/{len(current_song['sections'])}")
+                stdscr.addstr(2, 0, f"Start: {current_section['start']:.2f}s, Duration: {current_section['duration']:.2f}s")
+                stdscr.addstr(3, 0, f"Loudness: {current_section['loudness']:.2f}dB, Tempo: {current_section['tempo']:.2f} BPM")
+                stdscr.addstr(4, 0, f"Current scene: {scene_manager.current_scene['name']}")
+                stdscr.addstr(5, 0, f"Assigned scene: {current_section.get('scene', 'None')}")
+                # add the track id
+                
+                stdscr.addstr(7, 0, f"Track ID: {current_song_id}")
+            except Exception as e:
+                print(current_song.keys())
+                # close the program if there is an error
+                stdscr.addstr(0, 0, f"Error: {str(e)}. Song info: {current_song_id}")
+                stdscr.refresh()
+                time.sleep(5)
+                return
+
 
             # Play the current section
             if spotify_controller.current_track_id != current_song_id or section_start_time is None:
@@ -163,14 +172,14 @@ def main(stdscr):
             stdscr.addstr(len(scene_manager.scenes) + 11, 0, "Press 'r' to reload scenes, 'q' to quit")
 
         else:
-            stdscr.addstr(0, 0, "No sections found in song data.")
+            stdscr.addstr(0, 0, "No unassigned sections found in song data.")
             stdscr.addstr(1, 0, "Press 'q' to quit.")
 
         # Handle user input
         key = stdscr.getch()
         if key == ord('\n'):  # Enter key
             current_section['scene'] = scene_manager.current_scene['name']
-            all_sections[current_index] = (current_song_id, current_section_index, current_section['scene'])
+            song_data[current_song_id]['sections'][current_section_index]['scene'] = current_section['scene']
             
             # Save the updated data immediately
             saved_file = save_song_data(song_data, song_data_dir, current_song_id)
@@ -180,10 +189,10 @@ def main(stdscr):
             stdscr.refresh()
             time.sleep(1)
         elif key == curses.KEY_RIGHT:
-            current_index = (current_index + 1) % len(all_sections)
+            current_index = (current_index + 1) % len(unassigned_sections)
             section_start_time = None  # Reset timer for new section
         elif key == curses.KEY_LEFT:
-            current_index = (current_index - 1) % len(all_sections)
+            current_index = (current_index - 1) % len(unassigned_sections)
             section_start_time = None  # Reset timer for new section
         elif key == ord('r'):
             scene_manager.reload_scenes()
@@ -216,3 +225,4 @@ def main(stdscr):
 
 if __name__ == "__main__":
     curses.wrapper(main)
+

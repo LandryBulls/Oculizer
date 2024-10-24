@@ -8,6 +8,10 @@ from oculizer import Oculizer, SceneManager
 from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
+import random
+import pygame
+from threading import Lock
+import traceback
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
@@ -96,12 +100,19 @@ class SpotifyOculizerController:
         self.info_message = ""
         self.watchdog = WatchdogTimer(10, self.reinitialize)  # 10-second timeout
         self.reinitialize_flag = threading.Event()
-        
+        self.song_counter = 0
+        self.stinger_folder = '../halloween/2024/horror_scenes_trimmed'
+        self.stinger_mode_enabled = False
+        self.lock = Lock()
+            
         # Set up logging
         self.log_messages = deque(maxlen=9)
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.log_handler = self.LogHandler(self.log_messages)
         logging.getLogger().addHandler(self.log_handler)
+
+        # set up pygame mixer
+        pygame.mixer.init()
 
     class LogHandler(logging.Handler):
         def __init__(self, log_messages):
@@ -119,8 +130,8 @@ class SpotifyOculizerController:
             self.watchdog.reset()
             self.run()
         except Exception as e:
-            self.error_message = f"Error starting controller: {str(e)}"
-            logging.error(f"Error starting controller: {str(e)}")
+            self.error_message = f"Error starting controller: {str(e)}\n{traceback.format_exc()}"
+            logging.error(f"Error starting controller: {str(e)}\n{traceback.format_exc()}")
 
     def run(self):
         update_thread = threading.Thread(target=self.update_loop)
@@ -128,12 +139,16 @@ class SpotifyOculizerController:
         update_thread.start()
 
         while True:
-            if self.reinitialize_flag.is_set():
-                self.perform_reinitialization()
-            self.handle_user_input()
-            self.update_display()
-            self.watchdog.reset()  # Reset the watchdog timer
-            time.sleep(0.05)
+            try:
+                if self.reinitialize_flag.is_set():
+                    self.perform_reinitialization()
+                self.handle_user_input()
+                self.update_display()
+                self.watchdog.reset()  # Reset the watchdog timer
+                time.sleep(0.05)
+            except Exception as e:
+                logging.error(f"Error in main loop: {str(e)}\n{traceback.format_exc()}")
+                self.error_message = f"Error in main loop: {str(e)}\n{traceback.format_exc()}"
 
     def create_spotifizer(self):
         return Spotifizer(self.client_id, self.client_secret, self.redirect_uri)
@@ -145,7 +160,7 @@ class SpotifyOculizerController:
             self.spotifizer.start()
             logging.info("Spotify token refreshed successfully")
         except Exception as e:
-            logging.error(f"Error refreshing Spotify token: {str(e)}")
+            logging.error(f"Error refreshing Spotify token: {str(e)}\n{traceback.format_exc()}")
 
     def update_loop(self):
         while True:
@@ -161,11 +176,11 @@ class SpotifyOculizerController:
                     logging.warning("Spotify access token expired. Refreshing...")
                     self.refresh_spotify_token()
                 else:
-                    self.error_message = f"Spotify API error: {str(e)}"
-                    logging.error(f"Spotify API error: {str(e)}")
+                    self.error_message = f"Spotify API error: {str(e)}\n{traceback.format_exc()}"
+                    logging.error(f"Spotify API error: {str(e)}\n{traceback.format_exc()}")
             except Exception as e:
-                self.error_message = f"Error in update loop: {str(e)}"
-                logging.error(f"Error in update loop: {str(e)}")
+                self.error_message = f"Error in update loop: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error in update loop: {str(e)}\n{traceback.format_exc()}")
             time.sleep(0.1)
 
     def reinitialize(self):
@@ -192,13 +207,72 @@ class SpotifyOculizerController:
 
     def check_and_update_song(self):
         if self.spotifizer.current_track_id != self.current_song_id:
+            self.song_counter += 1
             self.current_song_id = self.spotifizer.current_track_id
             self.current_song_data = self.load_song_data(self.current_song_id)
             self.current_section_index = None  # Reset section index
             self.info_message = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
             logging.info(f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}")
+            if self.stinger_mode_enabled and self.song_counter > 0 and self.song_counter % 5 == 0:
+                self.watchdog.stop()
+                self.play_stinger()
+                self.watchdog.reset()
+    
             return True
         return False
+
+    def play_stinger(self):
+        threading.Thread(target=self._play_stinger_thread).start()
+
+    def _play_stinger_thread(self):
+        self.watchdog.stop()
+        with self.lock:
+            try:
+                # Save the current scene
+                previous_scene = self.scene_manager.current_scene['name']
+
+                self.spotifizer.spotify.pause_playback()
+                self.scene_manager.set_scene('off')
+                time.sleep(0.5)
+                self.scene_manager.set_scene('faint_flicker')
+
+                stinger_files = [f for f in os.listdir(self.stinger_folder) if f.endswith('.wav')]
+                if stinger_files:
+                    stinger_file = random.choice(stinger_files)
+                    pygame.mixer.music.load(os.path.join(self.stinger_folder, stinger_file))
+                    pygame.mixer.music.play()
+                    while pygame.mixer.music.get_busy():
+                        pygame.time.Clock().tick(10)
+
+                self.spotifizer.spotify.start_playback()
+                time.sleep(1)  # Wait for playback to resume
+                
+                # Update the song data
+                self.current_song_data = self.load_song_data(self.current_song_id)
+
+                # Get the current section
+                self.update_current_section()
+
+                self.info_message = f"Played stinger: {stinger_file}"
+                logging.info(f"Played stinger: {stinger_file}")
+
+                # Restore the previous scene
+                self.scene_manager.set_scene(previous_scene)
+                # add change_scene to oculizer
+                self.oculizer.change_scene(previous_scene)
+                #self.oculizer.change_scene(previous_scene)
+
+            except Exception as e:
+                self.error_message = f"Error playing stinger: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error playing stinger: {str(e)}\n{traceback.format_exc()}")
+            finally:
+                self.watchdog.reset()
+
+    def toggle_stinger_mode(self):
+        self.stinger_mode_enabled = not self.stinger_mode_enabled
+        status = "enabled" if self.stinger_mode_enabled else "disabled"
+        self.info_message = f"Stinger mode {status}"
+        
 
     def update_current_section(self):
         if self.current_song_data is None:
@@ -215,19 +289,22 @@ class SpotifyOculizerController:
             logging.info(f"Updated to section index: {self.current_section_index}")
 
     def load_song_data(self, song_id):
-        try:
-            filename = os.path.join(self.song_data_dir, f"{song_id}.json")
-            if os.path.exists(filename):
-                with open(filename, 'r') as f:
-                    return json.load(f)
-            else:
-                self.info_message = f"Song data not found for {song_id}. Using default scene."
-                logging.warning(f"Song data not found for {song_id}. Using default scene.")
-                return None
-        except Exception as e:
-            self.error_message = f"Error loading song data: {str(e)}"
-            logging.error(f"Error loading song data: {str(e)}")
-            return None
+        def _load_song_data_thread():
+            try:
+                filename = os.path.join(self.song_data_dir, f"{song_id}.json")
+                if os.path.exists(filename):
+                    with open(filename, 'r') as f:
+                        data = json.load(f)
+                    with self.lock:
+                        self.current_song_data = data
+                else:
+                    self.info_message = f"Song data not found for {song_id}. Using default scene."
+                    logging.warning(f"Song data not found for {song_id}. Using default scene.")
+            except Exception as e:
+                self.error_message = f"Error loading song data: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error loading song data: {str(e)}\n{traceback.format_exc()}")
+
+        threading.Thread(target=_load_song_data_thread).start()
 
     def turn_off_all_lights(self):
         try:
@@ -240,41 +317,50 @@ class SpotifyOculizerController:
             logging.info("All lights turned off")
         except Exception as e:
             if not 'OpenDMXController' in str(e):
-                self.error_message = f"Error turning off lights: {str(e)}"
-                logging.error(f"Error turning off lights: {str(e)}")
+                self.error_message = f"Error turning off lights: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error turning off lights: {str(e)}\n{traceback.format_exc()}")
 
     def update_lighting(self, force_update=False):
-        try:
-            if self.current_song_data is None:
-                self.turn_off_all_lights()
-                self.scene_manager.set_scene('party')
-                self.info_message = "No song data found. Using default scene."
-                #logging.info("No song data found. Using default scene.")
-                return
-
-            sections = self.current_song_data.get('sections', [])
-
-            if not sections:
-                self.turn_off_all_lights()
-                self.scene_manager.set_scene('party')
-                self.info_message = "No sections found in song data. Using default scene."
-                logging.warning("No sections found in song data. Using default scene.")
-                return
-
-            if self.current_section_index is not None:
-                current_section = sections[self.current_section_index]
-                scene = current_section.get('scene', 'party')
-                
-                if scene != self.scene_manager.current_scene['name'] or force_update:
-                    self.info_message = f"Changing to scene: {scene}"
-                    logging.info(f"Changing to scene: {scene}")
+        with self.lock:
+            try:
+                if self.current_song_data is None:
                     self.turn_off_all_lights()
-                    self.scene_manager.set_scene(scene)
-            else:
-                logging.warning(f"Current section index is None.")
-        except Exception as e:
-            self.error_message = f"Error updating lighting: {str(e)}"
-            logging.error(f"Error updating lighting: {str(e)}")
+                    self.scene_manager.set_scene('party')
+                    self.oculizer.change_scene('party')
+                    self.info_message = "No song data found. Using default scene."
+                    logging.info(self.info_message)
+                    return
+
+                sections = self.current_song_data.get('sections', [])
+
+                if not sections:
+                    self.turn_off_all_lights()
+                    self.scene_manager.set_scene('party')
+                    self.oculizer.change_scene('party')
+                    self.info_message = "No sections found in song data. Using default scene."
+                    logging.warning("No sections found in song data. Using default scene.")
+                    return
+
+                if self.current_section_index is not None:
+                    current_section = sections[self.current_section_index]
+                    scene = current_section.get('scene', 'party')
+                    
+                    # Always apply the scene change
+                    #self.info_message = f"Changing to scene: {scene}"
+                    #Elogging.info(f"Changing to scene: {scene}")
+                    self.turn_off_all_lights()
+                    if scene in self.scene_manager.scenes:
+                        self.scene_manager.set_scene(scene)
+                        self.oculizer.change_scene(scene)
+                    else:
+                        logging.warning(f"Scene {scene} not found. Using default scene.")
+                        self.scene_manager.set_scene('party')
+                        self.oculizer.change_scene('party')
+                else:
+                    logging.warning(f"Current section index is None.")
+            except Exception as e:
+                self.error_message = f"Error updating lighting: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error updating lighting: {str(e)}\n{traceback.format_exc()}")
 
     def handle_user_input(self):
         try:
@@ -285,10 +371,15 @@ class SpotifyOculizerController:
             elif key == ord('r'):
                 self.scene_manager.reload_scenes()
                 self.info_message = "Scenes reloaded"
-                logging.info("Scenes reloaded")
+            elif key == ord('s'):
+                self.toggle_stinger_mode()
+            elif key == ord(' '):  # Spacebar
+                if self.stinger_mode_enabled:
+                    self.play_stinger()
         except Exception as e:
-            self.error_message = f"Error handling user input: {str(e)}"
-            logging.error(f"Error handling user input: {str(e)}")
+            self.error_message = f"Error handling user input: {str(e)}\n{traceback.format_exc()}"
+        finally:
+            self.watchdog.reset()
 
     def update_display(self):
         try:
@@ -346,15 +437,19 @@ class SpotifyOculizerController:
             if self.error_message:
                 self.stdscr.addstr(height-2, 0, self.error_message[:width-1], curses.color_pair(COLOR_PAIRS['error']))
 
-            # Display controls (bottom)
-            controls = "Press 'q' to quit, 'r' to reload scenes"
+            # Add display for stinger mode status
+            stinger_status = "ENABLED" if self.stinger_mode_enabled else "DISABLED"
+            self.stdscr.addstr(height-4, 0, f"Stinger Mode: {stinger_status}", curses.color_pair(COLOR_PAIRS['info']))
+            # Update controls display
+            controls = "Press 'q' to quit, 'r' to reload scenes, 's' to toggle stinger mode, 'space' to play stinger"
             self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
 
             self.stdscr.refresh()
+
         except Exception as e:
             import sys
-            print(f"Error updating display: {str(e)}", file=sys.stderr)
-            logging.error(f"Error updating display: {str(e)}")
+            print(f"Error updating display: {str(e)}\n{traceback.format_exc()}", file=sys.stderr)
+            logging.error(f"Error updating display: {str(e)}\n{traceback.format_exc()}")
 
     def stop(self):
         try:
@@ -363,10 +458,12 @@ class SpotifyOculizerController:
             self.oculizer.join()
             self.spotifizer.join()
             self.watchdog.stop()
+            pygame.mixer.quit()
+            self.stdscr.clear()
             logging.info("Spotify Oculizer Controller stopped")
         except Exception as e:
-            self.error_message = f"Error stopping controller: {str(e)}"
-            logging.error(f"Error stopping controller: {str(e)}")
+            self.error_message = f"Error stopping controller: {str(e)}\n{traceback.format_exc()}"
+            logging.error(f"Error stopping controller: {str(e)}\n{traceback.format_exc()}")
 
 def main(stdscr):
     setup_colors()
@@ -391,7 +488,7 @@ def main(stdscr):
     except KeyboardInterrupt:
         controller.stop()
     except Exception as e:
-        stdscr.addstr(0, 0, f"Unhandled error: {str(e)}", curses.color_pair(COLOR_PAIRS['error']))
+        stdscr.addstr(0, 0, f"Unhandled error: {str(e)}\n{traceback.format_exc()}", curses.color_pair(COLOR_PAIRS['error']))
         stdscr.refresh()
         time.sleep(5)
 
