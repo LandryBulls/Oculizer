@@ -5,6 +5,7 @@ import threading
 import curses
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
+from oculizer.scenes.scene_prediction import ScenePredictor
 from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
@@ -88,6 +89,7 @@ class SpotifyOculizerController:
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.spotifizer = self.create_spotifizer()
+        self.scene_predictor = ScenePredictor(client_id, client_secret, redirect_uri)
         self.song_data_dir = 'song_data'
         self.current_song_id = None
         self.current_song_data = None
@@ -215,18 +217,30 @@ class SpotifyOculizerController:
             logging.info(f"Updated to section index: {self.current_section_index}")
 
     def load_song_data(self, song_id):
+        """Modified to use scene prediction for new songs."""
         try:
             filename = os.path.join(self.song_data_dir, f"{song_id}.json")
             if os.path.exists(filename):
                 with open(filename, 'r') as f:
                     return json.load(f)
             else:
-                self.info_message = f"Song data not found for {song_id}. Using default scene."
-                logging.warning(f"Song data not found for {song_id}. Using default scene.")
-                return None
+                # Process new track with scene prediction
+                self.info_message = f"Processing new track {song_id} with scene prediction..."
+                logging.info(f"Processing new track {song_id} with scene prediction...")
+                
+                track_data = self.scene_predictor.process_new_track(song_id)
+                if track_data:
+                    self.info_message = f"Scene prediction completed for {song_id}"
+                    logging.info(f"Scene prediction completed for {song_id}")
+                    return track_data
+                else:
+                    self.info_message = f"Failed to process track {song_id}"
+                    logging.warning(f"Failed to process track {song_id}")
+                    return None
+                    
         except Exception as e:
-            self.error_message = f"Error loading song data: {str(e)}"
-            logging.error(f"Error loading song data: {str(e)}")
+            self.error_message = f"Error loading/predicting song data: {str(e)}"
+            logging.error(f"Error loading/predicting song data: {str(e)}")
             return None
 
     def turn_off_all_lights(self):

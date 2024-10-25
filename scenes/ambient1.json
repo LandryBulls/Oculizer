@@ -92,7 +92,7 @@
             "function": "sine",
             "frequency": 0.05,
             "min_brightness": 0,
-            "max_brightness": 75
+            "max_brightness": 30
         },
         {
             "name": "orb",
@@ -101,7 +101,7 @@
             "function": "sine",
             "frequency": 0.04,
             "min_brightness": 0,
-            "max_brightness": 100
+            "max_brightness": 50
         }
     ]
 }
