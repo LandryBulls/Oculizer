@@ -101,69 +101,72 @@ class ScenePredictor:
             return False
 
     def predict_scene(self, track_id: str, section_index: int) -> Optional[str]:
-        """Predict the scene for a given section of a track."""
-        try:
-            # First, try to load existing data
-            cache_path = os.path.join(self.song_data_dir, f"{track_id}.json")
-            if os.path.exists(cache_path):
-                with open(cache_path, 'r') as f:
-                    track_data = json.load(f)
-            else:
-                track_data = self._get_track_features(track_id)
-                if track_data:
-                    with open(cache_path, 'w') as f:
-                        json.dump(track_data, f)
-                else:
-                    logging.error("Failed to get track features")
-                    return None
-
-            # Get the current section
-            if not track_data or 'sections' not in track_data:
-                logging.error("No sections found in track data")
-                return None
-                
-            if section_index >= len(track_data['sections']):
-                logging.error(f"Section index {section_index} out of range")
-                return None
-
-            current_section = track_data['sections'][section_index]
-            
-            # First try to find a similar section based on audio features
-            similar_scene = self._find_most_similar_section(current_section)
-            if similar_scene:
-                logging.info(f"Found similar section with scene: {similar_scene}")
-                return similar_scene
-            
-            # If we couldn't find a similar section, fall back to artist/genre based rules
-            artist_names = [artist.get('name', '').lower() for artist in track_data.get('track', {}).get('artists', [])]
-            
-            # Check if artist is Charli XCX
-            if 'charli xcx' in artist_names:
-                return 'wobble' if np.random.random() < 0.5 else 'green_bass_pulse'
-            
-            # Check if the song is older than 1990
+            """Predict the scene for a given section of a track."""
             try:
-                release_date = track_data.get('track', {}).get('release_date', '')
-                if release_date:
-                    release_year = int(release_date[:4])
-                    if release_year < 1990:
-                        return 'disco'
-            except (ValueError, TypeError) as e:
-                logging.error(f"Error parsing release date: {str(e)}")
-            
-            # Check if song is EDM
-            if self._is_edm(track_data):
-                # Choose from EDM-appropriate scenes
-                edm_scenes = ['wobble', 'blue_bass_pulse', 'green_bass_pulse', 'pink_bass_pulse']
-                return np.random.choice(edm_scenes)
-            
-            # Default fallback - choose from general purpose scenes
-            general_scenes = ['party', 'ambient1', 'ambient2', 'ambient3', 'chill_blue', 'chill_pink', 'vintage']
-            return np.random.choice(general_scenes)
-            
-        except Exception as e:
-            logging.error(f"Error in predict_scene: {str(e)}")
-            return None
+                # First, try to load existing data
+                cache_path = os.path.join(self.song_data_dir, f"{track_id}.json")
+                if os.path.exists(cache_path):
+                    with open(cache_path, 'r') as f:
+                        track_data = json.load(f)
+                else:
+                    track_data = self._get_track_features(track_id)
+                    if track_data:
+                        with open(cache_path, 'w') as f:
+                            json.dump(track_data, f)
+                    else:
+                        logging.error("Failed to get track features")
+                        return 'party'
+
+                if 'track' in track_data and 'artists' in track_data['track']:
+                    artist_names = [artist.get('name', '').lower() for artist in track_data['track']['artists']]
+                    if 'xcx' in any(artist_name for artist_name in artist_names):
+                        logging.info("Charli XCX detected, using XCX scene")
+                        return 'wobble' if np.random.random() < 0.5 else 'green_bass_pulse'
+                
+                try:
+                    if 'track' in track_data and 'album' in track_data['track']:
+                        release_date = track_data['track']['album'].get('release_date', '')
+                        if release_date:
+                            release_year = int(release_date[:4])
+                            if release_year < 1990:
+                                logging.info(f"Pre-1990 song detected ({release_year}), using disco scene")
+                                return 'disco'
+                except (ValueError, TypeError) as e:
+                    logging.error(f"Error parsing release date: {str(e)}")
+                
+                # First check if we have valid section data
+                if not track_data or 'sections' not in track_data:
+                    logging.error("No sections found in track data")
+                    return 'party'
+                    
+                if section_index >= len(track_data['sections']):
+                    logging.error(f"Section index {section_index} out of range")
+                    return 'party'
+
+                current_section = track_data['sections'][section_index]
+                
+                # Try to find a similar section based on audio features
+                similar_scene = self._find_most_similar_section(current_section)
+                if similar_scene:
+                    logging.info(f"Found similar section with scene: {similar_scene}")
+                    return similar_scene
+                
+                # Check if song is EDM
+                if self._is_edm(track_data):
+                    edm_scenes = ['wobble', 'blue_bass_pulse', 'green_bass_pulse', 'pink_bass_pulse', 'red_bass_pulse']
+                    selected_scene = np.random.choice(edm_scenes)
+                    logging.info(f"EDM detected, using scene: {selected_scene}")
+                    return selected_scene
+                
+                # Default fallback
+                general_scenes = ['party', 'chill_pink', 'chill_blue', 'disco', 'discovibe', 'discolaser']
+                selected_scene = np.random.choice(general_scenes)
+                logging.info(f"Using general scene: {selected_scene}")
+                return selected_scene
+                
+            except Exception as e:
+                logging.error(f"Error in predict_scene: {str(e)}")
+                return 'party'
 
     def _get_track_features(self, track_id: str) -> Optional[Dict]:
         """Get audio features and metadata for a track."""
