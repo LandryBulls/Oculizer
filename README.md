@@ -1,19 +1,7 @@
-```    
-          ___           ___           ___           ___                   ___           ___           ___     
-         /\  \         /\  \         /\__\         /\__\      ___        /\  \         /\  \         /\  \    
-        /::\  \       /::\  \       /:/  /        /:/  /     /\  \       \:\  \       /::\  \       /::\  \   
-       /:/\:\  \     /:/\:\  \     /:/  /        /:/  /      \:\  \       \:\  \     /:/\:\  \     /:/\:\  \  
-      /:/  \:\  \   /:/  \:\  \   /:/  /  ___   /:/  /       /::\__\       \:\  \   /::\~\:\  \   /::\~\:\  \ 
-     /:/__/ \:\__\ /:/__/ \:\__\ /:/__/  /\__\ /:/__/     __/:/\/__/ _______\:\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ 
-     \:\  \ /:/  / \:\  \  \/__/ \:\  \ /:/  / \:\  \    /\/:/  /    \::::::::/__/ \:\~\:\ \/__/ \/_|::\/:/  /
-      \:\  /:/  /   \:\  \        \:\  /:/  /   \:\  \   \::/__/      \:\~~\~~      \:\ \:\__\      |:|::/  / 
-       \:\/:/  /     \:\  \        \:\/:/  /     \:\  \   \:\__\       \:\  \        \:\ \/__/      |:|\/__/  
-        \::/  /       \:\__\        \::/  /       \:\__\   \/__/        \:\__\        \:\__\        |:|  |    
-         \/__/         \/__/         \/__/         \/__/                 \/__/         \/__/         \|__|    
 
+# Oculizer
+A whole ass repo for automated lighting for my halloween party!
 
-```
+It works well. You probably could figure out how to use it if you wanted. You'll need some hardware to make it work (i.e., DMX lights, cables, and a USB to DMX adapter). You'd also need to "make an app" with the Spotify API and get tokens, etc. Then spend a lot of time manually annotating a playlist (yes I did that I'm not sure if its a flex or if its neurotic).
 
-Intelligent, real-time audio-reactive DMX lighting. 
-
-In active development. 
+Maybe I'll make it easier for others to use in the future!
