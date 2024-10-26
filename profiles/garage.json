@@ -66,6 +66,11 @@
             "name": "rgb8",
             "type": "rgb",
             "n_channels": 6
+        },
+        {
+            "name": "laser",
+            "type": "laser",
+            "n_channels": 10
         }
     ]
 }

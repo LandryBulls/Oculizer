@@ -83,12 +83,19 @@ class Oculizer(threading.Thread):
                 control_dict[light['name']].set_channels([0, 0])
 
             elif light['type'] == 'laser':
-                control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
+                # Create a custom fixture with 10 channels for laser
+                laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
+                control_dict[light['name']] = laser_fixture
                 curr_channel += 10
-                control_dict[light['name']].set_channels([128, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+                
+                # Initialize with standby mode
+                laser_fixture.set_channels([0] * 10)
                 time.sleep(sleeptime)
-                control_dict[light['name']].set_channels([0] * 10)
+                # Test pattern
+                laser_fixture.set_channels([128, 255] + [0] * 8)
                 time.sleep(sleeptime)
+                # Back to standby
+                laser_fixture.set_channels([0] * 10)
 
         return controller, control_dict
 
@@ -139,15 +146,7 @@ class Oculizer(threading.Thread):
 
         for light in self.scene_manager.current_scene['lights']:
             if light['name'] not in self.light_names:
-                # turn off lights that are not in the profile
-                if light['type'] == 'dimmer':
-                    self.controller_dict[light['name']].dim(0)
-                elif light['type'] == 'rgb':
-                    self.controller_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
-                elif light['type'] == 'strobe':
-                    self.controller_dict[light['name']].set_channels([0, 0])
-                elif light['type'] == 'laser':
-                    self.controller_dict[light['name']].set_channels([0] * 10)
+                # Skip lights that aren't in the profile instead of trying to turn them off
                 continue
 
             try:
@@ -155,15 +154,17 @@ class Oculizer(threading.Thread):
                 if dmx_values is not None:
                     if light['type'] == 'dimmer':
                         self.controller_dict[light['name']].dim(dmx_values[0])
-
                     elif light['type'] == 'rgb':
                         self.controller_dict[light['name']].set_channels(dmx_values[:6])
-
                     elif light['type'] == 'strobe':
                         self.controller_dict[light['name']].set_channels(dmx_values[:2])
-
                     elif light['type'] == 'laser':
-                        self.controller_dict[light['name']].set_channels(dmx_values[:10])
+                        # Ensure we're sending all 10 channels for laser
+                        channels = dmx_values[:10]
+                        # Pad with zeros if needed
+                        if len(channels) < 10:
+                            channels.extend([0] * (10 - len(channels)))
+                        self.controller_dict[light['name']].set_channels(channels)
 
             except Exception as e:
                 print(f"Error processing light {light['name']}: {str(e)}")
@@ -176,15 +177,26 @@ class Oculizer(threading.Thread):
         self.process_audio_and_lights()  # Apply the new scene immediately
         #self.dmx_controller.update()  # Ensure new scene DMX signals are sent
 
+    def get_light_type(self, light_name):
+        """Helper function to get light type from profile."""
+        for light in self.profile['lights']:
+            if light['name'] == light_name:
+                return light['type']
+        return None
+
     def turn_off_all_lights(self):
         for light_name, light_fixture in self.controller_dict.items():
-            if hasattr(light_fixture, 'dim'):
+            # Get the light type from the profile
+            light_type = next((light['type'] for light in self.profile['lights'] if light['name'] == light_name), None)
+            
+            if light_type == 'laser':
+                # Special handling for laser - set all channels to 0
+                light_fixture.set_channels([0] * 10)
+            elif hasattr(light_fixture, 'dim'):
                 light_fixture.dim(0)
             elif hasattr(light_fixture, 'set_channels'):
                 light_fixture.set_channels([0] * light_fixture.channels)
         
-        # Ensure DMX signals are sent
-        #self.dmx_controller.update()
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
 
     def stop(self):
