@@ -1,1 +1,94 @@
-{"name": "wobble", "description": "All RGBs pulsing green, reactive to low frequencies", "key_command": "p", "midi": 66, "lights": [{"name": "rgb1", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb2", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb3", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb4", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb5", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb6", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb7", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}, {"name": "rgb8", "type": "rgb", "modulator": "mfft", "mfft_range": [1, 20], "power_range": [0.5, 4], "brightness_range": [5, 255], "color": "green", "strobe": 0}]}
+{
+    "name": "wobble",
+    "description": "All RGBs pulsing green, reactive to low frequencies",
+    "key_command": "p",
+    "midi": 66,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [5, 255],
+            "color": "green",
+            "strobe": 0
+        },
+        {
+            "name": "laser", 
+            "type": "laser",
+            "modulator": "mfft",
+            "power_range": [0.3, 0.5]
+        }
+    ]
+}
