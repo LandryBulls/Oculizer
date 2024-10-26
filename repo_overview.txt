@@ -8,6 +8,7 @@ import json
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from typing import List, Dict, Set
 
 # Spotify API rate limit is 1000 requests per 5 minutes
 # We'll use a conservative limit of 100 requests per minute
@@ -30,39 +31,97 @@ def get_playlist_tracks(sp, playlist_id):
         tracks.extend(results['items'])
     return tracks
 
-def fetch_audio_analysis(sp, track):
+def get_artist_genres(sp, artist_id: str) -> Set[str]:
+    """Fetch genres for a specific artist."""
+    try:
+        artist = sp.artist(artist_id)
+        return set(genre.lower() for genre in artist.get('genres', []))
+    except Exception as e:
+        print(f"Error fetching genres for artist {artist_id}: {str(e)}")
+        return set()
+
+def fetch_track_data(sp, track, request_count):
     track_id = track['track']['id']
     track_name = track['track']['name']
-    track_artists = track['track']['artists'][0]['name']
     filename = f"song_data/{track_id}.json"
     
     if os.path.exists(filename):
-        print(f"Audio analysis for track '{track_name}' (ID: {track_id}) already exists. Skipping.")
-        return None
+        print(f"Track data for '{track_name}' (ID: {track_id}) already exists. Skipping.")
+        return None, request_count
 
     try:
+        # Get all required data
         analysis = sp.audio_analysis(track_id)
-        # Add track name to the analysis data
-        analysis['track'] = analysis.get('track', {})
-        analysis['track']['name'] = track_name
-        analysis['track']['artists'] = track_artists
-        return analysis
-    except Exception as e:
-        print(f"Error fetching audio analysis for track '{track_name}' (ID: {track_id}): {str(e)}")
-        return None
+        request_count += 1
+        features = sp.audio_features([track_id])[0]
+        request_count += 1
+        track_info = track['track']
 
-def save_audio_analysis(track_id, analysis):
+        # Get genres for all artists
+        all_genres = set()
+        artist_details = []
+        for artist in track_info['artists']:
+            artist_id = artist['id']
+            artist_genres = get_artist_genres(sp, artist_id)
+            request_count += 1
+            all_genres.update(artist_genres)
+            
+            # Store detailed artist info including their specific genres
+            artist_details.append({
+                'name': artist['name'],
+                'id': artist_id,
+                'genres': list(artist_genres)
+            })
+
+        # Extract and combine the relevant audio features with genres
+        relevant_features = {
+            'danceability': features['danceability'],
+            'energy': features['energy'],
+            'acousticness': features['acousticness'],
+            'instrumentalness': features['instrumentalness'],
+            'valence': features['valence'],
+            'tempo': features['tempo'],
+            'loudness': features['loudness'],
+            'genres': list(all_genres)  # Add genres to audio_features for ScenePredictor compatibility
+        }
+
+        # Combine all the data
+        combined_data = {
+            'track': {
+                **track_info,  # Keep original track info (including original artists array)
+                'audio_features': relevant_features,  # Audio features including genres
+                'name': track_name,
+                'artist_details': artist_details,  # Add detailed artist info as a separate field
+            },
+            'sections': analysis['sections'],
+            'annotation_source': 'manual',
+            'metadata': {
+                'last_updated': time.strftime('%Y-%m-%d %H:%M:%S'),
+                'spotify_id': track_id
+            }
+        }
+
+        return combined_data, request_count
+        
+    except Exception as e:
+        print(f"Error fetching track data for '{track_name}' (ID: {track_id}): {str(e)}")
+        return None, request_count
+
+def save_track_data(track_id, data):
     if not os.path.exists('song_data'):
         os.makedirs('song_data')
     
     filename = f"song_data/{track_id}.json"
     if os.path.exists(filename):
-        print(f"Audio analysis for track '{analysis['track']['name']}' (ID: {track_id}) already exists. Not overwriting.")
+        print(f"Track data for '{data['track']['name']}' (ID: {track_id}) already exists. Not overwriting.")
         
     else:
         with open(filename, 'w') as f:
-            json.dump(analysis, f, indent=2)
-        print(f"Saved audio analysis for track '{analysis['track']['name']}' (ID: {track_id})")
+            json.dump(data, f, indent=2)
+        print(f"Saved track data for '{data['track']['name']}' (ID: {track_id})")
+        # Print some info about the saved data
+        print(f"  Genres: {', '.join(data['track']['genres'][:5])}{'...' if len(data['track']['genres']) > 5 else ''}")
+        print(f"  Artists: {', '.join(artist['name'] for artist in data['track']['artists'])}")
 
 def analyze_playlist(playlist_url):
     client_id, client_secret = load_credentials()
@@ -85,17 +144,325 @@ def analyze_playlist(playlist_url):
             start_time = time.time()
             request_count = 0
 
-        analysis = fetch_audio_analysis(sp, item)
-        if analysis:
-            save_audio_analysis(item['track']['id'], analysis)
-            request_count += 1
+        track_data, new_requests = fetch_track_data(sp, item, request_count)
+        request_count = new_requests
+        
+        if track_data:
+            save_track_data(item['track']['id'], track_data)
 
     print("Finished analyzing playlist")
 
 if __name__ == "__main__":
     playlist_url = input("Enter the Spotify playlist URL: ")
     analyze_playlist(playlist_url)
+    ----------------------------------------
 
+    delete_recents.py
+
+    Content of delete_recents.py:
+    ----------------------------------------
+import os
+import time
+import platform
+from pathlib import Path
+from datetime import datetime, timedelta
+
+def get_creation_time(path):
+    """
+    Get the creation time of a file in a cross-platform way.
+    
+    Args:
+        path (Path): Path object to get creation time for
+        
+    Returns:
+        float: The creation timestamp of the file
+    """
+    stat = path.stat()
+    if platform.system() == 'Windows':
+        return stat.st_ctime
+    else:
+        try:
+            # Try to get birth time (creation time) on Unix systems
+            return stat.st_birthtime
+        except AttributeError:
+            # Fallback to ctime if birthtime is not available
+            return stat.st_ctime
+
+def format_timestamp(timestamp):
+    """Format a timestamp into a readable string."""
+    return datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+
+def list_recent_files(directory_path, hours=24):
+    """
+    Lists all files in the specified directory that were created in the last specified hours.
+    
+    Args:
+        directory_path (str): Path to the directory to scan
+        hours (int): Number of hours to look back (default: 24)
+    """
+    directory = Path(directory_path)
+    cutoff_time = time.time() - (hours * 3600)
+    recent_files = []
+    
+    print(f"\nFiles created in the last {hours} hours in {directory_path}:")
+    print("-" * 80)
+    print(f"{'Filename':<40} | {'Created':<19} | {'Modified':<19} | {'Size':>10}")
+    print("-" * 80)
+    
+    for file_path in directory.rglob('*'):
+        if file_path.is_file():
+            creation_time = get_creation_time(file_path)
+            mod_time = file_path.stat().st_mtime
+            
+            if creation_time > cutoff_time:
+                recent_files.append(file_path)
+                
+                # Get file size
+                size = file_path.stat().st_size
+                size_str = f"{size:,} B" if size < 1024 else f"{size/1024:,.1f} KB"
+                
+                print(f"{file_path.name[:39]:<40} | "
+                      f"{format_timestamp(creation_time)} | "
+                      f"{format_timestamp(mod_time)} | "
+                      f"{size_str:>10}")
+    
+    print("-" * 80)
+    print(f"Total files found: {len(recent_files)}")
+    return recent_files
+
+def delete_recent_files(directory_path, hours=24, dry_run=True):
+    """
+    Deletes all files in the specified directory that were created in the last specified hours.
+    
+    Args:
+        directory_path (str): Path to the directory to scan
+        hours (int): Number of hours to look back (default: 24)
+        dry_run (bool): If True, only simulates deletion (default: True)
+    """
+    recent_files = list_recent_files(directory_path, hours)
+    
+    if not recent_files:
+        print("\nNo files found to delete.")
+        return
+    
+    print("\n" + ("DRY RUN - No files will be deleted" if dry_run else "DELETING FILES"))
+    print("-" * 80)
+    
+    for file_path in recent_files:
+        creation_time = format_timestamp(get_creation_time(file_path))
+        if dry_run:
+            print(f"Would delete: {file_path} (Created: {creation_time})")
+        else:
+            try:
+                file_path.unlink()
+                print(f"Deleted: {file_path} (Created: {creation_time})")
+            except Exception as e:
+                print(f"Error deleting {file_path}: {str(e)}")
+    
+    print("-" * 80)
+    print(f"Total files {'that would be' if dry_run else ''} deleted: {len(recent_files)}")
+
+if __name__ == "__main__":
+    # Example usage for listing files:
+    print("LISTING RECENT FILES:")
+    list_recent_files("./song_data")
+    
+    print("\nDELETION SIMULATION:")
+    # Example usage for deleting files (with dry_run=True for safety)
+    delete_recent_files("./song_data", dry_run=True)
+    
+    # To actually delete files, you would use:
+    # delete_recent_files("./song_data", dry_run=False)
+    ----------------------------------------
+
+    add_genres.py
+
+    Content of add_genres.py:
+    ----------------------------------------
+import os
+import json
+import time
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+from pathlib import Path
+from typing import List, Dict, Optional, Set
+import logging
+import random
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+class GenreUpdater:
+    def __init__(self, client_id: str, client_secret: str):
+        self.sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
+            client_id=client_id,
+            client_secret=client_secret
+        ))
+        self.song_data_dir = Path('song_data')
+        self.batch_size = 50  # Process 50 tracks at a time
+        self.rate_limit_delay = 1  # Delay between batch requests in seconds
+        self.max_retries = 3
+
+    def exponential_backoff(self, attempt: int, max_delay: float = 60.0):
+        delay = min(random.uniform(0, 2**attempt), max_delay)
+        time.sleep(delay)
+
+    def get_track_with_artists(self, track_id: str, attempt: int = 0) -> Optional[Dict]:
+        """Fetch track data with full artist information."""
+        try:
+            track = self.sp.track(track_id)
+            return track
+        except Exception as e:
+            if attempt < self.max_retries:
+                logging.warning(f"Retrying track fetch for {track_id} after error: {str(e)}")
+                self.exponential_backoff(attempt)
+                return self.get_track_with_artists(track_id, attempt + 1)
+            else:
+                logging.error(f"Failed to fetch track {track_id} after {self.max_retries} attempts: {str(e)}")
+                return None
+
+    def get_artist_genres(self, artist_id: str, attempt: int = 0) -> Set[str]:
+        """Fetch genres for a specific artist with retries."""
+        try:
+            artist = self.sp.artist(artist_id)
+            return set(genre.lower() for genre in artist.get('genres', []))
+        except Exception as e:
+            if attempt < self.max_retries:
+                logging.warning(f"Retrying genre fetch for artist {artist_id} after error: {str(e)}")
+                self.exponential_backoff(attempt)
+                return self.get_artist_genres(artist_id, attempt + 1)
+            else:
+                logging.error(f"Failed to fetch genres for artist {artist_id} after {self.max_retries} attempts: {str(e)}")
+                return set()
+
+    def load_song_data(self, filepath: Path) -> Optional[Dict]:
+        """Load a single song data file."""
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logging.error(f"Error loading {filepath}: {str(e)}")
+            return None
+
+    def save_song_data(self, filepath: Path, data: Dict):
+        """Save updated song data file."""
+        try:
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logging.error(f"Error saving {filepath}: {str(e)}")
+
+    def process_song_file(self, filepath: Path) -> bool:
+        """Process a single song file."""
+        song_data = self.load_song_data(filepath)
+        if not song_data:
+            return False
+
+        # Skip if already has non-empty genres
+        if 'track' in song_data and 'genres' in song_data['track'] and song_data['track']['genres']:
+            logging.info(f"Skipping {filepath.stem} - already has genres")
+            return False
+
+        try:
+            # Get track data with proper artist information
+            track_id = filepath.stem
+            track_data = self.get_track_with_artists(track_id)
+            
+            if not track_data:
+                logging.warning(f"Could not fetch track data for {track_id}")
+                return False
+
+            # Get genres for all artists
+            all_genres = set()
+            artist_details = []
+
+            for artist in track_data['artists']:
+                artist_id = artist['id']
+                artist_genres = self.get_artist_genres(artist_id)
+                all_genres.update(artist_genres)
+                
+                # Store detailed artist info
+                artist_details.append({
+                    'name': artist['name'],
+                    'id': artist_id,
+                    'genres': list(artist_genres)
+                })
+
+            # Update the song data while preserving existing info
+            if 'track' not in song_data:
+                song_data['track'] = {}
+
+            # Update with new artist and genre information
+            song_data['track']['artists'] = track_data['artists']  # Full artist objects from Spotify
+            song_data['track']['genres'] = list(all_genres)
+            song_data['track']['artist_details'] = artist_details
+            
+            # Update metadata
+            if 'metadata' not in song_data:
+                song_data['metadata'] = {}
+            song_data['metadata']['last_updated'] = time.strftime('%Y-%m-%d %H:%M:%S')
+
+            # Save updated data
+            self.save_song_data(filepath, song_data)
+            logging.info(f"Updated {filepath.stem} with {len(all_genres)} genres for {len(artist_details)} artists")
+            return True
+
+        except Exception as e:
+            logging.error(f"Error processing {filepath.stem}: {str(e)}")
+            return False
+
+    def update_song_data_files(self):
+        """Update all song data files with genre information."""
+        # Get list of all song data files
+        song_files = list(self.song_data_dir.glob('*.json'))
+        total_files = len(song_files)
+        logging.info(f"Found {total_files} song data files")
+        updated_count = 0
+        error_count = 0
+
+        # Process files in batches
+        for i in range(0, total_files, self.batch_size):
+            batch_files = song_files[i:i + self.batch_size]
+            batch_num = i//self.batch_size + 1
+            total_batches = (total_files + self.batch_size - 1)//self.batch_size
+            logging.info(f"Processing batch {batch_num} of {total_batches}")
+
+            for filepath in batch_files:
+                try:
+                    if self.process_song_file(filepath):
+                        updated_count += 1
+                except Exception as e:
+                    error_count += 1
+                    logging.error(f"Error in batch processing for {filepath.stem}: {str(e)}")
+
+            # Respect rate limits
+            time.sleep(self.rate_limit_delay)
+
+        logging.info(f"Finished processing {total_files} files:")
+        logging.info(f"  - Successfully updated: {updated_count}")
+        logging.info(f"  - Errors encountered: {error_count}")
+        logging.info(f"  - Skipped: {total_files - updated_count - error_count}")
+
+def main():
+    # Read Spotify credentials
+    credspath = Path('spotify_credentials.txt')
+    try:
+        with open(credspath) as f:
+            lines = f.readlines()
+            client_id = lines[0].strip().split(' ')[1]
+            client_secret = lines[1].strip().split(' ')[1]
+    except Exception as e:
+        logging.error(f"Error reading credentials: {str(e)}")
+        return
+
+    updater = GenreUpdater(client_id, client_secret)
+    updater.update_song_data_files()
+
+if __name__ == "__main__":
+    main()
     ----------------------------------------
 
     run_garage.py
@@ -551,6 +918,7 @@ import threading
 import curses
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
+from oculizer.scenes.scene_prediction import ScenePredictor
 from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
@@ -634,6 +1002,7 @@ class SpotifyOculizerController:
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.spotifizer = self.create_spotifizer()
+        self.scene_predictor = ScenePredictor(client_id, client_secret, redirect_uri)
         self.song_data_dir = 'song_data'
         self.current_song_id = None
         self.current_song_data = None
@@ -761,18 +1130,30 @@ class SpotifyOculizerController:
             logging.info(f"Updated to section index: {self.current_section_index}")
 
     def load_song_data(self, song_id):
+        """Modified to use scene prediction for new songs."""
         try:
             filename = os.path.join(self.song_data_dir, f"{song_id}.json")
             if os.path.exists(filename):
                 with open(filename, 'r') as f:
                     return json.load(f)
             else:
-                self.info_message = f"Song data not found for {song_id}. Using default scene."
-                logging.warning(f"Song data not found for {song_id}. Using default scene.")
-                return None
+                # Process new track with scene prediction
+                self.info_message = f"Processing new track {song_id} with scene prediction..."
+                logging.info(f"Processing new track {song_id} with scene prediction...")
+                
+                track_data = self.scene_predictor.process_new_track(song_id)
+                if track_data:
+                    self.info_message = f"Scene prediction completed for {song_id}"
+                    logging.info(f"Scene prediction completed for {song_id}")
+                    return track_data
+                else:
+                    self.info_message = f"Failed to process track {song_id}"
+                    logging.warning(f"Failed to process track {song_id}")
+                    return None
+                    
         except Exception as e:
-            self.error_message = f"Error loading song data: {str(e)}"
-            logging.error(f"Error loading song data: {str(e)}")
+            self.error_message = f"Error loading/predicting song data: {str(e)}"
+            logging.error(f"Error loading/predicting song data: {str(e)}")
             return None
 
     def turn_off_all_lights(self):
@@ -790,12 +1171,13 @@ class SpotifyOculizerController:
                 logging.error(f"Error turning off lights: {str(e)}")
 
     def update_lighting(self, force_update=False):
+        """Update lighting based on current section with improved scene handling."""
         try:
             if self.current_song_data is None:
                 self.turn_off_all_lights()
                 self.scene_manager.set_scene('party')
                 self.info_message = "No song data found. Using default scene."
-                #logging.info("No song data found. Using default scene.")
+                logging.info("No song data found. Using default scene.")
                 return
 
             sections = self.current_song_data.get('sections', [])
@@ -809,18 +1191,51 @@ class SpotifyOculizerController:
 
             if self.current_section_index is not None:
                 current_section = sections[self.current_section_index]
-                scene = current_section.get('scene', 'party')
                 
+                # Check if section has a valid scene
+                scene = current_section.get('scene')
+                if not scene or scene not in self.scene_manager.scenes:
+                    # If no valid scene, try to predict based on audio features
+                    scene = self._predict_fallback_scene(current_section)
+                    
                 if scene != self.scene_manager.current_scene['name'] or force_update:
                     self.info_message = f"Changing to scene: {scene}"
                     logging.info(f"Changing to scene: {scene}")
                     self.turn_off_all_lights()
                     self.scene_manager.set_scene(scene)
+                    
             else:
                 logging.warning(f"Current section index is None.")
+                
         except Exception as e:
             self.error_message = f"Error updating lighting: {str(e)}"
             logging.error(f"Error updating lighting: {str(e)}")
+
+    def _predict_fallback_scene(self, section):
+        """Predict a scene based on section characteristics if no scene is assigned."""
+        try:
+            # Get basic audio features
+            loudness = section.get('loudness', -60)
+            tempo = section.get('tempo', 120)
+            duration = section.get('duration', 30)
+            
+            # Simple rule-based fallback prediction
+            if loudness > -5 and tempo > 150:
+                return 'brainblaster'
+            elif loudness > -10 and tempo > 140:
+                return 'electric'
+            elif loudness > -15 and tempo > 130:
+                return 'party'
+            elif duration < 15:  # Short section
+                return 'rightround'
+            elif tempo < 100:  # Slower tempo
+                return 'ambient1'
+            else:
+                return 'party'
+                
+        except Exception as e:
+            logging.error(f"Error in fallback scene prediction: {str(e)}")
+            return 'party'
 
     def handle_user_input(self):
         try:
@@ -985,6 +1400,137 @@ print("SceneManager instantiated successfully")
 print('SceneManager started, stopped, and joined successfully')
 
 print("All imports and instantiations successful")
+    ----------------------------------------
+
+    add_features.py
+
+    Content of add_features.py:
+    ----------------------------------------
+import os
+import json
+import time
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from pathlib import Path
+from typing import List, Dict, Optional
+import logging
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+class SongDataUpdater:
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            scope="user-read-playback-state"
+        ))
+        self.song_data_dir = Path('song_data')
+        self.batch_size = 100  # Spotify allows up to 100 tracks per request
+        self.rate_limit_delay = 1  # Delay between batch requests in seconds
+
+    def load_song_data(self, filepath: Path) -> Optional[Dict]:
+        """Load a single song data file."""
+        try:
+            with open(filepath, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logging.error(f"Error loading {filepath}: {str(e)}")
+            return None
+
+    def save_song_data(self, filepath: Path, data: Dict):
+        """Save updated song data file."""
+        try:
+            with open(filepath, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logging.error(f"Error saving {filepath}: {str(e)}")
+
+    def process_song_batch(self, track_ids: List[str]) -> Dict[str, Dict]:
+        """Get audio features for a batch of tracks."""
+        try:
+            audio_features = self.sp.audio_features(track_ids)
+            features_dict = {}
+            for track_id, features in zip(track_ids, audio_features):
+                if features:
+                    features_dict[track_id] = {
+                        'danceability': features['danceability'],
+                        'energy': features['energy'],
+                        'acousticness': features['acousticness'],
+                        'instrumentalness': features['instrumentalness'],
+                        'valence': features['valence'],
+                        'tempo': features['tempo'],
+                        'loudness': features['loudness']
+                    }
+            return features_dict
+        except Exception as e:
+            logging.error(f"Error fetching audio features: {str(e)}")
+            return {}
+
+    def update_song_data_files(self):
+        """Update all song data files with audio features."""
+        # Get list of all song data files
+        song_files = list(self.song_data_dir.glob('*.json'))
+        total_files = len(song_files)
+        logging.info(f"Found {total_files} song data files")
+
+        # Process files in batches
+        for i in range(0, total_files, self.batch_size):
+            batch_files = song_files[i:i + self.batch_size]
+            batch_data = {}
+            track_ids = []
+
+            # Load all files in batch and collect track IDs
+            for filepath in batch_files:
+                song_data = self.load_song_data(filepath)
+                if song_data:
+                    track_id = filepath.stem  # filename without extension
+                    batch_data[track_id] = song_data
+                    track_ids.append(track_id)
+
+            # Get audio features for batch
+            if track_ids:
+                logging.info(f"Processing batch of {len(track_ids)} tracks")
+                audio_features = self.process_song_batch(track_ids)
+
+                # Update and save each file in batch
+                for track_id, song_data in batch_data.items():
+                    if track_id in audio_features:
+                        # Update track info while preserving existing data
+                        if 'track' not in song_data:
+                            song_data['track'] = {}
+                        song_data['track']['audio_features'] = audio_features[track_id]
+                        
+                        # Save updated file
+                        filepath = self.song_data_dir / f"{track_id}.json"
+                        self.save_song_data(filepath, song_data)
+                        logging.info(f"Updated {filepath}")
+
+            # Respect rate limits
+            time.sleep(self.rate_limit_delay)
+
+def main():
+    # Read Spotify credentials
+    credspath = Path('spotify_credentials.txt')
+    try:
+        with open(credspath) as f:
+            lines = f.readlines()
+            client_id = lines[0].strip().split(' ')[1]
+            client_secret = lines[1].strip().split(' ')[1]
+            redirect_uri = lines[2].strip().split(' ')[1]
+    except Exception as e:
+        logging.error(f"Error reading credentials: {str(e)}")
+        return
+
+    updater = SongDataUpdater(client_id, client_secret, redirect_uri)
+    updater.update_song_data_files()
+
+if __name__ == "__main__":
+    main()
     ----------------------------------------
 
     prepare_repo.py
@@ -3969,7 +4515,7 @@ if __name__ == '__main__':
             "function": "sine",
             "frequency": 0.05,
             "min_brightness": 0,
-            "max_brightness": 75
+            "max_brightness": 30
         },
         {
             "name": "orb",
@@ -3978,7 +4524,7 @@ if __name__ == '__main__':
             "function": "sine",
             "frequency": 0.04,
             "min_brightness": 0,
-            "max_brightness": 100
+            "max_brightness": 50
         }
     ]
 }
@@ -4108,9 +4654,9 @@ if __name__ == '__main__':
             "modulator": "mfft",
             "brightness_range": [100, 255],
             "mfft_range": [50, 75],
-            "power_range": [0, 3],
+            "power_range": [1, 3],
             "color": "white",
-            "strobe": 100
+            "strobe": 20
         },
         {
             "name": "lasers",
@@ -4750,8 +5296,9 @@ if __name__ == "__main__":
 from oculizer.audio import AudioListener
 from oculizer.light import Oculizer
 from oculizer.light import mapping
-from oculizer.scenes import SceneManager
+from oculizer.scenes import SceneManager, ScenePredictor
 from oculizer.spotify import Spotifizer
+from oculizer.scenes.scene_prediction import ScenePredictor
 from oculizer.config import audio_parameters
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
@@ -4955,23 +5502,261 @@ if __name__ == '__main__':
 
             Content of scene_prediction.py:
             ----------------------------------------
-"""
-Predict the lighting scene based on spotify features, real-time audio analysis, and user preferences. 
-"""
-
-import numpy as np
-from scipy.spatial import distance
-import time
-import threading
-import queue
-import json
 import os
-import random
-from config import audio_parameters
-import librosa
-from sklearn.cluster import KMeans
+import json
+import time
+import logging
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Set
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
+from scipy.spatial.distance import cosine
 
+# Define the fixed set of available scenes
+CANDIDATE_SCENES = [
+    'ambient1',
+    'chill_pink',
+    'chill_blue',
+    'chill_white',
+    'drop1',
+    'party',
+    'bloop',
+    'brainblaster',
+    'flicker',
+    'hell',
+    'wobble',
+    'temple',
+    'rightround',
+    'discovibe', 
+    'disco',
+    'discolaser',
+    'red_bass_pulse',
+    'blue_bass_pulse',
+    'green_bass_pulse',
+    'pink_bass_pulse',
+    'white_bass_pulse',
+    'fullstrobe',
+    'electric',
+    'fairies',
+    'hypno',
+    'temple',
+    'pink_bulse',
+    'blue_bulse',
+    'red_bulse',
+    'red_echo', 
+    'white_echo',
+    'slime',
+    'whispers'
+]
 
+class ScenePredictor:
+    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
+        """Initialize the scene predictor with Spotify credentials."""
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+            scope="user-read-playback-state"
+        ))
+        self.song_data_dir = 'song_data'
+
+    def _calculate_song_similarity(self, features1: Dict, features2: Dict) -> float:
+        """Calculate similarity between two songs based on their audio features."""
+        feature_keys = [
+            'danceability', 'energy', 'acousticness', 'instrumentalness', 
+            'valence', 'tempo', 'loudness'
+        ]
+        
+        # Normalize tempo and loudness
+        max_tempo = 200  # Reasonable max tempo
+        min_loudness = -60  # Typical min loudness in dB
+        
+        vec1 = []
+        vec2 = []
+        
+        for key in feature_keys:
+            if key == 'tempo':
+                vec1.append(features1[key] / max_tempo)
+                vec2.append(features2[key] / max_tempo)
+            elif key == 'loudness':
+                vec1.append((features1[key] - min_loudness) / -min_loudness)
+                vec2.append((features2[key] - min_loudness) / -min_loudness)
+            else:
+                vec1.append(features1[key])
+                vec2.append(features2[key])
+        
+        return 1 - cosine(vec1, vec2)  # Convert distance to similarity
+
+    def _find_similar_songs(self, track_data: Dict) -> List[str]:
+        """Find the three most similar songs from the annotated songs."""
+        if 'track' not in track_data or 'audio_features' not in track_data['track']:
+            return []
+            
+        target_features = track_data['track']['audio_features']
+        similarities = []
+        
+        # Iterate through all songs in song_data directory
+        for filename in os.listdir(self.song_data_dir):
+            if not filename.endswith('.json'):
+                continue
+                
+            song_id = filename.replace('.json', '')
+            if song_id == track_data.get('metadata', {}).get('spotify_id'):
+                continue
+                
+            try:
+                with open(os.path.join(self.song_data_dir, filename)) as f:
+                    song_data = json.load(f)
+                    
+                if ('track' in song_data and 
+                    'audio_features' in song_data['track'] and
+                    'sections' in song_data):
+                    
+                    # Check if any sections have assigned scenes
+                    has_scenes = any('scene' in section and 
+                                   section['scene'] in CANDIDATE_SCENES 
+                                   for section in song_data['sections'])
+                    
+                    if has_scenes:
+                        similarity = self._calculate_song_similarity(
+                            target_features,
+                            song_data['track']['audio_features']
+                        )
+                        similarities.append((song_id, similarity))
+                    
+            except Exception as e:
+                logging.error(f"Error processing {filename}: {str(e)}")
+                continue
+        
+        # Sort by similarity and return top 3 song IDs
+        similarities.sort(key=lambda x: x[1], reverse=True)
+        return [s[0] for s in similarities[:3]]
+
+    def _get_section_features(self, section: Dict) -> List[float]:
+        """Extract normalized feature vector from a section with improved weighting."""
+        return [
+            section.get('loudness', -60) / -60 * 2.0,  # Increased weight for loudness
+            section.get('tempo', 120) / 200,
+            section.get('tempo_confidence', 0.5),
+            section.get('key_confidence', 0.5),
+            section.get('time_signature_confidence', 0.5),
+            # Add new features for better section differentiation
+            section.get('duration', 30.0) / 60.0,  # Normalized duration
+            1.0 if section.get('time_signature', 4) == 4 else 0.5,  # Common time signature bias
+        ]
+
+    def _find_most_similar_scene(self, section: Dict, reference_songs: List[str]) -> str:
+        """Find the most similar scene with improved similarity calculation."""
+        current_features = self._get_section_features(section)
+        scene_scores = {}
+        scene_counts = {}
+        
+        # Define scene type weights for transitions
+        scene_type_weights = {
+            'ambient': 1.0,
+            'build': 1.2,
+            'drop': 1.5,
+            'effect': 1.3
+        }
+        
+        for song_id in reference_songs:
+            try:
+                with open(os.path.join(self.song_data_dir, f"{song_id}.json")) as f:
+                    song_data = json.load(f)
+                    
+                for ref_section in song_data.get('sections', []):
+                    if 'scene' not in ref_section or ref_section['scene'] not in CANDIDATE_SCENES:
+                        continue
+                        
+                    ref_features = self._get_section_features(ref_section)
+                    similarity = 1 - cosine(current_features, ref_features)
+                    
+                    scene = ref_section['scene']
+                    scene_type = next((s['type'] for s in SCENES_INFO if s['name'] == scene), 'effect')
+                    
+                    # Apply scene type weighting
+                    weighted_similarity = similarity * scene_type_weights.get(scene_type, 1.0)
+                    
+                    scene_scores[scene] = scene_scores.get(scene, 0) + weighted_similarity
+                    scene_counts[scene] = scene_counts.get(scene, 0) + 1
+                    
+            except Exception as e:
+                logging.error(f"Error processing sections from {song_id}: {str(e)}")
+                continue
+        
+        # Calculate average scores and apply transition logic
+        avg_scores = {}
+        for scene in scene_scores:
+            avg_score = scene_scores[scene] / scene_counts[scene]
+            
+            # Add transition bias based on section position
+            if section.get('start', 0) < 30:  # First 30 seconds
+                if 'ambient' in scene.lower() or 'build' in scene.lower():
+                    avg_score *= 1.2
+            elif section.get('duration', 0) > 45:  # Long sections
+                if 'ambient' in scene.lower():
+                    avg_score *= 1.1
+                    
+            avg_scores[scene] = avg_score
+        
+        if not avg_scores:
+            return 'party'  # Default scene
+            
+        return max(avg_scores.items(), key=lambda x: x[1])[0]
+
+    def process_new_track(self, track_id: str) -> Optional[Dict]:
+        """Process a new track and save its data with predicted scenes."""
+        try:
+            # Get track data and audio features from Spotify
+            track_info = self.sp.track(track_id)
+            audio_features = self.sp.audio_features([track_id])[0]
+            audio_analysis = self.sp.audio_analysis(track_id)
+            
+            # Combine the data
+            track_data = {
+                'track': {
+                    **track_info,
+                    'audio_features': {
+                        'danceability': audio_features['danceability'],
+                        'energy': audio_features['energy'],
+                        'acousticness': audio_features['acousticness'],
+                        'instrumentalness': audio_features['instrumentalness'],
+                        'valence': audio_features['valence'],
+                        'tempo': audio_features['tempo'],
+                        'loudness': audio_features['loudness']
+                    }
+                },
+                'sections': audio_analysis['sections'],
+                'metadata': {
+                    'spotify_id': track_id,
+                    'last_updated': datetime.now().isoformat()
+                }
+            }
+            
+            # Find similar songs
+            similar_songs = self._find_similar_songs(track_data)
+            
+            if not similar_songs:
+                logging.warning(f"No similar songs found for {track_id}")
+                # Assign default scenes
+                for section in track_data['sections']:
+                    section['scene'] = 'party'
+            else:
+                # Predict scenes for each section
+                for section in track_data['sections']:
+                    scene = self._find_most_similar_scene(section, similar_songs)
+                    section['scene'] = scene
+            
+            # Save the processed data
+            output_path = os.path.join(self.song_data_dir, f"{track_id}.json")
+            with open(output_path, 'w') as f:
+                json.dump(track_data, f, indent=2)
+                
+            return track_data
+            
+        except Exception as e:
+            logging.error(f"Error processing track {track_id}: {str(e)}")
+            return None
             ----------------------------------------
 
             __init__.py
@@ -4979,6 +5764,7 @@ from sklearn.cluster import KMeans
             Content of __init__.py:
             ----------------------------------------
 from .scene_manager import SceneManager
+from .scene_prediction import ScenePredictor
             ----------------------------------------
 
         spotify/

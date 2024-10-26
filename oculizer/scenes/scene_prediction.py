@@ -1,12 +1,49 @@
-import numpy as np
-from scipy.spatial.distance import cosine
+import os
+import json
+import time
+import logging
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple, Set
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-import json
-import os
-from datetime import datetime
-import logging
-from typing import Dict, List, Optional, Tuple, Set
+from scipy.spatial.distance import cosine
+
+# Define the fixed set of available scenes
+CANDIDATE_SCENES = [
+    'ambient1',
+    #'chill_pink',
+    'chill_blue',
+    'chill_white',
+    'drop1',
+    'party',
+    'bloop',
+    'brainblaster',
+    'flicker',
+    'hell',
+    'wobble',
+    'temple',
+    'rightround',
+    'discovibe', 
+    'disco',
+    'discolaser',
+    'red_bass_pulse',
+    'blue_bass_pulse',
+    'green_bass_pulse',
+    'pink_bass_pulse',
+    'white_bass_pulse',
+    'fullstrobe',
+    'electric',
+    'fairies',
+    'hypno',
+    'temple',
+    'pink_bulse',
+    'blue_bulse',
+    'red_bulse',
+    'red_echo', 
+    'white_echo',
+    'slime',
+    'whispers'
+]
 
 class ScenePredictor:
     def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
@@ -18,236 +55,199 @@ class ScenePredictor:
             scope="user-read-playback-state"
         ))
         self.song_data_dir = 'song_data'
-        self.annotated_sections_cache = self._load_annotated_sections()
-        
-        # EDM genres set
-        self.edm_genres = {
-            'edm', 'electronic', 'dance', 'house', 'techno', 'trance', 'dubstep', 
-            'drum-and-bass', 'electro', 'electronic dance', 'electronica', 'deep-house',
-            'tech-house', 'progressive-house', 'tropical-house', 'bass', 'future-bass',
-            'electropop', 'synthpop', 'ambient', 'idm'
-        }
-        
-    def _load_annotated_sections(self) -> List[Dict]:
-        """Load all annotated sections from existing song data."""
-        annotated_sections = []
-        
-        if not os.path.exists(self.song_data_dir):
-            os.makedirs(self.song_data_dir)
-            return annotated_sections
-            
-        for filename in os.listdir(self.song_data_dir):
-            if filename.endswith('.json'):
-                try:
-                    with open(os.path.join(self.song_data_dir, filename), 'r') as f:
-                        song_data = json.load(f)
-                        if 'sections' in song_data:
-                            for section in song_data['sections']:
-                                if 'scene' in section:
-                                    section['song_id'] = filename.replace('.json', '')
-                                    annotated_sections.append(section)
-                except Exception as e:
-                    logging.error(f"Error loading {filename}: {str(e)}")
-                    continue
-        
-        return annotated_sections
 
-    def _get_artist_genres(self, artist_name: str) -> Set[str]:
-        """Get genres for an artist by name."""
-        try:
-            # Search for the artist
-            results = self.sp.search(q=artist_name, type='artist', limit=1)
-            if not results['artists']['items']:
-                logging.warning(f"No artist found for {artist_name}")
-                return set()
-            
-            # Get the first artist's genres
-            artist = results['artists']['items'][0]
-            return {genre.lower() for genre in artist.get('genres', [])}
-            
-        except Exception as e:
-            logging.error(f"Error getting genres for {artist_name}: {str(e)}")
-            return set()
-
-    def _is_edm(self, track_data: Dict) -> bool:
-        """Determine if a song is EDM based on its genres."""
-        try:
-            all_genres = set()
-            
-            # Get artist names from track data
-            artist_names = []
-            if isinstance(track_data, dict):
-                track_info = track_data.get('track', {})
-                if isinstance(track_info, dict):
-                    artist_names = [artist.get('name') for artist in track_info.get('artists', [])]
-                    
-            if not artist_names:
-                logging.warning("No artists found in track data")
-                return False
-            
-            # Get genres for each artist
-            for artist_name in artist_names:
-                if artist_name:  # Check if name is not None/empty
-                    all_genres.update(self._get_artist_genres(artist_name))
-            
-            # Check for EDM genres
-            is_edm = bool(all_genres & self.edm_genres)
-            logging.info(f"Artist genres: {all_genres}")
-            logging.info(f"Is EDM: {is_edm}")
-            return is_edm
-            
-        except Exception as e:
-            logging.error(f"Error in _is_edm: {str(e)}")
-            return False
-
-    def predict_scene(self, track_id: str, section_index: int) -> Optional[str]:
-            """Predict the scene for a given section of a track."""
-            try:
-                # First, try to load existing data
-                cache_path = os.path.join(self.song_data_dir, f"{track_id}.json")
-                if os.path.exists(cache_path):
-                    with open(cache_path, 'r') as f:
-                        track_data = json.load(f)
-                else:
-                    track_data = self._get_track_features(track_id)
-                    if track_data:
-                        with open(cache_path, 'w') as f:
-                            json.dump(track_data, f)
-                    else:
-                        logging.error("Failed to get track features")
-                        return 'party'
-
-                if 'track' in track_data and 'artists' in track_data['track']:
-                    artist_names = [artist.get('name', '').lower() for artist in track_data['track']['artists']]
-                    if 'xcx' in any(artist_name for artist_name in artist_names):
-                        logging.info("Charli XCX detected, using XCX scene")
-                        return 'wobble' if np.random.random() < 0.5 else 'green_bass_pulse'
-                
-                try:
-                    if 'track' in track_data and 'album' in track_data['track']:
-                        release_date = track_data['track']['album'].get('release_date', '')
-                        if release_date:
-                            release_year = int(release_date[:4])
-                            if release_year < 1990:
-                                logging.info(f"Pre-1990 song detected ({release_year}), using disco scene")
-                                return 'disco'
-                except (ValueError, TypeError) as e:
-                    logging.error(f"Error parsing release date: {str(e)}")
-                
-                # First check if we have valid section data
-                if not track_data or 'sections' not in track_data:
-                    logging.error("No sections found in track data")
-                    return 'party'
-                    
-                if section_index >= len(track_data['sections']):
-                    logging.error(f"Section index {section_index} out of range")
-                    return 'party'
-
-                current_section = track_data['sections'][section_index]
-                
-                # Try to find a similar section based on audio features
-                similar_scene = self._find_most_similar_section(current_section)
-                if similar_scene:
-                    logging.info(f"Found similar section with scene: {similar_scene}")
-                    return similar_scene
-                
-                # Check if song is EDM
-                if self._is_edm(track_data):
-                    edm_scenes = ['wobble', 'blue_bass_pulse', 'green_bass_pulse', 'pink_bass_pulse', 'red_bass_pulse']
-                    selected_scene = np.random.choice(edm_scenes)
-                    logging.info(f"EDM detected, using scene: {selected_scene}")
-                    return selected_scene
-                
-                # Default fallback
-                general_scenes = ['party', 'chill_pink', 'chill_blue', 'disco', 'discovibe', 'discolaser']
-                selected_scene = np.random.choice(general_scenes)
-                logging.info(f"Using general scene: {selected_scene}")
-                return selected_scene
-                
-            except Exception as e:
-                logging.error(f"Error in predict_scene: {str(e)}")
-                return 'party'
-
-    def _get_track_features(self, track_id: str) -> Optional[Dict]:
-        """Get audio features and metadata for a track."""
-        try:
-            # Get basic track info
-            track_info = self.sp.track(track_id)
-            # Get audio features
-            audio_features = self.sp.audio_features([track_id])[0]
-            # Get audio analysis
-            audio_analysis = self.sp.audio_analysis(track_id)
-            
-            # Combine all the data
-            track_data = {
-                'track': track_info,  # Keep the full track info
-                'audio_features': audio_features,
-                'sections': audio_analysis['sections']
-            }
-            
-            return track_data
-            
-        except Exception as e:
-            logging.error(f"Error getting track features: {str(e)}")
-            return None
-
-    def _get_section_feature_vector(self, section: Dict) -> np.ndarray:
-        """Convert section features to a numerical vector for comparison."""
-        features = [
-            section.get('loudness', 0),
-            section.get('tempo', 0),
-            section.get('key', 0),
-            section.get('mode', 0),
-            section.get('duration', 0)
+    def _calculate_song_similarity(self, features1: Dict, features2: Dict) -> float:
+        """Calculate similarity between two songs based on their audio features."""
+        feature_keys = [
+            'danceability', 'energy', 'acousticness', 'instrumentalness', 
+            'valence', 'tempo', 'loudness'
         ]
-        return np.array(features)
+        
+        # Normalize tempo and loudness
+        max_tempo = 200  # Reasonable max tempo
+        min_loudness = -60  # Typical min loudness in dB
+        
+        vec1 = []
+        vec2 = []
+        
+        for key in feature_keys:
+            if key == 'tempo':
+                vec1.append(features1[key] / max_tempo)
+                vec2.append(features2[key] / max_tempo)
+            elif key == 'loudness':
+                vec1.append((features1[key] - min_loudness) / -min_loudness)
+                vec2.append((features2[key] - min_loudness) / -min_loudness)
+            else:
+                vec1.append(features1[key])
+                vec2.append(features2[key])
+        
+        return 1 - cosine(vec1, vec2)  # Convert distance to similarity
 
-    def _find_most_similar_section(self, current_section: Dict) -> Optional[str]:
-        """Find the most similar annotated section based on features."""
-        if not self.annotated_sections_cache:
-            return None
+    def _find_similar_songs(self, track_data: Dict) -> List[str]:
+        """Find the three most similar songs from the annotated songs."""
+        if 'track' not in track_data or 'audio_features' not in track_data['track']:
+            return []
             
-        try:
-            current_features = self._get_section_feature_vector(current_section)
-            min_distance = float('inf')
-            most_similar_scene = None
-            
-            for annotated_section in self.annotated_sections_cache:
-                if 'scene' not in annotated_section:
-                    continue
-                    
-                annotated_features = self._get_section_feature_vector(annotated_section)
-                distance = cosine(current_features, annotated_features)
+        target_features = track_data['track']['audio_features']
+        similarities = []
+        
+        # Iterate through all songs in song_data directory
+        for filename in os.listdir(self.song_data_dir):
+            if not filename.endswith('.json'):
+                continue
                 
-                if distance < min_distance:
-                    min_distance = distance
-                    most_similar_scene = annotated_section['scene']
+            song_id = filename.replace('.json', '')
+            if song_id == track_data.get('metadata', {}).get('spotify_id'):
+                continue
+                
+            try:
+                with open(os.path.join(self.song_data_dir, filename)) as f:
+                    song_data = json.load(f)
+                    
+                if ('track' in song_data and 
+                    'audio_features' in song_data['track'] and
+                    'sections' in song_data):
+                    
+                    # Check if any sections have assigned scenes
+                    has_scenes = any('scene' in section and 
+                                   section['scene'] in CANDIDATE_SCENES 
+                                   for section in song_data['sections'])
+                    
+                    if has_scenes:
+                        similarity = self._calculate_song_similarity(
+                            target_features,
+                            song_data['track']['audio_features']
+                        )
+                        similarities.append((song_id, similarity))
+                    
+            except Exception as e:
+                logging.error(f"Error processing {filename}: {str(e)}")
+                continue
+        
+        # Sort by similarity and return top 3 song IDs
+        similarities.sort(key=lambda x: x[1], reverse=True)
+        return [s[0] for s in similarities[:3]]
+
+    def _get_section_features(self, section: Dict) -> List[float]:
+        """Extract normalized feature vector from a section with improved weighting."""
+        return [
+            section.get('loudness', -60) / -60 * 2.0,  # Increased weight for loudness
+            section.get('tempo', 120) / 200,
+            section.get('tempo_confidence', 0.5),
+            section.get('key_confidence', 0.5),
+            section.get('time_signature_confidence', 0.5),
+            # Add new features for better section differentiation
+            section.get('duration', 30.0) / 60.0,  # Normalized duration
+            1.0 if section.get('time_signature', 4) == 4 else 0.5,  # Common time signature bias
+        ]
+
+    def _find_most_similar_scene(self, section: Dict, reference_songs: List[str]) -> str:
+        """Find the most similar scene by comparing section features directly."""
+        current_features = self._get_section_features(section)
+        section_similarities = []
+        
+        for song_id in reference_songs:
+            try:
+                with open(os.path.join(self.song_data_dir, f"{song_id}.json")) as f:
+                    song_data = json.load(f)
+                    
+                # Compare with each individual section that has a scene assigned
+                for ref_section in song_data.get('sections', []):
+                    if 'scene' not in ref_section or ref_section['scene'] not in CANDIDATE_SCENES:
+                        continue
+                        
+                    ref_features = self._get_section_features(ref_section)
+                    similarity = 1 - cosine(current_features, ref_features)
+                    
+                    section_similarities.append({
+                        'scene': ref_section['scene'],
+                        'similarity': similarity,
+                        'loudness': ref_section.get('loudness', -60),
+                        'tempo': ref_section.get('tempo', 120)
+                    })
+                        
+            except Exception as e:
+                logging.error(f"Error processing sections from {song_id}: {str(e)}")
+                continue
+        
+        if not section_similarities:
+            return 'party'  # Default scene if no matches found
+        
+        # Sort by similarity
+        section_similarities.sort(key=lambda x: x['similarity'], reverse=True)
+        
+        # Take top 5 most similar sections and look for patterns
+        top_matches = section_similarities[:5]
+        
+        # Weight scenes by their similarity and count
+        scene_scores = {}
+        for match in top_matches:
+            scene = match['scene']
+            # Weight by similarity and how close the tempo and loudness are
+            tempo_diff = abs(match['tempo'] - section.get('tempo', 120)) / 200  # Normalize by max reasonable tempo
+            loudness_diff = abs(match['loudness'] - section.get('loudness', -60)) / 60  # Normalize by typical loudness range
             
-            return most_similar_scene
+            # Combined score with more weight on similarity
+            score = match['similarity'] * 0.6 + (1 - tempo_diff) * 0.2 + (1 - loudness_diff) * 0.2
             
-        except Exception as e:
-            logging.error(f"Error finding similar section: {str(e)}")
-            return None
+            if scene in scene_scores:
+                scene_scores[scene] += score
+            else:
+                scene_scores[scene] = score
+        
+        # Return the scene with the highest weighted score
+        return max(scene_scores.items(), key=lambda x: x[1])[0]
 
     def process_new_track(self, track_id: str) -> Optional[Dict]:
         """Process a new track and save its data with predicted scenes."""
         try:
-            track_data = self._get_track_features(track_id)
-            if not track_data:
-                return None
-                
-            # Predict scenes for each section
-            for i, section in enumerate(track_data['sections']):
-                predicted_scene = self.predict_scene(track_id, i)
-                section['scene'] = predicted_scene
-                
+            # Get track data and audio features from Spotify
+            track_info = self.sp.track(track_id)
+            audio_features = self.sp.audio_features([track_id])[0]
+            audio_analysis = self.sp.audio_analysis(track_id)
+            
+            # Combine the data
+            track_data = {
+                'track': {
+                    **track_info,
+                    'audio_features': {
+                        'danceability': audio_features['danceability'],
+                        'energy': audio_features['energy'],
+                        'acousticness': audio_features['acousticness'],
+                        'instrumentalness': audio_features['instrumentalness'],
+                        'valence': audio_features['valence'],
+                        'tempo': audio_features['tempo'],
+                        'loudness': audio_features['loudness']
+                    }
+                },
+                'sections': audio_analysis['sections'],
+                'metadata': {
+                    'spotify_id': track_id,
+                    'last_updated': datetime.now().isoformat()
+                }
+            }
+            
+            # Find similar songs
+            similar_songs = self._find_similar_songs(track_data)
+            
+            if not similar_songs:
+                logging.warning(f"No similar songs found for {track_id}")
+                # Assign default scenes
+                for section in track_data['sections']:
+                    section['scene'] = 'party'
+            else:
+                # Predict scenes for each section
+                for section in track_data['sections']:
+                    scene = self._find_most_similar_scene(section, similar_songs)
+                    section['scene'] = scene
+            
             # Save the processed data
-            cache_path = os.path.join(self.song_data_dir, f"{track_id}.json")
-            with open(cache_path, 'w') as f:
-                json.dump(track_data, f)
+            output_path = os.path.join(self.song_data_dir, f"{track_id}.json")
+            with open(output_path, 'w') as f:
+                json.dump(track_data, f, indent=2)
                 
             return track_data
             
         except Exception as e:
-            logging.error(f"Error processing new track: {str(e)}")
+            logging.error(f"Error processing track {track_id}: {str(e)}")
             return None
