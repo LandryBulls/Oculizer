@@ -1,4 +1,5 @@
 # Oculizer 🎵 💡
+[![Oculizer in action](https://img.youtube.com/vi/LMu_Awmg8bQ/0.jpg)](https://www.youtube.com/watch?v=LMu_Awmg8bQ)
 
 Originally developed for a Halloween party, Oculizer is an advanced DMX lighting automation system that creates real-time, music-reactive light shows by combining Spotify metadata with live audio analysis. It uses mel-scaled FFT to analyze audio and maps frequency components to DMX values through configurable scenes.
 
