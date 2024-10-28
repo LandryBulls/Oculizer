@@ -246,16 +246,24 @@ class SpotifyOculizerController:
     def turn_off_all_lights(self):
         try:
             for light_name, light_fixture in self.oculizer.controller_dict.items():
-                if hasattr(light_fixture, 'dim'):
+                # Get the light type from the profile
+                light_type = next((light['type'] for light in self.oculizer.profile['lights'] 
+                                if light['name'] == light_name), None)
+                
+                if light_type == 'laser':
+                    # Special handling for laser - set all channels to 0
+                    light_fixture.set_channels([0] * 10)
+                elif hasattr(light_fixture, 'dim'):
                     light_fixture.dim(0)
                 elif hasattr(light_fixture, 'set_channels'):
                     light_fixture.set_channels([0] * light_fixture.channels)
-            self.oculizer.dmx_controller.update()       # this is a magic piece of code that is broken, but it saves the day somehow
+            
+            self.oculizer.dmx_controller.update()  # this is a magic piece of code that is broken, but it saves the day somehow
             logging.info("All lights turned off")
         except Exception as e:
             if not 'OpenDMXController' in str(e):
-                self.error_message = f"Error turning off lights: {str(e)}"
-                logging.error(f"Error turning off lights: {str(e)}")
+                self.error_message = f"Error turning off lights: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error turning off lights: {str(e)}\n{traceback.format_exc()}")
 
     def update_lighting(self, force_update=False):
         """Update lighting based on current section with improved scene handling."""
