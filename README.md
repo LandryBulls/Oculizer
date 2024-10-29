@@ -26,7 +26,6 @@ Originally developed for a Halloween party, Oculizer is an advanced DMX lighting
 - DMX-controlled lights
 - BlackHole virtual audio driver (for macOS) or equivalent
 - Spotify Premium account
-- DMX control software (to determine your light addresses)
 
 ## Required Hardware Configuration
 
