@@ -96,6 +96,8 @@ def process_mfft(light, mfft_vec):
                 power_ratio = (mfft_power - power_range[0]) / (power_range[1] - power_range[0])
                 channels[3] = int(zoom_range[0] + power_ratio * (zoom_range[1] - zoom_range[0]))
                 channels[9] = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
+    elif light['type'] == 'panel':
+        brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
         return channels
 
 def process_bool(light):

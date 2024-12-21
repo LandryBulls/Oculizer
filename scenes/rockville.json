@@ -1,0 +1,21 @@
+{
+    "name": "rockville",
+    "description": "For testing the Rockville stage panel",
+    "type": "effect",
+    "midi": 61,
+    "key_command": "3",
+    "lights": [
+        {
+            "name": "panel1",
+            "type": "panel",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0, 2],
+            "brightness_range": [0, 255],
+            "color": "random",
+            "strobe": 255,
+            "bar_strobe": 255, 
+            "bar_mode": "random"
+        }
+    ]
+}
