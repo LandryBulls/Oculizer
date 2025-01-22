@@ -1,0 +1,95 @@
+{
+    "segments": {
+        "description": "Individual strobe bar light segments",
+        "effects": {
+            "no_effect": [0, 5],
+            "segment_1": [6, 11],
+            "segment_2": [12, 17],
+            "segment_3": [18, 23],
+            "segment_4": [24, 29],
+            "segment_5": [30, 35],
+            "segment_6": [36, 41],
+            "segment_7": [42, 47],
+            "segment_8": [48, 53]
+        }
+    },
+    "racing": {
+        "description": "Racing pattern effects",
+        "effects": {
+            "section_left_to_right": [54, 59],
+            "section_right_to_left": [60, 65],
+            "two_segments_left_to_right": [66, 71],
+            "two_segments_right_to_left": [72, 77],
+            "three_segments_left_to_right": [78, 83],
+            "three_segments_right_to_left": [84, 89]
+        }
+    },
+    "back_and_forth": {
+        "description": "Back and forth movement patterns",
+        "effects": {
+            "single_section": [90, 95],
+            "two_sections": [96, 101],
+            "three_sections": [102, 107]
+        }
+    },
+    "collision": {
+        "description": "Light collision effects",
+        "effects": {
+            "collide_left_to_right": [108, 113],
+            "collide_right_to_left": [114, 119],
+            "fall_left_to_right": [120, 125],
+            "fall_right_to_left": [126, 131],
+            "race_back_and_forth": [132, 137]
+        }
+    },
+    "refresh": {
+        "description": "Refresh patterns",
+        "effects": {
+            "segment_left_to_right": [138, 143],
+            "segment_right_to_left": [144, 149],
+            "end_segments_to_middle": [150, 155],
+            "middle_to_ends": [156, 161],
+            "ends_race_back_forth": [162, 167]
+        }
+    },
+    "stacking": {
+        "description": "Stacking light patterns",
+        "effects": {
+            "stack_left_to_right": [168, 173],
+            "stack_right_to_left": [174, 179]
+        }
+    },
+    "waves": {
+        "description": "Wave movement patterns",
+        "effects": {
+            "wave_left_to_right": [180, 185],
+            "wave_right_to_left": [186, 191],
+            "waves_merge_middle": [192, 197],
+            "waves_split_from_middle": [198, 203]
+        }
+    },
+    "complex_racing": {
+        "description": "Complex racing patterns",
+        "effects": {
+            "four_interval_race": [204, 209],
+            "four_stage_connection": [210, 215]
+        }
+    },
+    "special": {
+        "description": "Special effects",
+        "effects": {
+            "squirm_left_to_right": [216, 221],
+            "squirm_right_to_left": [222, 227],
+            "shine_and_return": [228, 233],
+            "pendulum_swing": [234, 239],
+            "accumulate_and_disappear": [240, 245],
+            "collide_and_grow": [246, 251]
+        }
+    },
+    "cycle": {
+        "description": "Cycle through effects",
+        "effects": {
+            "cycle_all": [252, 255]
+        }
+    }
+}

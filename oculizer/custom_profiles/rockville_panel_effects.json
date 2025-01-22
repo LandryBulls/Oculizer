@@ -1,0 +1,174 @@
+
+{
+    "static_colors": {
+        "description": "Single color effects",
+        "effects": {
+            "no_effect": [0, 2],
+            "red_bulbs": [3, 5],
+            "green_bulbs": [6, 8],
+            "blue_bulbs": [9, 11],
+            "yellow_bulbs": [12, 14],
+            "pink_bulbs": [15, 17],
+            "light_blue_bulbs": [18, 20],
+            "white_bulbs": [21, 23]
+        }
+    },
+    "color_changes": {
+        "description": "Color transition effects",
+        "effects": {
+            "color_cycle": [24, 26],
+            "color_fade": [27, 29],
+            "color_pulse": [30, 32]
+        }
+    },
+    "single_color_racing": {
+        "description": "Racing effects with single colors",
+        "effects": {
+            "red_racing": [33, 35],
+            "green_racing": [36, 38],
+            "blue_racing": [39, 41],
+            "yellow_racing": [42, 44],
+            "pink_racing": [45, 47],
+            "light_blue_racing": [48, 50],
+            "white_racing": [51, 53]
+        }
+    },
+    "race_cycle": {
+        "description": "Cycle through racing effects",
+        "effects": {
+            "race_cycle": [54, 56]
+        }
+    },
+    "two_section_racing": {
+        "description": "Racing effects with two sections",
+        "effects": {
+            "red_two_section": [57, 59],
+            "green_two_section": [60, 62],
+            "blue_two_section": [63, 65],
+            "yellow_two_section": [66, 68],
+            "pink_two_section": [69, 71],
+            "light_blue_two_section": [72, 74],
+            "white_two_section": [75, 77]
+        }
+    },
+    "two_section_cycle": {
+        "description": "Cycle through two-section effects",
+        "effects": {
+            "two_section_cycle": [78, 80]
+        }
+    },
+    "refresh_effects": {
+        "description": "Refresh effects for each color",
+        "effects": {
+            "red_refresh": [81, 83],
+            "green_refresh": [84, 86],
+            "blue_refresh": [87, 89],
+            "yellow_refresh": [90, 92],
+            "pink_refresh": [93, 95],
+            "light_blue_refresh": [96, 98],
+            "white_refresh": [99, 101],
+            "refresh_cycle": [102, 104]
+        }
+    },
+    "back_forth_refresh": {
+        "description": "Back and forth refresh effects",
+        "effects": {
+            "red_back_forth": [105, 107],
+            "green_back_forth": [108, 110],
+            "blue_back_forth": [111, 113],
+            "yellow_back_forth": [114, 116],
+            "pink_back_forth": [117, 119],
+            "light_blue_back_forth": [120, 122],
+            "white_back_forth": [123, 125],
+            "refresh_cycle_back_forth": [126, 128]
+        }
+    },
+    "two_section_back_forth": {
+        "description": "Two sections racing back and forth",
+        "effects": {
+            "red_sections_back_forth": [129, 131],
+            "green_sections_back_forth": [132, 134],
+            "blue_sections_back_forth": [135, 137],
+            "yellow_sections_back_forth": [138, 140],
+            "pink_sections_back_forth": [141, 143],
+            "light_blue_sections_back_forth": [144, 146],
+            "white_sections_back_forth": [147, 149],
+            "sections_cycle_back_forth": [150, 152]
+        }
+    },
+    "dual_color_loops": {
+        "description": "Two color loop effects",
+        "effects": {
+            "red_green_loop": [153, 155],
+            "green_blue_loop": [156, 158]
+        }
+    },
+    "dual_color_reverse": {
+        "description": "Two color reverse loop effects",
+        "effects": {
+            "yellow_blue_reverse": [159, 161],
+            "yellow_pink_reverse": [162, 164],
+            "pink_light_blue_reverse": [165, 167],
+            "light_blue_white_loop": [168, 170],
+            "white_red_loop": [171, 173]
+        }
+    },
+    "loop_cycling": {
+        "description": "Cycle through loop effects",
+        "effects": {
+            "loop_cycle": [174, 176]
+        }
+    },
+    "square_racing": {
+        "description": "Racing effects in square patterns",
+        "effects": {
+            "red_square": [177, 179],
+            "green_square": [180, 182],
+            "blue_square": [183, 185],
+            "yellow_square": [186, 188],
+            "pink_square": [189, 191],
+            "light_blue_square": [192, 194],
+            "white_square": [195, 197],
+            "square_cycle": [198, 200]
+        }
+    },
+    "fading_effects": {
+        "description": "Color fading while racing",
+        "effects": {
+            "red_fade_race": [201, 203],
+            "green_fade_race": [204, 206],
+            "blue_fade_race": [207, 209],
+            "yellow_fade_race": [210, 212],
+            "pink_fade_race": [213, 215],
+            "light_blue_fade_race": [216, 218],
+            "white_fade_race": [219, 221],
+            "fade_cycle": [222, 224]
+        }
+    },
+    "stacking_effects": {
+        "description": "Color stacking effects",
+        "effects": {
+            "red_stack": [225, 227],
+            "green_stack": [228, 230],
+            "blue_stack": [231, 233],
+            "yellow_stack": [234, 236],
+            "pink_stack": [237, 239],
+            "light_blue_stack": [240, 242],
+            "white_stack": [243, 245],
+            "stack_cycle": [246, 248]
+        }
+    },
+    "flow_effects": {
+        "description": "Color flow effects",
+        "effects": {
+            "color_flow_left": [249, 251],
+            "color_flow_right": [252, 254]
+        }
+    },
+    "all_modes": {
+        "description": "Cycle through all previous modes",
+        "effects": {
+            "cycle_all": [255, 255]
+        }
+    }
+}
