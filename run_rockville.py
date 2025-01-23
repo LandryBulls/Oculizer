@@ -1,64 +1,47 @@
 """
-For testing the functionality of the rockville LED panel.
+For testing the Rockville LED panel functionality.
 """
 
-import os
-import json
-import threading
-import queue
-import numpy as np
-import curses
 import time
-
-#from control import load_json, load_profile, load_controller, LightController
+import numpy as np
 from oculizer.light import Oculizer
-from oculizer.audio import AudioListener
 from oculizer.scenes import SceneManager
 
-stdscr = curses.initscr()
-
 def main():
+    # Initialize scene manager and set scene to rockville
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('hell')
+    scene_manager.set_scene('rockville')
+    
+    # Initialize Oculizer with rockville profile
     light_controller = Oculizer('rockville', scene_manager)
 
-    scene_commands = {ord(scene_manager.scenes[scene]['key_command']): scene for scene in scene_manager.scenes}
-
+    print("Starting Rockville panel test...")
+    print(f"Current scene: {scene_manager.current_scene['name']}")
+    
+    # Start the light controller
     light_controller.start()
 
-    while True:
-        stdscr.clear()
-        stdscr.addstr(0, 0, f"Current scene: {scene_manager.current_scene['name']}")
-        stdscr.addstr(1, 0, "Available scenes:")
-        for i, scene in enumerate(scene_manager.scenes):
-            stdscr.addstr(i+2, 0, f"{scene} | Commands: {scene_manager.scenes[scene]['key_command']}")
-        # highlight the current scene
-        stdscr.addstr(2+list(scene_manager.scenes.keys()).index(scene_manager.current_scene['name']), 0, f"{scene_manager.current_scene['name']}", curses.A_REVERSE)
-        stdscr.addstr(len(scene_manager.scenes)+3, 0, f"Press 'q' to quit. Press 'r' to reload scenes.")
-        stdscr.refresh()
-
-        key = stdscr.getch()
-        if key == ord('q'):
-            light_controller.stop()
-            light_controller.join()
-            break
-        elif key in scene_commands:
+    try:
+        while True:
+            # Try to get the latest MFFT data from the queue
             try:
-                light_controller.change_scene(scene_commands[key])
-            except Exception as e:
-                stdscr.addstr(len(scene_manager.scenes)+2, 0, f"Error changing scene: {str(e)}")
+                mfft_data = light_controller.mfft_queue.get_nowait()
+                # Calculate some useful metrics
+                mfft_mean = np.mean(mfft_data)
+                mfft_max = np.max(mfft_data)
+                mfft_min = np.min(mfft_data)
+                
+                # Print the metrics with clear formatting
+                print(f"\rMFFT - Mean: {mfft_mean:.4f} | Max: {mfft_max:.4f} | Min: {mfft_min:.4f}", end='', flush=True)
+            except:
+                pass
+            
+            time.sleep(0.1)  # Slight delay to prevent overwhelming the console
 
-        elif key == ord('r'):
-            scene_manager.reload_scenes()
-            light_controller.change_scene(scene_manager.current_scene['name'])  # Reapply current scene
-            stdscr.addstr(len(scene_manager.scenes)+2, 0, "Scenes reloaded.")
-            stdscr.refresh()
-            time.sleep(1)
-
-        stdscr.refresh()
-        time.sleep(0.1)
-
-    curses.endwin()
+    except KeyboardInterrupt:
+        print("\nStopping test...")
+        light_controller.stop()
+        light_controller.join()
 
 if __name__ == '__main__':
     main()

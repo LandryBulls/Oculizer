@@ -97,6 +97,13 @@ class Oculizer(threading.Thread):
                 # Back to standby
                 laser_fixture.set_channels([0] * 10)
 
+            elif light['type'] == 'panel':
+                control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=7))
+                curr_channel += 7
+                control_dict[light['name']].set_channels([0] * 7)
+                time.sleep(sleeptime)
+                control_dict[light['name']].set_channels([255] * 7)
+
         return controller, control_dict
 
     def audio_callback(self, indata, frames, time, status):
@@ -165,9 +172,11 @@ class Oculizer(threading.Thread):
                         if len(channels) < 10:
                             channels.extend([0] * (10 - len(channels)))
                         self.controller_dict[light['name']].set_channels(channels)
+                    elif light['type'] == 'panel':
+                        self.controller_dict[light['name']].set_channels(dmx_values[:8])
 
             except Exception as e:
-                print(f"Error processing light {light['name']}: {str(e)}")
+                print(f"Error processing light {light['name']}: {str(e)} (Error type: {type(e).__name__})")
 
 
     def change_scene(self, scene_name):

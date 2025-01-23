@@ -98,7 +98,18 @@ def process_mfft(light, mfft_vec):
                 channels[9] = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
     elif light['type'] == 'panel':
         brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
-        return channels
+        color = color_to_rgb(light.get('color', 'random'))
+        strobe = light.get('strobe', 0)
+        return [brightness, strobe, 0, 0, *color]
+    elif light['type'] == 'bar':
+        # channels: [bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
+        threshold = light.get('threshold', 0.5)
+        mfft_mean = np.mean(mfft_vec[mfft_range[0]:mfft_range[1]])
+        brightness = 255 if mfft_mean >= threshold else 0
+        strobe = light.get('strobe', 0)
+        mode = light.get('mode', np.random.randint(0, 255))
+        mode_speed = light.get('mode_speed', 0)
+        return [strobe, mode, mode_speed, brightness]
 
 def process_bool(light):
     if light['type'] == 'dimmer':

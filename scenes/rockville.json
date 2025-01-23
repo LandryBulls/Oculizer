@@ -8,30 +8,21 @@
             "name": "panel1",
             "type": "panel",
             "modulator": "mfft",
-            "mfft_range": [0, 127],
+            "mfft_range": [0, 20],
             "power_range": [0.5, 3],
             "brightness_range": [0, 255],
-            "master_dimmer": 255,
-            "strobe": 0,
-            "mode": 0,
-            "effect_speed": 128
-        },
+            "color": "white",
+            "strobe": 255
+        }, 
         {
             "name": "bar1",
             "type": "bar",
             "modulator": "mfft",
-            "mfft_range": [80, 127],
-            "power_range": [0.5, 3],
+            "threshold": 0.05,
             "brightness": 255,
-            "strobe_speed": {
-                "mfft_range": [100, 127],
-                "power_range": [1, 4]
-            },
-            "mode": 128,
-            "mode_speed": {
-                "mfft_range": [40, 80],
-                "power_range": [0.5, 2]
-            }
+            "mfft_range": [115, 127],
+            "power_range": [1, 4], 
+            "speed": 1
         }
     ]
 } 
