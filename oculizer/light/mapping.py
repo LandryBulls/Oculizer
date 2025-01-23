@@ -18,6 +18,16 @@ COLORS = np.array([
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
+PANEL_COLORS = {
+    'red': 3,
+    'green': 6,
+    'blue': 9,
+    'yellow': 12,
+    'pink': 15,
+    'light_blue': 18,
+    'white': 21
+}
+
 def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
     num_bins = len(mfft_vec)
     if scaling_method == 'log':
@@ -71,15 +81,18 @@ def process_mfft(light, mfft_vec):
     
     if light['type'] == 'dimmer':
         return [mfft_to_value(mfft_vec, mfft_range, power_range, value_range)]
+    
     elif light['type'] == 'rgb':
         brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
         color = color_to_rgb(light.get('color', 'random'))
         strobe = light.get('strobe', 0)
         return [brightness, *color, strobe, 0]
+    
     elif light['type'] == 'strobe':
         threshold = light.get('threshold', 0.5)
         mfft_mean = np.mean(mfft_vec[mfft_range[0]:mfft_range[1]])
         return [255, 255] if mfft_mean >= threshold else [0, 0]
+    
     elif light['type'] == 'laser':
         zoom_range = light.get('zoom_range', [0, 127])
         speed_range = light.get('speed_range', [0, 255])
@@ -96,11 +109,16 @@ def process_mfft(light, mfft_vec):
                 power_ratio = (mfft_power - power_range[0]) / (power_range[1] - power_range[0])
                 channels[3] = int(zoom_range[0] + power_ratio * (zoom_range[1] - zoom_range[0]))
                 channels[9] = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
+
     elif light['type'] == 'panel':
+        # this needs to use the built-in codes for panel colors, not by generating [R,G,B] values. 
+        # actually, not sure about that. 
+        # [master_dimmer, panel_strobe_speed, panel_mode, panel_mode_speed, red, green, blue]
         brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
-        color = color_to_rgb(light.get('color', 'random'))
+        color = PANEL_COLORS[light.get('color', 'random')]
         strobe = light.get('strobe', 0)
         return [brightness, strobe, 0, 0, *color]
+    
     elif light['type'] == 'bar':
         # channels: [bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
         threshold = light.get('threshold', 0.5)
