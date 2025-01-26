@@ -18,15 +18,15 @@ COLORS = np.array([
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
 
-PANEL_COLORS = {
-    'red': 3,
-    'green': 6,
-    'blue': 9,
-    'yellow': 12,
-    'pink': 15,
-    'light_blue': 18,
-    'white': 21
-}
+# PANEL_COLORS = {
+#     'red': 3,
+#     'green': 6,
+#     'blue': 9,
+#     'yellow': 12,
+#     'pink': 15,
+#     'light_blue': 18,
+#     'white': 21
+# }
 
 def scale_mfft(mfft_vec, scaling_factor=10.0, scaling_method='log'):
     num_bins = len(mfft_vec)
@@ -115,9 +115,11 @@ def process_mfft(light, mfft_vec):
         # actually, not sure about that. 
         # [master_dimmer, panel_strobe_speed, panel_mode, panel_mode_speed, red, green, blue]
         brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
-        color = PANEL_COLORS[light.get('color', 'random')]
+        color = COLORS[light.get('color', 'random')]
         strobe = light.get('strobe', 0)
-        return [brightness, strobe, 0, 0, *color]
+        # multiply color ratio by brightness
+        color = [int(c * brightness / 255) for c in color]
+        return [255, strobe, 0, 0, *color]
     
     elif light['type'] == 'bar':
         # channels: [bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
