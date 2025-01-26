@@ -110,26 +110,34 @@ def process_mfft(light, mfft_vec):
                 channels[3] = int(zoom_range[0] + power_ratio * (zoom_range[1] - zoom_range[0]))
                 channels[9] = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
 
-    elif light['type'] == 'panel':
-        # this needs to use the built-in codes for panel colors, not by generating [R,G,B] values. 
-        # actually, not sure about that. 
-        # [master_dimmer, panel_strobe_speed, panel_mode, panel_mode_speed, red, green, blue]
-        brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
-        color = COLORS[light.get('color', 'random')]
-        strobe = light.get('strobe', 0)
-        # multiply color ratio by brightness
-        color = [int(c * brightness / 255) for c in color]
-        return [255, strobe, 0, 0, *color]
-    
-    elif light['type'] == 'bar':
-        # channels: [bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
-        threshold = light.get('threshold', 0.5)
-        mfft_mean = np.mean(mfft_vec[mfft_range[0]:mfft_range[1]])
-        brightness = 255 if mfft_mean >= threshold else 0
-        strobe = light.get('strobe', 0)
-        mode = light.get('mode', np.random.randint(0, 255))
-        mode_speed = light.get('mode_speed', 0)
-        return [strobe, mode, mode_speed, brightness]
+    elif light['type'] == 'rockville864':
+        # Handle panel component
+        panel_config = light.get('panel', {})
+        panel_mfft_range = panel_config.get('mfft_range', mfft_range)
+        panel_power_range = panel_config.get('power_range', power_range)
+        panel_value_range = panel_config.get('brightness_range', value_range)
+        
+        brightness_magnitude = mfft_to_value(mfft_vec, panel_mfft_range, panel_power_range, panel_value_range)
+        color = COLORS[panel_config.get('color', 'random')]
+        panel_strobe = panel_config.get('strobe', 0)
+        color = [int(c * brightness_magnitude / 255) for c in color]
+        
+        # Handle bar component
+        bar_config = light.get('bar', {})
+        bar_mfft_range = bar_config.get('mfft_range', mfft_range)
+        bar_power_range = bar_config.get('power_range', power_range)
+        threshold = bar_config.get('threshold', 0.5)
+        
+        bar_mfft_mean = np.mean(mfft_vec[bar_mfft_range[0]:bar_mfft_range[1]])
+        bar_brightness = 255 if bar_mfft_mean >= threshold else 0
+        bar_strobe = bar_config.get('strobe', 0)
+        bar_mode = bar_config.get('mode', np.random.randint(0, 255))
+        bar_mode_speed = bar_config.get('mode_speed', 0)
+        
+        # Combine panel and bar channels
+        # [master_dimmer, panel_strobe, panel_mode, panel_mode_speed, red, green, blue,
+        #  bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
+        return [255, panel_strobe, 0, 0, *color, bar_strobe, bar_mode, bar_mode_speed, bar_brightness]
 
 def process_bool(light):
     if light['type'] == 'dimmer':
