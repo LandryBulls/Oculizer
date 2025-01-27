@@ -10,7 +10,7 @@ from oculizer.scenes import SceneManager
 def main():
     # Initialize scene manager and set scene to rockville
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('rockville')
+    scene_manager.set_scene('rockville_example')
     
     # Initialize Oculizer with rockville profile
     light_controller = Oculizer('rockville', scene_manager)

@@ -1,6 +1,6 @@
 {
     "name": "rockville_bass_treble",
-    "description": "Rockville panel pulses with bass frequencies in blue, strobe bar reacts to high frequencies",
+    "description": "Rockville panel pulses with bass frequencies in blue, strobe bar activates chase mode on high frequencies",
     "key_command": "v",
     "midi": 57,
     "lights": [
@@ -12,16 +12,18 @@
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
                 "brightness_range": [0, 255],
-                "color": "blue",
-                "strobe": 0
+                "color": "red",
+                "mode": 0,
+                "mode_speed": "auto",
+                "strobe": 255
             },
             "bar": {
-                "mfft_range": [115, 127],
+                "mfft_range": [110, 127],
                 "power_range": [1, 4],
-                "threshold": 0.05,
-                "strobe": 255,
-                "mode": 216,
-                "mode_speed": 100
+                "threshold": 0.04,
+                "mode": "random",
+                "mode_speed": 255,
+                "strobe": 255
             }
         }
     ]

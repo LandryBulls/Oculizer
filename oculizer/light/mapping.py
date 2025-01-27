@@ -111,33 +111,60 @@ def process_mfft(light, mfft_vec):
                 channels[9] = int(speed_range[0] + power_ratio * (speed_range[1] - speed_range[0]))
 
     elif light['type'] == 'rockville864':
-        # Handle panel component
-        panel_config = light.get('panel', {})
-        panel_mfft_range = panel_config.get('mfft_range', mfft_range)
-        panel_power_range = panel_config.get('power_range', power_range)
-        panel_value_range = panel_config.get('brightness_range', value_range)
-        
-        brightness_magnitude = mfft_to_value(mfft_vec, panel_mfft_range, panel_power_range, panel_value_range)
-        color = COLORS[panel_config.get('color', 'random')]
-        panel_strobe = panel_config.get('strobe', 0)
-        color = [int(c * brightness_magnitude / 255) for c in color]
-        
-        # Handle bar component
-        bar_config = light.get('bar', {})
-        bar_mfft_range = bar_config.get('mfft_range', mfft_range)
-        bar_power_range = bar_config.get('power_range', power_range)
-        threshold = bar_config.get('threshold', 0.5)
-        
-        bar_mfft_mean = np.mean(mfft_vec[bar_mfft_range[0]:bar_mfft_range[1]])
-        bar_brightness = 255 if bar_mfft_mean >= threshold else 0
-        bar_strobe = bar_config.get('strobe', 0)
-        bar_mode = bar_config.get('mode', np.random.randint(0, 255))
-        bar_mode_speed = bar_config.get('mode_speed', 0)
-        
-        # Combine panel and bar channels
-        # [master_dimmer, panel_strobe, panel_mode, panel_mode_speed, red, green, blue,
-        #  bar_strobe_speed, bar_mode, bar_mode_speed, bar_dimmer]
-        return [255, panel_strobe, 0, 0, *color, bar_strobe, bar_mode, bar_mode_speed, bar_brightness]
+        try:
+            # Handle panel component (8 sets of RGB bulbs)
+            panel_config = light.get('panel', {})
+            panel_mfft_range = panel_config.get('mfft_range', mfft_range)
+            panel_power_range = panel_config.get('power_range', power_range)
+            panel_value_range = panel_config.get('brightness_range', value_range)
+            
+            # Calculate panel brightness from audio
+            brightness_magnitude = mfft_to_value(mfft_vec, panel_mfft_range, panel_power_range, panel_value_range)
+            
+            # Initialize 39 channels
+            channels = [0] * 39
+            
+            # Channels 1-4: Master and panel effects
+            channels[0] = 255  # Master dimmer always at max
+            channels[1] = panel_config.get('strobe', 0)  # Panel strobe speed
+            channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
+            channels[3] = brightness_magnitude if panel_config.get('mode_speed', 255) == 'auto' else panel_config.get('mode_speed', 0)  # Mode speed
+            
+            # If mode is 0, use direct RGB control, otherwise RGB channels are background
+            if channels[2] == 0:
+                color = color_to_rgb(panel_config.get('color', 'random'))
+                scaled_color = [int(c * brightness_magnitude / 255) for c in color]
+                
+                # Set all 8 RGB bulb sets (channels 5-28)
+                for i in range(8):
+                    base_idx = 4 + (i * 3)
+                    channels[base_idx:base_idx + 3] = scaled_color
+            else:
+                # When mode is active, RGB channels become background
+                channels[4:7] = [int(brightness_magnitude)] * 3  # Set background brightness
+            
+            # Handle strobe bar component
+            bar_config = light.get('bar', {})
+            bar_mfft_range = bar_config.get('mfft_range', mfft_range)
+            threshold = bar_config.get('threshold', 0.5)
+            
+            # Check if power in range exceeds threshold
+            bar_mfft_mean = np.mean(mfft_vec[bar_mfft_range[0]:bar_mfft_range[1]])
+            if bar_mfft_mean >= threshold:
+                # Activate mode and strobe when threshold is exceeded
+                channels[28] = bar_config.get('strobe', 0)  # Strobe bar strobe speed
+                channels[29] = np.random.randint(54, 252) if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
+                channels[30] = np.random.randint(0, 256) if bar_config.get('mode_speed') == 'random' else bar_config.get('mode_speed', 0)
+                channels[31:] = [255] * 8  if bar_config.get('mode', 0) == 0 else [0] * 8
+            else:
+                # When threshold not met, disable all bar controls
+                channels[28:] = [0] * 11  # Zero out strobe, mode, speed, and all sections
+            
+            return channels
+            
+        except Exception as e:
+            print(f"Error processing rockville864 light {light['name']}: {e}")
+            return [0] * 39
 
 def process_bool(light):
     if light['type'] == 'dimmer':
