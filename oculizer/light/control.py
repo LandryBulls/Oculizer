@@ -23,6 +23,7 @@ import threading
 import queue
 import time
 from pathlib import Path
+from oculizer.light.effects import reset_effect_states
 
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
@@ -183,10 +184,11 @@ class Oculizer(threading.Thread):
 
     def change_scene(self, scene_name):
         self.turn_off_all_lights()
+        # Reset all effect states before changing scene
+        reset_effect_states()
         self.scene_manager.set_scene(scene_name)
         self.scene_changed.set()
         self.process_audio_and_lights()  # Apply the new scene immediately
-        #self.dmx_controller.update()  # Ensure new scene DMX signals are sent
 
     def get_light_type(self, light_name):
         """Helper function to get light type from profile."""

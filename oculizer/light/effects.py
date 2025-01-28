@@ -35,12 +35,25 @@ class EffectRegistry:
         if effect_name not in self.states[light_name]:
             self.states[light_name][effect_name] = EffectState()
         return self.states[light_name][effect_name]
+    
+    def clear_light_states(self, light_name: str):
+        """Clear all effect states for a specific light."""
+        if light_name in self.states:
+            del self.states[light_name]
+    
+    def clear_all_states(self):
+        """Clear all effect states. Used during scene transitions."""
+        self.states.clear()
 
 # Global registry instance
 registry = EffectRegistry()
 
-def fade_after_trigger(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Effect that fades out after being triggered by audio threshold.
+def reset_effect_states():
+    """Reset all effect states. Call this during scene transitions."""
+    registry.clear_all_states()
+
+def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
+    """Fade effect for Rockville panel section.
     
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
@@ -48,9 +61,17 @@ def fade_after_trigger(channels: List[int], mfft_data: np.ndarray, config: dict,
     - fade_duration: seconds to fade out after trigger
     - min_brightness: minimum brightness value
     - max_brightness: maximum brightness value
+    - panel_color: RGB color for panel background when in manual mode
     """
-    state = registry.get_state(light_name, 'fade_after_trigger')
+    state = registry.get_state(light_name, 'rockville_panel_fade')
     current_time = time.time()
+    
+    # Initialize channels if not already set
+    if len(channels) < 39:
+        channels = [0] * 39
+    
+    # Set master dimmer to max
+    channels[0] = 255
     
     # Get audio power in specified range
     mfft_range = config.get('mfft_range', (0, len(mfft_data)))
@@ -76,24 +97,39 @@ def fade_after_trigger(channels: List[int], mfft_data: np.ndarray, config: dict,
             max_bright = config.get('max_brightness', 255)
             brightness = int(min_bright + (max_bright - min_bright) * fade_ratio)
         
-        # Apply brightness to all RGB channels
-        for i in range(0, len(channels), 3):
-            if channels[i] > 0:  # Only modify active channels
-                channels[i] = brightness
+        # Set to manual mode (0) for direct control
+        channels[2] = 0  # 3-in-1 mode
+        channels[3] = config.get('mode_speed', 255)  # Mode speed
+        
+        # Set panel color and apply brightness
+        color = config.get('panel_color', [255, 255, 255])  # Default to white
+        for i in range(8):  # 8 RGB bulb groups
+            base_idx = 4 + (i * 3)  # Starting from channel 5 (index 4)
+            channels[base_idx:base_idx + 3] = [
+                int(c * brightness / 255) for c in color
+            ]
     
     return channels
 
-def sequential_trigger(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Effect that activates lights in sequence after trigger.
+def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
+    """Sequential activation of panel RGB groups.
     
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
     - threshold: audio power threshold to trigger effect
     - sequence_duration: seconds for full sequence
-    - pattern: list of channel groups to activate in sequence
+    - colors: list of RGB colors to use in sequence
     """
-    state = registry.get_state(light_name, 'sequential_trigger')
+    state = registry.get_state(light_name, 'rockville_sequential_panels')
     current_time = time.time()
+    
+    # Initialize channels if not already set
+    if len(channels) < 39:
+        channels = [0] * 39
+    
+    # Set master dimmer to max and manual mode
+    channels[0] = 255  # Master dimmer
+    channels[2] = 0    # Manual mode
     
     # Get audio power in specified range
     mfft_range = config.get('mfft_range', (0, len(mfft_data)))
@@ -108,37 +144,48 @@ def sequential_trigger(channels: List[int], mfft_data: np.ndarray, config: dict,
     
     if state.is_active:
         sequence_duration = config.get('sequence_duration', 1.0)
-        pattern = config.get('pattern', [[i] for i in range(0, len(channels), 3)])
+        colors = config.get('colors', [[255, 0, 0], [0, 255, 0], [0, 0, 255]])
         
-        time_per_step = sequence_duration / len(pattern)
+        time_per_step = sequence_duration / 8  # 8 RGB groups
         time_since_trigger = current_time - state.last_trigger_time
         
         # Calculate current position in sequence
         state.sequence_position = int(time_since_trigger / time_per_step)
         
         # Reset if sequence is complete
-        if state.sequence_position >= len(pattern):
+        if state.sequence_position >= 8:
             state.is_active = False
             return channels
         
-        # Activate current channels in sequence
-        active_channels = pattern[state.sequence_position]
-        for channel in active_channels:
-            if channel < len(channels):
-                channels[channel] = 255
+        # Set the current panel's color
+        color = colors[state.sequence_position % len(colors)]
+        base_idx = 4 + (state.sequence_position * 3)
+        channels[base_idx:base_idx + 3] = color
     
     return channels
 
-def splatter_effect(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Effect that creates random patterns of specified colors when triggered.
+def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
+    """Random color patterns for both panel and bar sections.
     
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
     - threshold: audio power threshold to trigger effect
-    - colors: list of RGB colors to choose from
-    - sections: number of independent sections that can be colored
+    - panel_colors: list of RGB colors for panel sections
+    - bar_colors: list of brightness values for bar sections
+    - affect_panel: whether to randomize panel sections
+    - affect_bar: whether to randomize bar sections
     """
-    state = registry.get_state(light_name, 'splatter_effect')
+    state = registry.get_state(light_name, 'rockville_splatter')
+    
+    # Initialize channels if not already set
+    if len(channels) < 39:
+        channels = [0] * 39
+    
+    # Set master dimmer and manual modes
+    channels[0] = 255  # Master dimmer
+    channels[2] = 0    # Panel manual mode
+    channels[29] = 0   # Bar strobe off
+    channels[30] = 0   # Bar manual mode
     
     # Get audio power in specified range
     mfft_range = config.get('mfft_range', (0, len(mfft_data)))
@@ -148,28 +195,34 @@ def splatter_effect(channels: List[int], mfft_data: np.ndarray, config: dict, li
     threshold = config.get('threshold', 0.5)
     if power >= threshold:
         # Get configuration
-        colors = config.get('colors', [[255, 0, 255], [0, 255, 0]])  # Default pink and green
-        sections = config.get('sections', len(channels) // 3)
+        panel_colors = config.get('panel_colors', [[255, 0, 255], [0, 255, 0]])
+        bar_colors = config.get('bar_colors', [0, 255])
+        affect_panel = config.get('affect_panel', True)
+        affect_bar = config.get('affect_bar', True)
         
-        # Generate new random pattern
-        for section in range(sections):
-            if random.random() < 0.5:  # 50% chance to activate each section
-                color = random.choice(colors)
-                base_idx = section * 3
-                if base_idx + 2 < len(channels):
+        # Randomize panel sections
+        if affect_panel:
+            for i in range(8):  # 8 RGB groups
+                if random.random() < 0.5:  # 50% chance to change each section
+                    color = random.choice(panel_colors)
+                    base_idx = 4 + (i * 3)
                     channels[base_idx:base_idx + 3] = color
-            else:
-                base_idx = section * 3
-                if base_idx + 2 < len(channels):
+                else:
+                    base_idx = 4 + (i * 3)
                     channels[base_idx:base_idx + 3] = [0, 0, 0]
+        
+        # Randomize bar sections
+        if affect_bar:
+            for i in range(8):  # 8 bar bulbs
+                channels[31 + i] = random.choice(bar_colors)
     
     return channels
 
 # Dictionary mapping effect names to their functions
 EFFECTS = {
-    'fade_after_trigger': fade_after_trigger,
-    'sequential_trigger': sequential_trigger,
-    'splatter_effect': splatter_effect
+    'rockville_panel_fade': rockville_panel_fade,
+    'rockville_sequential_panels': rockville_sequential_panels,
+    'rockville_splatter': rockville_splatter
 }
 
 def apply_effect(effect_name: str, channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
