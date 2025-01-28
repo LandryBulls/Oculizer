@@ -1,6 +1,7 @@
 import numpy as np
 import time
 from oculizer.config import audio_parameters
+from oculizer.light.effects import apply_effect
 
 SAMPLERATE = audio_parameters['SAMPLERATE']
 BLOCKSIZE = audio_parameters['BLOCKSIZE']
@@ -263,7 +264,6 @@ def process_light(light, mfft_vec, current_time):
         
     # Apply effects if specified
     if channels and 'effect' in light:
-        from oculizer.light.effects import apply_effect
         effect_config = light['effect']
         if isinstance(effect_config, str):
             # Simple case: just effect name

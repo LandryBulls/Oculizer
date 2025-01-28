@@ -3,6 +3,23 @@ effects.py
 
 This module provides stateful effect definitions for the Oculizer lighting system.
 Effects can maintain state between processing cycles and create complex temporal patterns.
+
+Effect-Modulator Interaction:
+----------------------------
+Effects in this module can interact with modulator values (from process_mfft, process_bool, process_time)
+in two main ways:
+
+1. Override Effects:
+   - Completely replace modulator channel values with their own values
+   - Useful for effects that need precise control over all channels
+   - Example: rockville_splatter completely overwrites channels for distinct patterns
+
+2. Transformative Effects:
+   - Modify or enhance existing modulator channel values
+   - Preserve some characteristics of the original modulation
+   - Example: rockville_panel_fade applies a fade to existing brightness values
+
+Each effect's documentation specifies which type it is and how it handles modulator values.
 """
 
 import time
@@ -55,6 +72,14 @@ def reset_effect_states():
 def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
     """Fade effect for Rockville panel section.
     
+    Type: Override Effect
+    Modulator Interaction: This effect overrides all panel channels (1-28). While it uses
+    the audio data for triggering, it does not preserve any modulator channel values.
+    Instead, it:
+    1. Sets master dimmer and mode channels directly
+    2. Applies its own RGB values based on panel_color config
+    3. Manages brightness through its own fade logic
+    
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
     - threshold: audio power threshold to trigger effect
@@ -62,6 +87,13 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
     - min_brightness: minimum brightness value
     - max_brightness: maximum brightness value
     - panel_color: RGB color for panel background when in manual mode
+    
+    Channel Control:
+    - Channel 1 (Master): Set to 255
+    - Channel 2 (Strobe): Unchanged
+    - Channel 3 (Mode): Set to 0 (manual mode)
+    - Channel 4 (Speed): Set by mode_speed config
+    - Channels 5-28: Controlled by fade effect with panel_color
     """
     state = registry.get_state(light_name, 'rockville_panel_fade')
     current_time = time.time()
@@ -114,11 +146,24 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
 def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
     """Sequential activation of panel RGB groups.
     
+    Type: Override Effect
+    Modulator Interaction: This effect completely overrides panel channels (1-28).
+    It does not preserve or use any modulator channel values. Instead, it:
+    1. Controls all panel channels directly
+    2. Uses audio only for sequence triggering
+    3. Manages its own sequence state and timing
+    
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
     - threshold: audio power threshold to trigger effect
     - sequence_duration: seconds for full sequence
     - colors: list of RGB colors to use in sequence
+    
+    Channel Control:
+    - Channel 1 (Master): Set to 255
+    - Channel 2 (Strobe): Unchanged
+    - Channel 3 (Mode): Set to 0 (manual mode)
+    - Channels 5-28: Controlled by sequence pattern
     """
     state = registry.get_state(light_name, 'rockville_sequential_panels')
     current_time = time.time()
@@ -167,6 +212,14 @@ def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, conf
 def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
     """Random color patterns for both panel and bar sections.
     
+    Type: Override Effect
+    Modulator Interaction: This effect is a complete override effect that takes full
+    control of both panel (1-28) and bar (29-39) sections. It:
+    1. Ignores all input channel values from modulators
+    2. Sets its own control channels (master, modes)
+    3. Generates completely new random patterns
+    4. Uses audio only for pattern triggering
+    
     Config parameters:
     - mfft_range: (low, high) indices for audio analysis
     - threshold: audio power threshold to trigger effect
@@ -174,6 +227,18 @@ def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict,
     - bar_colors: list of brightness values for bar sections
     - affect_panel: whether to randomize panel sections
     - affect_bar: whether to randomize bar sections
+    
+    Channel Control:
+    Panel Section:
+    - Channel 1 (Master): Set to 255
+    - Channel 2 (Strobe): Unchanged
+    - Channel 3 (Mode): Set to 0 (manual mode)
+    - Channels 5-28: Random colors from panel_colors
+    
+    Bar Section:
+    - Channel 29 (Strobe): Set to 0
+    - Channel 30 (Mode): Set to 0 (manual mode)
+    - Channels 32-39: Random values from bar_colors
     """
     state = registry.get_state(light_name, 'rockville_splatter')
     
@@ -226,7 +291,16 @@ EFFECTS = {
 }
 
 def apply_effect(effect_name: str, channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Apply a named effect to the channel values."""
+    """Apply a named effect to the channel values.
+    
+    This function is called after the modulator has set initial channel values.
+    Each effect may choose to:
+    1. Override the modulator values completely
+    2. Transform or enhance the modulator values
+    3. Selectively modify certain channels while preserving others
+    
+    See individual effect documentation for specific behavior.
+    """
     if effect_name in EFFECTS:
         return EFFECTS[effect_name](channels, mfft_data, config, light_name)
     return channels 
