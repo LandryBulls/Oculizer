@@ -251,14 +251,30 @@ def process_time(light, current_time):
 def process_light(light, mfft_vec, current_time):
     modulator = light.get('modulator', 'bool')
     
+    # Get initial channel values based on modulator
     if modulator == 'mfft':
-        return process_mfft(light, mfft_vec)
+        channels = process_mfft(light, mfft_vec)
     elif modulator == 'bool':
-        return process_bool(light)
+        channels = process_bool(light)
     elif modulator == 'time':
-        return process_time(light, current_time)
+        channels = process_time(light, current_time)
+    else:
+        return None
+        
+    # Apply effects if specified
+    if channels and 'effect' in light:
+        from oculizer.light.effects import apply_effect
+        effect_config = light['effect']
+        if isinstance(effect_config, str):
+            # Simple case: just effect name
+            channels = apply_effect(effect_config, channels, mfft_vec, {}, light['name'])
+        elif isinstance(effect_config, dict):
+            # Advanced case: effect name and config
+            effect_name = effect_config.pop('name')
+            channels = apply_effect(effect_name, channels, mfft_vec, effect_config, light['name'])
+            effect_config['name'] = effect_name  # Restore the name key
     
-    return None
+    return channels
 
 def main():
     mfft_data = np.random.rand(128)
