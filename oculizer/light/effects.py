@@ -28,6 +28,31 @@ import numpy as np
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
 
+COLORS = {
+    'red': (255, 0, 0),
+    'green': (0, 255, 0),
+    'blue': (0, 0, 255),
+    'yellow': (255, 255, 0),
+    'purple': (255, 0, 255),
+    'orange': (255, 165, 0),
+    'pink': (255, 105, 180),
+    'white': (255, 255, 255),
+    'black': (0, 0, 0),
+    'magenta': (255, 0, 255),
+    'cyan': (0, 255, 255),
+    'lime': (128, 255, 0),
+    'teal': (0, 128, 128),
+    'maroon': (128, 0, 0),
+    'navy': (0, 0, 128),
+    'olive': (128, 128, 0),
+    'gray': (128, 128, 128),
+    'silver': (192, 192, 192),
+    'gold': (255, 215, 0),
+    'coral': (255, 127, 80),
+    'salmon': (250, 128, 114),
+    'peach': (255, 218, 185)
+}
+
 @dataclass
 class EffectState:
     """Stores the current state of an effect."""
@@ -70,48 +95,41 @@ def reset_effect_states():
     registry.clear_all_states()
 
 def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Fade effect for Rockville panel section.
-    
-    Type: Override Effect
-    Modulator Interaction: This effect overrides all panel channels (1-28). While it uses
-    the audio data for triggering, it does not preserve any modulator channel values.
-    Instead, it:
-    1. Sets master dimmer and mode channels directly
-    2. Applies its own RGB values based on panel_color config
-    3. Manages brightness through its own fade logic
-    
-    Config parameters:
-    - mfft_range: (low, high) indices for audio analysis
-    - threshold: audio power threshold to trigger effect
-    - fade_duration: seconds to fade out after trigger
-    - min_brightness: minimum brightness value
-    - max_brightness: maximum brightness value
-    - panel_color: RGB color for panel background when in manual mode
-    
-    Channel Control:
-    - Channel 1 (Master): Set to 255
-    - Channel 2 (Strobe): Unchanged
-    - Channel 3 (Mode): Set to 0 (manual mode)
-    - Channel 4 (Speed): Set by mode_speed config
-    - Channels 5-28: Controlled by fade effect with panel_color
-    """
+    """Fade effect for Rockville panel section."""
     state = registry.get_state(light_name, 'rockville_panel_fade')
     current_time = time.time()
     
-    # Initialize channels if not already set
-    if len(channels) < 39:
-        channels = [0] * 39
+    # Create a fresh channel array
+    channels = [0] * 39
+
+    # Set up the RGB block indices
+    blocks = []
+    for i in range(8):
+        base_idx = 4 + (i * 3)  # First block starts at channel 4 (Ch5 in manual)
+        blocks.append({
+            'index': i,
+            'channels': (base_idx, base_idx + 1, base_idx + 2)
+        })
     
-    # Set master dimmer to max
-    channels[0] = 255
+    # Set master dimmer and control channels
+    channels[0] = 255  # Master dimmer
+    channels[1] = config.get('panel_strobe', 0)  # Panel strobe
+    channels[2] = 0    # Panel manual mode
+    channels[3] = config.get('mode_speed', 255)  # Mode speed
     
-    # Get audio power in specified range
-    mfft_range = config.get('mfft_range', (0, len(mfft_data)))
-    power = np.mean(mfft_data[mfft_range[0]:mfft_range[1]])
+    # Initialize bar section to off
+    affect_bar = config.get('affect_bar', False)
+    if not affect_bar:
+        for i in range(28, 39):
+            channels[i] = 0
+    
+    # Get panel audio power
+    panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
+    panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
     
     # Check if we should trigger
     threshold = config.get('threshold', 0.5)
-    if power >= threshold:
+    if panel_power >= threshold:
         state.last_trigger_time = current_time
         state.is_active = True
     
@@ -129,157 +147,157 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
             max_bright = config.get('max_brightness', 255)
             brightness = int(min_bright + (max_bright - min_bright) * fade_ratio)
         
-        # Set to manual mode (0) for direct control
-        channels[2] = 0  # 3-in-1 mode
-        channels[3] = config.get('mode_speed', 255)  # Mode speed
-        
-        # Set panel color and apply brightness
-        color = config.get('panel_color', [255, 255, 255])  # Default to white
-        for i in range(8):  # 8 RGB bulb groups
-            base_idx = 4 + (i * 3)  # Starting from channel 5 (index 4)
-            channels[base_idx:base_idx + 3] = [
-                int(c * brightness / 255) for c in color
-            ]
+        # Apply brightness to all blocks
+        #panel_color = config.get('panel_color', [255, 255, 255])
+        panel_colors = config.get('colors', [(255, 255, 255), (0, 0, 0)])
+        # check if its a list of lists (containg more than one color)
+        if isinstance(panel_colors[0], list):
+            multi_color = True
+        else:
+            multi_color = False
+        for block in blocks:
+            if multi_color:
+                panel_color = random.choice(panel_colors)
+            else:
+                panel_color = panel_colors
+            r_idx, g_idx, b_idx = block['channels']
+            channels[r_idx] = int(panel_color[0] * brightness / 255)
+            channels[g_idx] = int(panel_color[1] * brightness / 255)
+            channels[b_idx] = int(panel_color[2] * brightness / 255)
     
     return channels
 
 def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Sequential activation of panel RGB groups.
-    
-    Type: Override Effect
-    Modulator Interaction: This effect completely overrides panel channels (1-28).
-    It does not preserve or use any modulator channel values. Instead, it:
-    1. Controls all panel channels directly
-    2. Uses audio only for sequence triggering
-    3. Manages its own sequence state and timing
-    
-    Config parameters:
-    - mfft_range: (low, high) indices for audio analysis
-    - threshold: audio power threshold to trigger effect
-    - sequence_duration: seconds for full sequence
-    - colors: list of RGB colors to use in sequence
-    
-    Channel Control:
-    - Channel 1 (Master): Set to 255
-    - Channel 2 (Strobe): Unchanged
-    - Channel 3 (Mode): Set to 0 (manual mode)
-    - Channels 5-28: Controlled by sequence pattern
-    """
+    """Sequential activation of panel RGB groups."""
     state = registry.get_state(light_name, 'rockville_sequential_panels')
     current_time = time.time()
     
-    # Initialize channels if not already set
-    if len(channels) < 39:
-        channels = [0] * 39
+    # Create a fresh channel array
+    channels = [0] * 39
+
+    # Set up the RGB block indices
+    blocks = []
+    for i in range(8):
+        base_idx = 4 + (i * 3)  # First block starts at channel 4 (Ch5 in manual)
+        blocks.append({
+            'index': i,
+            'channels': (base_idx, base_idx + 1, base_idx + 2)
+        })
     
-    # Set master dimmer to max and manual mode
+    # Set master dimmer and control channels
     channels[0] = 255  # Master dimmer
-    channels[2] = 0    # Manual mode
+    channels[1] = config.get('panel_strobe', 0)  # Panel strobe
+    channels[2] = 0    # Panel manual mode
+    channels[3] = config.get('mode_speed', 255)  # Mode speed
     
-    # Get audio power in specified range
-    mfft_range = config.get('mfft_range', (0, len(mfft_data)))
-    power = np.mean(mfft_data[mfft_range[0]:mfft_range[1]])
+    # Initialize bar section to off
+    affect_bar = config.get('affect_bar', False)
+    if not affect_bar:
+        for i in range(28, 39):
+            channels[i] = 0
+    
+    # Get panel audio power
+    panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
+    panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
     
     # Check if we should trigger
     threshold = config.get('threshold', 0.5)
-    if power >= threshold and not state.is_active:
+    if panel_power >= threshold and not state.is_active:
         state.is_active = True
         state.last_trigger_time = current_time
         state.sequence_position = 0
     
     if state.is_active:
         sequence_duration = config.get('sequence_duration', 1.0)
-        colors = config.get('colors', [[255, 0, 0], [0, 255, 0], [0, 0, 255]])
+        colors = config.get('colors', [(255, 0, 0), (0, 255, 0), (0, 0, 255)])
         
-        time_per_step = sequence_duration / 8  # 8 RGB groups
+        time_per_step = sequence_duration / len(blocks)
         time_since_trigger = current_time - state.last_trigger_time
         
         # Calculate current position in sequence
         state.sequence_position = int(time_since_trigger / time_per_step)
         
         # Reset if sequence is complete
-        if state.sequence_position >= 8:
+        if state.sequence_position >= len(blocks):
             state.is_active = False
             return channels
         
-        # Set the current panel's color
+        # Set the current block's color
         color = colors[state.sequence_position % len(colors)]
-        base_idx = 4 + (state.sequence_position * 3)
-        channels[base_idx:base_idx + 3] = color
+        current_block = blocks[state.sequence_position]
+        r_idx, g_idx, b_idx = current_block['channels']
+        channels[r_idx] = color[0]
+        channels[g_idx] = color[1]
+        channels[b_idx] = color[2]
+        
+        # Debug output
+        print(f"Sequence position: {state.sequence_position}, Active block: {current_block['index']}, Color: RGB{color}")
     
     return channels
 
 def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Random color patterns for both panel and bar sections.
-    
-    Type: Override Effect
-    Modulator Interaction: This effect is a complete override effect that takes full
-    control of both panel (1-28) and bar (29-39) sections. It:
-    1. Ignores all input channel values from modulators
-    2. Sets its own control channels (master, modes)
-    3. Generates completely new random patterns
-    4. Uses audio only for pattern triggering
-    
-    Config parameters:
-    - mfft_range: (low, high) indices for audio analysis
-    - threshold: audio power threshold to trigger effect
-    - panel_colors: list of RGB colors for panel sections
-    - bar_colors: list of brightness values for bar sections
-    - affect_panel: whether to randomize panel sections
-    - affect_bar: whether to randomize bar sections
-    
-    Channel Control:
-    Panel Section:
-    - Channel 1 (Master): Set to 255
-    - Channel 2 (Strobe): Unchanged
-    - Channel 3 (Mode): Set to 0 (manual mode)
-    - Channels 5-28: Random colors from panel_colors
-    
-    Bar Section:
-    - Channel 29 (Strobe): Set to 0
-    - Channel 30 (Mode): Set to 0 (manual mode)
-    - Channels 32-39: Random values from bar_colors
-    """
+    """Random color patterns for both panel and bar sections."""
     state = registry.get_state(light_name, 'rockville_splatter')
     
-    # Initialize channels if not already set
-    if len(channels) < 39:
-        channels = [0] * 39
+    # Create a fresh channel array instead of modifying the input
+    channels = [0] * 39
     
-    # Set master dimmer and manual modes
+    PANEL_COLORS = [COLORS[i] for i in config.get('panel_colors', random.choice(['red', 'green', 'blue']))]
+    
+    # Set up the RGB block indices
+    blocks = []
+    for i in range(8):
+        base_idx = 4 + (i * 3)  # First block starts at channel 4 (Ch5 in manual)
+        blocks.append({
+            'index': i,
+            'channels': (base_idx, base_idx + 1, base_idx + 2)  # RGB channels as tuple
+        })
+
+    # Set master dimmer and control channels
     channels[0] = 255  # Master dimmer
+    channels[1] = config.get('panel_strobe', 0)  # Panel strobe
     channels[2] = 0    # Panel manual mode
-    channels[29] = 0   # Bar strobe off
-    channels[30] = 0   # Bar manual mode
+    channels[3] = config.get('mode_speed', 255)  # Mode speed
     
     # Get audio power in specified range
-    mfft_range = config.get('mfft_range', (0, len(mfft_data)))
-    power = np.mean(mfft_data[mfft_range[0]:mfft_range[1]])
-    
-    # Check if we should trigger
-    threshold = config.get('threshold', 0.5)
-    if power >= threshold:
-        # Get configuration
-        panel_colors = config.get('panel_colors', [[255, 0, 255], [0, 255, 0]])
-        bar_colors = config.get('bar_colors', [0, 255])
-        affect_panel = config.get('affect_panel', True)
-        affect_bar = config.get('affect_bar', True)
+    panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
+    panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
+    panel_threshold = config.get('panel_threshold', 0.5)
+    if config.get('affect_panel', True):    
+        if panel_power >= panel_threshold:
+            # Generate independent random states for each block
+            block_states = []
+            for _ in range(8):
+                is_active = random.random() < 0.5
+                #color = PINK if random.random() < 0.5 else GREEN if is_active else OFF
+                color = random.choice(PANEL_COLORS)
+                block_states.append((is_active, color))
+            
+            # Apply the states to channels
+            for block, (is_active, color) in zip(blocks, block_states):
+                r_idx, g_idx, b_idx = block['channels']
+                channels[r_idx] = color[0]
+                channels[g_idx] = color[1]
+                channels[b_idx] = color[2]
+
+
+    bar_mfft_range = config.get('bar_mfft_range', (0, len(mfft_data)))
+    bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
+    bar_threshold = config.get('bar_threshold', 0.5)
+    bar_mode = config.get('bar_mode', 0)
+    # Handle bar sections
+    if config.get('affect_bar', True):
+        if bar_power >= bar_threshold:
+            channels[28] = config.get('bar_strobe', 0)
+            channels[29] = bar_mode
+            channels[30] = config.get('mode_speed', 255)
         
-        # Randomize panel sections
-        if affect_panel:
-            for i in range(8):  # 8 RGB groups
-                if random.random() < 0.5:  # 50% chance to change each section
-                    color = random.choice(panel_colors)
-                    base_idx = 4 + (i * 3)
-                    channels[base_idx:base_idx + 3] = color
-                else:
-                    base_idx = 4 + (i * 3)
-                    channels[base_idx:base_idx + 3] = [0, 0, 0]
-        
-        # Randomize bar sections
-        if affect_bar:
-            for i in range(8):  # 8 bar bulbs
-                channels[31 + i] = random.choice(bar_colors)
+            if bar_mode == 0:   
+                for i in range(31, 39):
+                    channels[i] = random.choice(config.get('bar_colors', [255]))
+            else:
+                for i in range(31, 39):
+                    channels[i] = 0
     
     return channels
 

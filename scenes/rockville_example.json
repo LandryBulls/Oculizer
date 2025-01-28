@@ -11,11 +11,11 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 0],
-                "color": "red",
+                "brightness_range": [0, 255],
+                "color": "yellow",
                 "mode": 0,
                 "mode_speed": 255,
-                "strobe": 255
+                "strobe": 0
             },
             "bar": {
                 "mfft_range": [115, 127],

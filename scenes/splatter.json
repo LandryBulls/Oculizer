@@ -1,0 +1,33 @@
+{
+    "name": "splatter",
+    "description": "Random choice color patterns triggered by bass frequencies, with bar sections randomly activating on high frequencies",
+    "key_command": "s",
+    "midi": 58,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "panel_colors": [
+                    "blue",
+                    "yellow",
+                    "black", 
+                    "black"
+                ],
+                "panel_strobe": 255,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_strobe": 0,
+                "bar_colors": [255],  
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mode": 156
+            }
+        }
+    ]
+} 
