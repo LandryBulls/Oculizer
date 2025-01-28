@@ -11,17 +11,17 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 255],
+                "brightness_range": [0, 0],
                 "color": "red",
                 "mode": 0,
-                "mode_speed": "auto",
+                "mode_speed": 255,
                 "strobe": 255
             },
             "bar": {
-                "mfft_range": [110, 127],
+                "mfft_range": [115, 127],
                 "power_range": [1, 4],
-                "threshold": 0.04,
-                "mode": "random",
+                "threshold": 0.03,
+                "mode": 156,
                 "mode_speed": 255,
                 "strobe": 255
             }

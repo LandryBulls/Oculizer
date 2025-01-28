@@ -155,10 +155,20 @@ def process_mfft(light, mfft_vec):
                 channels[28] = bar_config.get('strobe', 0)  # Strobe bar strobe speed
                 channels[29] = np.random.randint(54, 252) if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
                 channels[30] = np.random.randint(0, 256) if bar_config.get('mode_speed') == 'random' else bar_config.get('mode_speed', 0)
-                channels[31:] = [255] * 8  if bar_config.get('mode', 0) == 0 else [0] * 8
+                
+                # Set individual bar sections based on mode
+                if bar_config.get('mode', 0) == 0:
+                    # In mode 0, allow manual control of each section
+                    sections = bar_config.get('sections', [255] * 8)  # Default to all on if not specified
+                    channels[31] = 255  # Background brightness at max for manual mode
+                    channels[32:40] = sections
+                else:
+                    # For other modes, set background brightness to 0 to make patterns visible
+                    channels[31] = 0  # Background brightness at 0
+                    channels[32:40] = [0] * 8  # Let the mode control these channels
             else:
                 # When threshold not met, disable all bar controls
-                channels[28:] = [0] * 11  # Zero out strobe, mode, speed, and all sections
+                channels[28:] = [0] * 12  # Zero out strobe, mode, speed, and all sections
             
             return channels
             
