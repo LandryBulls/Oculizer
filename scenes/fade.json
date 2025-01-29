@@ -1,0 +1,34 @@
+{
+    "name": "fade",
+    "description": "Panel sections fade out after being triggered by bass frequencies, with bar strobe on high frequencies",
+    "key_command": "f",
+    "midi": 59,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": "neon",
+                "coverage": 0.5,
+                "combo_mode": "mix",
+                "color_order": "next",
+                "fade_duration": 0.5,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 200,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_mode": 156,
+                "bar_strobe": 0,
+                "bar_colors": [255],
+                "mode_speed": 255
+            }
+        }
+    ]
+} 

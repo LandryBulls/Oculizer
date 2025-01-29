@@ -10,14 +10,14 @@ from oculizer.light.effects import registry  # Import to monitor effect state
 import queue
 
 def main():
-    # Initialize scene manager and set scene to splatter
+    # Initialize scene manager and set scene to fade
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('splatter')
+    scene_manager.set_scene('fade')
     
     # Initialize Oculizer with rockville profile
     light_controller = Oculizer('rockville', scene_manager)
 
-    print("Starting Rockville splatter effect test...")
+    print("Starting Rockville panel fade effect test...")
     print(f"Current scene: {scene_manager.current_scene['name']}")
     # print("Effect configuration:")
     # for light in scene_manager.current_scene['lights']:
@@ -37,17 +37,17 @@ def main():
             try:
                 mfft_data = light_controller.mfft_queue.get_nowait()
                 
-                # Calculate audio metrics for both frequency ranges
+                # Calculate audio metrics for bass range
                 bass_power = np.mean(mfft_data[0:20])  # Bass range
-                treble_power = np.mean(mfft_data[115:127])  # Treble range
                 
                 # Get effect state
-                effect_state = registry.get_state('rockville1', 'rockville_splatter')
+                effect_state = registry.get_state('rockville1', 'rockville_panel_fade')
                 
                 # Clear the line and print status
-                print(f"\rBass: {bass_power:.3f} | Treble: {treble_power:.3f} | "
+                print(f"\rBass Power: {bass_power:.3f} | "
                       f"Last Trigger: {time.time() - effect_state.last_trigger_time:.2f}s ago | "
-                      f"Active: {effect_state.is_active}", end='', flush=True)
+                      f"Active: {effect_state.is_active} | "
+                      f"Blocks Active: {len(effect_state.custom_state.get('block_colors', []))}", end='', flush=True)
                 
             except Exception as e:
                 if not isinstance(e, queue.Empty):

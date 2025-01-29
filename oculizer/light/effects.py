@@ -53,6 +53,30 @@ COLORS = {
     'peach': (255, 218, 185)
 }
 
+palette_keys= {
+    'rainbow': ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white'],
+    'RGB': ['red', 'green', 'blue'],
+    'trip': ['green', 'purple'],
+    'electric': ['white', 'teal'],
+    'pastel': ['pink', 'yellow', 'blue', 'green'],
+    'neon': ['yellow', 'blue', 'green', 'pink'],
+    'pastel_neon': ['pink', 'yellow', 'blue', 'green', 'white'],
+    'neon_pastel': ['yellow', 'blue', 'green', 'pink', 'white'],
+    'pastel_neon_electric': ['pink', 'yellow', 'blue', 'green', 'white', 'teal']
+}
+
+PALETTES = {
+    'rainbow': [COLORS[color] for color in palette_keys['rainbow']],
+    'RGB': [COLORS[color] for color in palette_keys['RGB']],
+    'trip': [COLORS[color] for color in palette_keys['trip']],
+    'electric': [COLORS[color] for color in palette_keys['electric']],
+    'pastel': [COLORS[color] for color in palette_keys['pastel']],
+    'neon': [COLORS[color] for color in palette_keys['neon']],
+    'pastel_neon': [COLORS[color] for color in palette_keys['pastel_neon']],
+    'neon_pastel': [COLORS[color] for color in palette_keys['neon_pastel']],
+    'pastel_neon_electric': [COLORS[color] for color in palette_keys['pastel_neon_electric']]
+}
+
 @dataclass
 class EffectState:
     """Stores the current state of an effect."""
@@ -95,13 +119,26 @@ def reset_effect_states():
     registry.clear_all_states()
 
 def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
-    """Fade effect for Rockville panel section."""
+    """Fade effect for Rockville panel section with independent bar control."""
     state = registry.get_state(light_name, 'rockville_panel_fade')
     current_time = time.time()
     
     # Create a fresh channel array
     channels = [0] * 39
 
+    # Get colors from config and convert from names to RGB values
+    colors = config.get('colors', ['white'])
+    coverage = float(config.get('coverage', 1))
+    if isinstance(colors, list):
+        panel_colors = [COLORS[color] if isinstance(color, str) else color for color in colors]
+    elif isinstance(colors, str):
+        panel_colors = PALETTES[colors]
+    else:
+        panel_colors = [COLORS[colors]]    
+
+    color_order = config.get('color_order', 'next')
+    combo_mode = config.get('combo_mode', 'mix')
+    
     # Set up the RGB block indices
     blocks = []
     for i in range(8):
@@ -115,23 +152,47 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
     channels[0] = 255  # Master dimmer
     channels[1] = config.get('panel_strobe', 0)  # Panel strobe
     channels[2] = 0    # Panel manual mode
-    channels[3] = config.get('mode_speed', 255)  # Mode speed
-    
-    # Initialize bar section to off
-    affect_bar = config.get('affect_bar', False)
-    if not affect_bar:
-        for i in range(28, 39):
-            channels[i] = 0
+    channels[3] = config.get('mode_speed', 255)  
     
     # Get panel audio power
     panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
     panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
+    print(f"Panel Power: {panel_power}")  # Debug output
     
+    # Handle panel section
     # Check if we should trigger
-    threshold = config.get('threshold', 0.5)
-    if panel_power >= threshold:
-        state.last_trigger_time = current_time
-        state.is_active = True
+    panel_threshold = config.get('panel_threshold', 0.5)
+    if panel_power >= panel_threshold:
+        # Only trigger if we're not already active or if the fade has completed
+        if not state.is_active or (current_time - state.last_trigger_time) >= config.get('fade_duration', 1.0):
+            state.last_trigger_time = current_time
+            state.is_active = True
+            
+            # Increment sequence position for next color if using 'next' order
+            if not hasattr(state, 'sequence_position'):
+                state.sequence_position = 0
+            
+            # Store colors for blocks based on combo mode and coverage
+            if combo_mode == 'mix':
+                # Generate initial block colors
+                state.custom_state['block_colors'] = [
+                    random.choice(panel_colors) if random.random() <= coverage else (0,0,0) 
+                    for _ in range(8)
+                ]
+                # Ensure at least one block is active by randomly selecting one if none are
+                if all(color == (0,0,0) for color in state.custom_state['block_colors']):
+                    random_block = random.randint(0, 7)
+                    state.custom_state['block_colors'][random_block] = random.choice(panel_colors)
+            elif combo_mode == 'pure':
+                if color_order == 'next':
+                    # Use current sequence position to select color and increment for next time
+                    current_color = panel_colors[state.sequence_position % len(panel_colors)]
+                    state.custom_state['block_colors'] = [current_color] * 8
+                    state.sequence_position += 1
+                    print(f"Using color {current_color} (position {state.sequence_position-1})")
+                elif color_order == 'random':
+                    chosen_color = random.choice(panel_colors)
+                    state.custom_state['block_colors'] = [chosen_color] * 8
     
     if state.is_active:
         # Calculate fade
@@ -147,23 +208,45 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
             max_bright = config.get('max_brightness', 255)
             brightness = int(min_bright + (max_bright - min_bright) * fade_ratio)
         
-        # Apply brightness to all blocks
-        #panel_color = config.get('panel_color', [255, 255, 255])
-        panel_colors = config.get('colors', [(255, 255, 255), (0, 0, 0)])
-        # check if its a list of lists (containg more than one color)
-        if isinstance(panel_colors[0], list):
-            multi_color = True
-        else:
-            multi_color = False
-        for block in blocks:
-            if multi_color:
-                panel_color = random.choice(panel_colors)
-            else:
-                panel_color = panel_colors
+        # Apply brightness to blocks with their stored colors
+        for i, block in enumerate(blocks):
+            if 'block_colors' not in state.custom_state:
+                state.custom_state['block_colors'] = [random.choice(panel_colors) for _ in range(8)]
+            color = state.custom_state['block_colors'][i]
             r_idx, g_idx, b_idx = block['channels']
-            channels[r_idx] = int(panel_color[0] * brightness / 255)
-            channels[g_idx] = int(panel_color[1] * brightness / 255)
-            channels[b_idx] = int(panel_color[2] * brightness / 255)
+            channels[r_idx] = int(color[0] * brightness / 255)
+            channels[g_idx] = int(color[1] * brightness / 255)
+            channels[b_idx] = int(color[2] * brightness / 255)
+            
+            # Debug output
+            print(f"Block {i}: Color RGB{color} at brightness {brightness}")
+
+    # Handle bar section
+    if config.get('affect_bar', True):
+        bar_mfft_range = config.get('bar_mfft_range', (0, len(mfft_data)))
+        bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
+        bar_threshold = config.get('bar_threshold', 0.5)
+        bar_mode = config.get('bar_mode', 0)
+        print(f"Bar Power: {bar_power}")  # Debug output
+
+        if bar_power >= bar_threshold:
+            channels[28] = config.get('bar_strobe', 0)
+            channels[29] = 0 if bar_mode == 'random' else bar_mode
+            channels[30] = config.get('mode_speed', 255)
+        
+            if bar_mode == 0:   
+                for i in range(31, 39):
+                    channels[i] = random.choice(config.get('bar_colors', [255]))
+            elif bar_mode == 'random':
+                for i in range(31, 39):
+                    channels[i] = random.choice([0, 255])
+            else:
+                for i in range(31, 39):
+                    channels[i] = 0
+    else:
+        # If bar is not affected, ensure all bar channels are off
+        for i in range(28, 39):
+            channels[i] = 0
     
     return channels
 
