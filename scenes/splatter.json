@@ -22,7 +22,7 @@
                 "bar_mfft_range": [115, 127],
                 "bar_threshold": 0.05,
                 "bar_strobe": 0,
-                "bar_colors": [0, 100],  
+                "bar_colors": [0, 255],  
                 "affect_panel": true,
                 "affect_bar": true,
                 "bar_mode": 0

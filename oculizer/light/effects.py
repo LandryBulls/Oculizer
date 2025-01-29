@@ -197,12 +197,26 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
             if color_order == 'next':
                 # Use current sequence position to select color and increment for next time
                 current_color = panel_colors[state.sequence_position % len(panel_colors)]
-                state.custom_state['block_colors'] = [current_color] * 8
+                state.custom_state['block_colors'] = [
+                    current_color if random.random() <= coverage else (0,0,0)
+                    for _ in range(8)
+                ]
+                # Ensure at least one block is active
+                if all(color == (0,0,0) for color in state.custom_state['block_colors']):
+                    random_block = random.randint(0, 7)
+                    state.custom_state['block_colors'][random_block] = current_color
                 state.sequence_position += 1
                 print(f"Using color {current_color} (position {state.sequence_position-1})")
             elif color_order == 'random':
                 chosen_color = random.choice(panel_colors)
-                state.custom_state['block_colors'] = [chosen_color] * 8
+                state.custom_state['block_colors'] = [
+                    chosen_color if random.random() <= coverage else (0,0,0)
+                    for _ in range(8)
+                ]
+                # Ensure at least one block is active
+                if all(color == (0,0,0) for color in state.custom_state['block_colors']):
+                    random_block = random.randint(0, 7)
+                    state.custom_state['block_colors'][random_block] = chosen_color
     
     if state.is_active:
         # Calculate fade
