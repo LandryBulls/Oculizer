@@ -33,7 +33,7 @@ COLORS = {
     'green': (0, 255, 0),
     'blue': (0, 0, 255),
     'yellow': (255, 255, 0),
-    'purple': (255, 0, 255),
+    'purple': (200, 0, 255),
     'orange': (255, 165, 0),
     'pink': (255, 105, 180),
     'white': (255, 255, 255),
@@ -138,6 +138,7 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
 
     color_order = config.get('color_order', 'next')
     combo_mode = config.get('combo_mode', 'mix')
+    wait = config.get('wait', True)  # Get wait parameter
     
     # Set up the RGB block indices
     blocks = []
@@ -160,45 +161,51 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
     print(f"Panel Power: {panel_power}")  # Debug output
     
     # Handle panel section
-    # Check if we should trigger
+    # Check if we should trigger based on wait parameter
     panel_threshold = config.get('panel_threshold', 0.5)
-    if panel_power >= panel_threshold:
-        # Only trigger if we're not already active or if the fade has completed
-        if not state.is_active or (current_time - state.last_trigger_time) >= config.get('fade_duration', 1.0):
-            state.last_trigger_time = current_time
-            state.is_active = True
+    fade_duration = config.get('fade_duration', 1.0)
+    time_since_trigger = current_time - state.last_trigger_time
+    
+    can_trigger = (
+        panel_power >= panel_threshold and (
+            not state.is_active or  # Not currently active
+            not wait or  # Wait is disabled, allowing interruption
+            time_since_trigger >= fade_duration  # Current fade has completed
+        )
+    )
+    
+    if can_trigger:
+        state.last_trigger_time = current_time
+        state.is_active = True
             
-            # Increment sequence position for next color if using 'next' order
-            if not hasattr(state, 'sequence_position'):
-                state.sequence_position = 0
-            
-            # Store colors for blocks based on combo mode and coverage
-            if combo_mode == 'mix':
-                # Generate initial block colors
-                state.custom_state['block_colors'] = [
-                    random.choice(panel_colors) if random.random() <= coverage else (0,0,0) 
-                    for _ in range(8)
-                ]
-                # Ensure at least one block is active by randomly selecting one if none are
-                if all(color == (0,0,0) for color in state.custom_state['block_colors']):
-                    random_block = random.randint(0, 7)
-                    state.custom_state['block_colors'][random_block] = random.choice(panel_colors)
-            elif combo_mode == 'pure':
-                if color_order == 'next':
-                    # Use current sequence position to select color and increment for next time
-                    current_color = panel_colors[state.sequence_position % len(panel_colors)]
-                    state.custom_state['block_colors'] = [current_color] * 8
-                    state.sequence_position += 1
-                    print(f"Using color {current_color} (position {state.sequence_position-1})")
-                elif color_order == 'random':
-                    chosen_color = random.choice(panel_colors)
-                    state.custom_state['block_colors'] = [chosen_color] * 8
+        # Increment sequence position for next color if using 'next' order
+        if not hasattr(state, 'sequence_position'):
+            state.sequence_position = 0
+        
+        # Store colors for blocks based on combo mode and coverage
+        if combo_mode == 'mix':
+            # Generate initial block colors
+            state.custom_state['block_colors'] = [
+                random.choice(panel_colors) if random.random() <= coverage else (0,0,0) 
+                for _ in range(8)
+            ]
+            # Ensure at least one block is active by randomly selecting one if none are
+            if all(color == (0,0,0) for color in state.custom_state['block_colors']):
+                random_block = random.randint(0, 7)
+                state.custom_state['block_colors'][random_block] = random.choice(panel_colors)
+        elif combo_mode == 'pure':
+            if color_order == 'next':
+                # Use current sequence position to select color and increment for next time
+                current_color = panel_colors[state.sequence_position % len(panel_colors)]
+                state.custom_state['block_colors'] = [current_color] * 8
+                state.sequence_position += 1
+                print(f"Using color {current_color} (position {state.sequence_position-1})")
+            elif color_order == 'random':
+                chosen_color = random.choice(panel_colors)
+                state.custom_state['block_colors'] = [chosen_color] * 8
     
     if state.is_active:
         # Calculate fade
-        fade_duration = config.get('fade_duration', 1.0)
-        time_since_trigger = current_time - state.last_trigger_time
-        
         if time_since_trigger >= fade_duration:
             state.is_active = False
             brightness = config.get('min_brightness', 0)
