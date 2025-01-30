@@ -150,3 +150,185 @@ The system supports several types of lights, each with different channel configu
 5. `rockville864`: 39-channel LED panel with bar section
 
 Each light type has specific channel mappings and supported features depending on the modulator and effect being used.
+
+## Example Configurations
+
+### Modulator Examples
+
+#### 1. MFFT Modulator Example
+```json
+{
+  "name": "audio_reactive_panel",
+  "type": "rockville864",
+  "modulator": "mfft",
+  "mfft_range": [0, 128],
+  "power_range": [0.2, 0.8],
+  "brightness_range": [0, 255],
+  "panel": {
+    "mfft_range": [0, 64],
+    "power_range": [0.3, 0.9],
+    "brightness_range": [50, 255],
+    "mode": 0,
+    "color": "blue"
+  },
+  "bar": {
+    "mfft_range": [65, 128],
+    "threshold": 0.6,
+    "mode": 0,
+    "sections": [255, 255, 255, 255, 255, 255, 255, 255]
+  }
+}
+```
+
+#### 2. Boolean Modulator Example
+```json
+{
+  "name": "random_color_panel",
+  "type": "rockville864",
+  "modulator": "bool",
+  "panel": {
+    "brightness": "random",
+    "min_brightness": 100,
+    "max_brightness": 255,
+    "strobe": "random",
+    "mode": 0,
+    "color": "random"
+  },
+  "bar": {
+    "enabled": true,
+    "mode": "random",
+    "min_brightness": 50,
+    "max_brightness": 200,
+    "sections": [255, 200, 150, 100, 150, 200, 255, 200]
+  }
+}
+```
+
+#### 3. Time Modulator Example
+```json
+{
+  "name": "pulsing_panel",
+  "type": "rockville864",
+  "modulator": "time",
+  "frequency": 0.5,
+  "function": "sine",
+  "min_brightness": 0,
+  "max_brightness": 255,
+  "panel": {
+    "target": "brightness",
+    "mode": 0,
+    "color": "blue",
+    "strobe": 0
+  },
+  "bar": {
+    "enabled": true,
+    "target": "sections",
+    "mode": 0
+  }
+}
+```
+
+### Effect Examples
+
+#### 1. Rockville Panel Fade Effect
+```json
+{
+  "name": "fade_effect_light",
+  "type": "rockville864",
+  "modulator": "mfft",
+  "mfft_range": [0, 128],
+  "effect": {
+    "name": "rockville_panel_fade",
+    "colors": ["red", "blue", "green"],
+    "coverage": 0.75,
+    "color_order": "next",
+    "combo_mode": "mix",
+    "wait": true,
+    "fade_duration": 0.5,
+    "panel_threshold": 0.6,
+    "panel_strobe": 0,
+    "mode_speed": 200,
+    "affect_bar": true,
+    "bar_sustain": 1.0,
+    "bar_threshold": 0.5,
+    "bar_mode": 0,
+    "bar_colors": [100, 150, 200, 255]
+  }
+}
+```
+
+#### 2. Rockville Sequential Panels Effect
+```json
+{
+  "name": "sequential_effect_light",
+  "type": "rockville864",
+  "modulator": "mfft",
+  "mfft_range": [0, 128],
+  "effect": {
+    "name": "rockville_sequential_panels",
+    "colors": "rainbow",
+    "color_order": "next",
+    "combo_mode": "pure",
+    "direction": "alternating",
+    "sequence_duration": 2.0,
+    "threshold": 0.5,
+    "wait": true,
+    "affect_bar": true,
+    "bar_sustain": 0.5,
+    "bar_threshold": 0.4,
+    "bar_mode": 0
+  }
+}
+```
+
+#### 3. Rockville Splatter Effect
+```json
+{
+  "name": "splatter_effect_light",
+  "type": "rockville864",
+  "modulator": "mfft",
+  "mfft_range": [0, 128],
+  "effect": {
+    "name": "rockville_splatter",
+    "panel_colors": ["red", "blue", "green", "yellow"],
+    "panel_threshold": 0.5,
+    "affect_panel": true,
+    "affect_bar": true,
+    "bar_sustain": 0.75,
+    "bar_threshold": 0.4,
+    "bar_mode": "random",
+    "bar_colors": [50, 100, 150, 200, 255]
+  }
+}
+```
+
+#### 4. Rockville Panel Sustain Effect
+```json
+{
+  "name": "sustain_effect_light",
+  "type": "rockville864",
+  "modulator": "mfft",
+  "mfft_range": [0, 128],
+  "effect": {
+    "name": "rockville_panel_sustain",
+    "colors": ["electric", "pastel_neon"],
+    "coverage": 0.8,
+    "color_order": "random",
+    "combo_mode": "mix",
+    "wait": true,
+    "sustain_duration": 1.0,
+    "panel_threshold": 0.6,
+    "panel_strobe": 0,
+    "mode_speed": 200,
+    "affect_bar": true,
+    "bar_sustain": 0.5,
+    "bar_threshold": 0.5,
+    "bar_mode": 0,
+    "bar_colors": [150, 200, 255]
+  }
+}
+```
+
+These examples demonstrate typical configurations for each modulator and effect type. You can mix and match parameters within the constraints of each type, and combine modulators with effects as needed for your light show.
+
+Note that when using effects, the modulator settings still apply but may be overridden by the effect's behavior. The effect configurations shown here are commonly used starting points - feel free to adjust parameters to achieve your desired lighting effects.
