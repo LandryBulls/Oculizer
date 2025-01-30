@@ -1,0 +1,28 @@
+{
+    "name": "random_patterns",
+    "description": "Random patterns using bool modulator for both panel and bar sections",
+    "key_command": "r",
+    "midi": 60,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "mode": "random",
+                "strobe": 0,
+                "mode_speed": 255,
+                "brightness": "random",
+                "min_brightness": 100,
+                "max_brightness": 255
+            },
+            "bar": {
+                "enabled": true,
+                "mode": "random",
+                "strobe": 0,
+                "mode_speed": 255,
+                "sections": [255, 255, 255, 255, 255, 255, 255, 255]
+            }
+        }
+    ]
+} 

@@ -178,7 +178,68 @@ def process_mfft(light, mfft_vec):
             return [0] * 39
 
 def process_bool(light):
-    if light['type'] == 'dimmer':
+    if light['type'] == 'rockville864':
+        try:
+            # Initialize 39 channels
+            channels = [0] * 39
+            
+            # Master and basic controls
+            channels[0] = 255  # Master dimmer always at max
+            
+            # Handle panel section
+            panel_config = light.get('panel', {})
+            
+            # Set panel controls
+            channels[1] = panel_config.get('strobe', 0)
+            channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
+            channels[3] = panel_config.get('mode_speed', 255)
+            
+            # Handle panel brightness
+            if panel_config.get('brightness', 'random') == 'random':
+                min_brightness = panel_config.get('min_brightness', 0)
+                max_brightness = panel_config.get('max_brightness', 255)
+                brightness = np.random.randint(min_brightness, max_brightness + 1)
+            else:
+                brightness = panel_config.get('brightness', 255)
+            
+            # If mode is 0, use direct RGB control
+            if channels[2] == 0:
+                color = color_to_rgb(panel_config.get('color', 'random'))
+                scaled_color = [int(c * brightness / 255) for c in color]
+                
+                # Set all 8 RGB bulb sets
+                for i in range(8):
+                    base_idx = 4 + (i * 3)
+                    channels[base_idx:base_idx + 3] = scaled_color
+            else:
+                # When mode is active, RGB channels become background
+                channels[4:28] = [brightness] * 24
+            
+            # Handle bar section
+            bar_config = light.get('bar', {})
+            if bar_config.get('enabled', True):
+                channels[28] = bar_config.get('strobe', 0)
+                channels[29] = np.random.randint(54, 252) if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
+                channels[30] = bar_config.get('mode_speed', 255)
+                
+                if channels[29] == 0:  # Manual mode
+                    channels[31] = 255  # Background brightness
+                    # Set individual bar sections
+                    sections = bar_config.get('sections', [255] * 8)
+                    channels[32:40] = sections
+                else:
+                    channels[31] = 0
+                    channels[32:40] = [0] * 8
+            else:
+                channels[28:] = [0] * 12
+            
+            return channels
+            
+        except Exception as e:
+            print(f"Error processing rockville864 light {light['name']}: {e}")
+            return [0] * 39
+            
+    elif light['type'] == 'dimmer':
         if light['brightness']=='random':
             brightness = np.random.randint(light.get('min_brightness', 0), light.get('max_brightness', 255) + 1)
         else:
@@ -202,51 +263,104 @@ def process_bool(light):
     elif light['type'] == 'laser':
         return [128, 255] + [0] * 8
 
-def time_function(t, frequency, function):
-    functions = {
-        'sine': lambda t, f: np.sin(t * f * 2 * np.pi) * 0.5 + 0.5,
-        'square': lambda t, f: np.sign(np.sin(t * f * 2 * np.pi)) * 0.5 + 0.5,
-        'triangle': lambda t, f: np.abs(((t * f) % 2) - 1),
-        'sawtooth_forward': lambda t, f: (t * f) % 1,
-        'sawtooth_backward': lambda t, f: 1 - (t * f % 1)
-    }
-    
-    # Convert integer input to corresponding string
-    if isinstance(function, int):
-        function_names = list(functions.keys())
-        if 0 <= function < len(function_names):
-            function = function_names[function]
-        else:
-            function = 'sine'  # Default to sine if integer is out of range
-    
-    # Use the specified function or default to sine
-    return functions.get(function, functions['sine'])(t, frequency)
-
 def process_time(light, current_time):
-    t = current_time
-    frequency = light.get('frequency', 1)
-    function = light.get('function', 'sine')
-    min_value = light.get('min_brightness', 0)
-    max_value = light.get('max_brightness', 255)
-    value = int(min_value + (max_value - min_value) * time_function(t, frequency, function))
-    
-    if light['type'] == 'dimmer':
-        return [value]
+    if light['type'] == 'rockville864':
+        try:
+            t = current_time
+            frequency = light.get('frequency', 1)
+            function = light.get('function', 'sine')
+            min_value = light.get('min_brightness', 0)
+            max_value = light.get('max_brightness', 255)
+            
+            # Calculate time-based value
+            value = int(min_value + (max_value - min_value) * time_function(t, frequency, function))
+            
+            # Initialize channels
+            channels = [0] * 39
+            channels[0] = 255  # Master dimmer always at max
+            
+            # Handle panel section
+            panel_config = light.get('panel', {})
+            target = panel_config.get('target', 'brightness')  # What the time function affects
+            
+            channels[1] = panel_config.get('strobe', 0)
+            channels[2] = panel_config.get('mode', 0)
+            
+            if target == 'mode_speed':
+                channels[3] = value
+            else:
+                channels[3] = panel_config.get('mode_speed', 255)
+            
+            # If mode is 0, use direct RGB control
+            if channels[2] == 0:
+                color = color_to_rgb(panel_config.get('color', 'random'))
+                if target == 'brightness':
+                    scaled_color = [int(c * value / 255) for c in color]
+                else:
+                    scaled_color = color
+                    
+                # Set all 8 RGB bulb sets
+                for i in range(8):
+                    base_idx = 4 + (i * 3)
+                    channels[base_idx:base_idx + 3] = scaled_color
+            else:
+                # When mode is active, RGB channels become background
+                channels[4:28] = [value if target == 'brightness' else panel_config.get('brightness', 255)] * 24
+            
+            # Handle bar section
+            bar_config = light.get('bar', {})
+            if bar_config.get('enabled', True):
+                bar_target = bar_config.get('target', 'none')
+                
+                # Set basic bar controls
+                channels[28] = bar_config.get('strobe', 0)
+                channels[29] = bar_config.get('mode', 0)
+                channels[30] = bar_config.get('mode_speed', 255)  # Mode speed
+                
+                if channels[29] == 0:  # Manual mode
+                    if bar_target == 'sections':
+                        # Apply time function to all sections
+                        channels[31:39] = [value] * 8
+                    else:
+                        # Use configured sections
+                        sections = bar_config.get('sections', [255] * 8)
+                        channels[31:39] = sections
+                elif channels[29] == "random":
+                    channels[29] = 0
+                    channels[31:39] = [int(np.random.randint(0, 256) * value / 255) for _ in range(8)]
+                else:
+                    channels[30] = bar_config.get('mode_speed', 255)  # Set mode speed
+                    channels[31:39] = [0] * 8
+            else:
+                channels[28:] = [0] * 12
+            
+            return channels
+            
+        except Exception as e:
+            print(f"Error processing rockville864 light {light['name']}: {e}")
+            return [0] * 39
+            
+    elif light['type'] == 'dimmer':
+        if light['brightness']=='random':
+            brightness = np.random.randint(light.get('min_brightness', 0), light.get('max_brightness', 255) + 1)
+        else:
+            brightness = light.get('brightness', 255)
+        return [brightness]
     elif light['type'] == 'rgb':
         color = color_to_rgb(light.get('color', 'random'))
         strobe = light.get('strobe', 0)
-        return [value, *color, strobe, 0]
+        return [light.get('brightness', 255), *color, strobe, 0]
     elif light['type'] == 'strobe':
         target = light.get('target', 'both')
         speed_range = light.get('speed_range', [0, 255])
         brightness_range = light.get('brightness_range', [0, 255])
         if target == 'speed':
-            return [value, brightness_range[1]]
+            return [light.get('brightness', 255), brightness_range[1]]
         elif target == 'brightness':
-            return [speed_range[1], value]
+            return [speed_range[1], light.get('brightness', 255)]
         else:
-            speed = int(speed_range[0] + (speed_range[1] - speed_range[0]) * time_function(t, frequency, function))
-            brightness = int(brightness_range[0] + (brightness_range[1] - brightness_range[0]) * time_function(t, frequency, function))
+            speed = int(speed_range[0] + (speed_range[1] - speed_range[0]) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
+            brightness = int(brightness_range[0] + (brightness_range[1] - brightness_range[0]) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
             return [speed, brightness]
 
 def process_light(light, mfft_vec, current_time):
