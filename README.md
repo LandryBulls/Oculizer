@@ -14,6 +14,7 @@ Oculizer is an advanced DMX lighting automation system that creates real-time, m
   - Dimmers
   - Strobes
   - Lasers
+- Configurable light-triggered effects
 - Live scene switching through keyboard commands
 - MIDI control support
 - Audio visualization tools for debugging
