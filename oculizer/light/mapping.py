@@ -1,4 +1,5 @@
 import numpy as np
+import random
 import time
 from oculizer.config import audio_parameters
 from oculizer.light.effects import apply_effect
@@ -14,7 +15,8 @@ COLORS = np.array([
     [0, 0, 255],    # blue
     [75, 0, 130],   # purple
     [255, 0, 255],  # pink
-    [255, 255, 255] # white
+    [255, 255, 255], # white
+    [0, 0, 0]       # black
 ], dtype=np.int32)
 
 COLOR_NAMES = ['red', 'orange', 'yellow', 'green', 'blue', 'purple', 'pink', 'white']
@@ -141,8 +143,13 @@ def process_mfft(light, mfft_vec):
                     base_idx = 4 + (i * 3)
                     channels[base_idx:base_idx + 3] = scaled_color
             else:
-                # When mode is active, RGB channels become background
-                channels[4:7] = [int(brightness_magnitude)] * 3  # Set background brightness
+                # When mode is active, use color as background
+                color = color_to_rgb(panel_config.get('color', 'random'))
+                scaled_color = [int(c * brightness_magnitude / 255) for c in color]
+                # Set background color for all RGB channels
+                for i in range(8):
+                    base_idx = 4 + (i * 3)
+                    channels[base_idx:base_idx + 3] = scaled_color
             
             # Handle strobe bar component
             bar_config = light.get('bar', {})
@@ -188,10 +195,13 @@ def process_bool(light):
             
             # Handle panel section
             panel_config = light.get('panel', {})
+
+            #color = random.choice(COLORS) if panel_config.get('color', 'random') == 'random' else color_to_rgb(panel_config.get('color', 'random'))
+            #brightness = np.random.randint(panel_config.get('min_brightness', 0), panel_config.get('max_brightness', 255) + 1) if panel_config.get('brightness', 'random') == 'random' else panel_config.get('brightness', 255)
             
             # Set panel controls
-            channels[1] = panel_config.get('strobe', 0)
-            channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
+            channels[1] = np.random.randint(0, 256) if panel_config.get('strobe', 'random') == 'random' else panel_config.get('strobe', 0)
+            channels[2] = panel_config.get('mode', 0)
             channels[3] = panel_config.get('mode_speed', 255)
             
             # Handle panel brightness
@@ -212,24 +222,38 @@ def process_bool(light):
                     base_idx = 4 + (i * 3)
                     channels[base_idx:base_idx + 3] = scaled_color
             else:
-                # When mode is active, RGB channels become background
-                channels[4:28] = [brightness] * 24
+                # When mode is active, use color as background
+                color = color_to_rgb(panel_config.get('color', 'random'))
+                scaled_color = [int(c * brightness / 255) for c in color]
+                # Set background color for all RGB channels
+                for i in range(8):
+                    base_idx = 4 + (i * 3)
+                    channels[base_idx:base_idx + 3] = scaled_color
             
             # Handle bar section
             bar_config = light.get('bar', {})
             if bar_config.get('enabled', True):
-                channels[28] = bar_config.get('strobe', 0)
-                channels[29] = np.random.randint(54, 252) if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
+                channels[28] = np.random.randint(0, 256) if bar_config.get('strobe', 'random') == 'random' else bar_config.get('strobe', 0)
+                channels[29] = bar_config.get('mode', 0)
                 channels[30] = bar_config.get('mode_speed', 255)
+                brightness = bar_config.get('brightness', 255)
                 
+                if bar_config.get('brightness', 'random') == 'random':
+                    bar_min_brightness = bar_config.get('min_brightness', 0)
+                    bar_max_brightness = bar_config.get('max_brightness', 255)
+                    brightness = np.random.randint(bar_min_brightness, bar_max_brightness + 1)
+                else:
+                    brightness = bar_config.get('brightness', 255)
+
                 if channels[29] == 0:  # Manual mode
-                    channels[31] = 255  # Background brightness
-                    # Set individual bar sections
-                    sections = bar_config.get('sections', [255] * 8)
-                    channels[32:40] = sections
+                    channels[31:39] = [brightness] * 8
+                elif channels[29] == "random":
+                    channels[29] = 0  # Set to manual mode
+                    # Generate 8 different random values, one for each section
+                    channels[31:39] = [np.random.randint(bar_min_brightness, bar_max_brightness + 1) for _ in range(8)]
                 else:
                     channels[31] = 0
-                    channels[32:40] = [0] * 8
+                    channels[32:40] = [brightness] * 8
             else:
                 channels[28:] = [0] * 12
             

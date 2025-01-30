@@ -11,7 +11,7 @@ import queue
 def main():
     # Initialize scene manager and set scene
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('random_patterns')
+    scene_manager.set_scene('bool')
     
     # Initialize Oculizer with rockville profile
     light_controller = Oculizer('rockville', scene_manager)

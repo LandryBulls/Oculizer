@@ -1,5 +1,5 @@
 {
-    "name": "random_patterns",
+    "name": "bool",
     "description": "Random patterns using bool modulator for both panel and bar sections",
     "key_command": "r",
     "midi": 60,
@@ -9,19 +9,22 @@
             "type": "rockville864",
             "modulator": "bool",
             "panel": {
-                "mode": "random",
+                "mode": 0,
                 "strobe": 0,
-                "mode_speed": 255,
-                "brightness": "random",
-                "min_brightness": 100,
+                "color": "random",
+                "brightness": 255,
+                "mode_speed": 25,
+                "min_brightness": 0,
                 "max_brightness": 255
             },
             "bar": {
-                "enabled": true,
+                "enabled": false,
                 "mode": "random",
-                "strobe": 0,
+                "strobe": "random",
                 "mode_speed": 255,
-                "sections": [255, 255, 255, 255, 255, 255, 255, 255]
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 100
             }
         }
     ]
