@@ -83,11 +83,16 @@ class EffectState:
     last_trigger_time: float = 0.0
     is_active: bool = False
     sequence_position: int = 0
+    direction: int = 1  # 1 for left to right, -1 for right to left
+    color_position: int = 0
+    current_sweep_color: tuple = None
     custom_state: Dict[str, Any] = None
     
     def __post_init__(self):
         if self.custom_state is None:
             self.custom_state = {}
+        if self.current_sweep_color is None:
+            self.current_sweep_color = COLORS['white']
 
 class EffectRegistry:
     """Registry of all available effects and their states."""
@@ -338,22 +343,6 @@ def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, conf
         panel_colors = PALETTES[colors]
     else:
         panel_colors = [COLORS[colors]]
-    
-    # Initialize state attributes if they don't exist
-    if not hasattr(state, 'last_trigger_time'):
-        state.last_trigger_time = current_time
-    if not hasattr(state, 'is_active'):
-        state.is_active = False
-    if not hasattr(state, 'sequence_position'):
-        state.sequence_position = 0
-    if not hasattr(state, 'direction'):
-        state.direction = 1
-    if not hasattr(state, 'color_position'):
-        state.color_position = 0
-    if not hasattr(state, 'current_sweep_color'):
-        state.current_sweep_color = panel_colors[0]  # Use first color from already processed colors
-    if not hasattr(state, 'custom_state'):
-        state.custom_state = {}
     
     # Create a fresh channel array
     channels = [0] * 39
