@@ -24,6 +24,7 @@ import queue
 import time
 from pathlib import Path
 from oculizer.light.effects import reset_effect_states
+from oculizer.light.orchestrators import ORCHESTRATORS
 
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
@@ -41,6 +42,7 @@ class Oculizer(threading.Thread):
         self.light_names = [i['name'] for i in self.profile['lights']]
         self.dmx_controller, self.controller_dict = self._load_controller()
         self.scene_changed = threading.Event()
+        self.current_orchestrator = None
 
     def _get_blackhole_device_idx(self):
         devices = sd.query_devices()
@@ -146,6 +148,10 @@ class Oculizer(threading.Thread):
         if self.scene_changed.is_set():
             self.scene_changed.clear()
             self.turn_off_all_lights()
+            # Initialize orchestrator if configured in new scene
+            if 'orchestrator' in self.scene_manager.current_scene:
+                orch_config = self.scene_manager.current_scene['orchestrator']
+                self.current_orchestrator = ORCHESTRATORS.get(orch_config['type'])(orch_config['config'])
 
         try:
             mfft_data = self.mfft_queue.get(block=False)
@@ -154,13 +160,33 @@ class Oculizer(threading.Thread):
 
         current_time = time.time()
 
+        # Get orchestrator modifications if orchestrator exists
+        modifications = {}
+        if self.current_orchestrator:
+            modifications = self.current_orchestrator.process(
+                self.light_names,
+                mfft_data,
+                current_time
+            )
+
         for light in self.scene_manager.current_scene['lights']:
             if light['name'] not in self.light_names:
-                # Skip lights that aren't in the profile instead of trying to turn them off
+                # Skip lights that aren't in the profile
                 continue
 
             try:
-                dmx_values = process_light(light, mfft_data, current_time)
+                # Check if light is active according to orchestrator
+                light_mods = modifications.get(light['name'], {'active': True, 'modifiers': {}})
+                if not light_mods['active']:
+                    # Light is disabled by orchestrator
+                    if light['type'] == 'dimmer':
+                        self.controller_dict[light['name']].dim(0)
+                    else:
+                        self.controller_dict[light['name']].set_channels([0] * len(self.controller_dict[light['name']].channels))
+                    continue
+
+                # Process light with modifiers
+                dmx_values = process_light(light, mfft_data, current_time, modifiers=light_mods['modifiers'])
                 if dmx_values is not None:
                     if light['type'] == 'dimmer':
                         self.controller_dict[light['name']].dim(dmx_values[0])
@@ -177,16 +203,17 @@ class Oculizer(threading.Thread):
                         self.controller_dict[light['name']].set_channels(channels)
                     elif light['type'] == 'rockville864':
                         self.controller_dict[light['name']].set_channels(dmx_values)
-                
+
             except Exception as e:
                 print(f"Error processing light {light['name']}: {str(e)} (Error type: {type(e).__name__})")
-
 
     def change_scene(self, scene_name):
         self.turn_off_all_lights()
         # Reset all effect states before changing scene
         reset_effect_states()
         self.scene_manager.set_scene(scene_name)
+        # Reset orchestrator when changing scenes
+        self.current_orchestrator = None
         self.scene_changed.set()
         self.process_audio_and_lights()  # Apply the new scene immediately
 
