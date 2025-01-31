@@ -19,14 +19,73 @@ from oculizer.scenes import SceneManager
 from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
 from oculizer.utils import load_json
+from oculizer.config import audio_parameters
 import threading
 import queue
 import time
 from pathlib import Path
-from oculizer.light.effects import reset_effect_states
 
-class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager):
+from oculizer.utils import load_json 
+import time
+from pathlib import Path
+from oculizer.light.effects import reset_effect_states
+from oculizer.light.orchestrators import ORCHESTRATORS
+
+SAMPLERATE = audio_parameters['SAMPLERATE']
+BLOCKSIZE = audio_parameters['BLOCKSIZE']
+
+def get_blackhole_device_idx():
+    devices = sd.query_devices()
+    for i, device in enumerate(devices):
+        if 'BlackHole' in device['name']:
+            return i, device['name']
+    return None, None
+
+
+def load_profile(profile_name):
+    current_dir = Path(__file__).resolve().parent
+    project_root = current_dir.parent.parent
+    profile_path = project_root / 'profiles' / f'{profile_name}.json'
+    with open(profile_path, 'r') as f:
+        profile = json.load(f)
+    
+    return profile
+
+def load_controller(profile):
+    try:
+        controller = OpenDMXController()
+    except Exception as e:
+        print(f"Error loading DMX controller: {str(e)}")
+        return None, None
+    control_dict = {}
+    curr_channel = 1
+    for light in profile['lights']:
+        if light['type'] == 'dimmer':
+            control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
+            # flash the light to make sure it's working
+            control_dict[light['name']].dim(255)
+            time.sleep(0.5)
+            control_dict[light['name']].dim(0)
+            curr_channel += 1
+        elif light['type'] == 'rgb':
+            control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
+            # flash the light to make sure it's working
+            control_dict[light['name']].set_channels([255,255,255,255,0,0])
+            time.sleep(0.5)
+            control_dict[light['name']].set_channels([0,0,0,0,0,0])
+            curr_channel += 6
+        elif light['type'] == 'strobe':
+            control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
+            # flash the light to make sure it's working
+            control_dict[light['name']].set_channels([255,255])
+            time.sleep(0.5)
+            control_dict[light['name']].set_channels([0,0])
+            curr_channel += 2
+
+    return controller, control_dict
+
+class LightController(threading.Thread):
+    def __init__(self, audio_listener, profile_name, scene_manager):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.sample_rate = audio_parameters['SAMPLERATE']
@@ -154,34 +213,54 @@ class Oculizer(threading.Thread):
 
         current_time = time.time()
 
+        # Get orchestrator if configured
+        orchestrator = None
+        if 'orchestrator' in self.scene_manager.current_scene:
+            orch_config = self.scene_manager.current_scene['orchestrator']
+            orchestrator = ORCHESTRATORS.get(orch_config['type'])(orch_config['config'])
+        
+        # Get orchestrator modifications
+        modifications = {}
+        if orchestrator:
+            modifications = orchestrator.process(
+                self.light_names,
+                mfft_data,
+                current_time
+            )
+        
+        # Process lights with modifications
         for light in self.scene_manager.current_scene['lights']:
             if light['name'] not in self.light_names:
-                # Skip lights that aren't in the profile instead of trying to turn them off
                 continue
-
-            try:
-                dmx_values = process_light(light, mfft_data, current_time)
-                if dmx_values is not None:
-                    if light['type'] == 'dimmer':
-                        self.controller_dict[light['name']].dim(dmx_values[0])
-                    elif light['type'] == 'rgb':
-                        self.controller_dict[light['name']].set_channels(dmx_values[:6])
-                    elif light['type'] == 'strobe':
-                        self.controller_dict[light['name']].set_channels(dmx_values[:2])
-                    elif light['type'] == 'laser':
-                        # Ensure we're sending all 10 channels for laser
-                        channels = dmx_values[:10]
-                        # Pad with zeros if needed
-                        if len(channels) < 10:
-                            channels.extend([0] * (10 - len(channels)))
-                        self.controller_dict[light['name']].set_channels(channels)
-                    elif light['type'] == 'rockville864':
-                        self.controller_dict[light['name']].set_channels(dmx_values)
+            
+            light_mods = modifications.get(light['name'], {'active': True, 'modifiers': {}})
+            if not light_mods['active']:
+                # Light is disabled by orchestrator
+                if light['type'] == 'dimmer':
+                    self.controller_dict[light['name']].dim(0)
+                else:
+                    self.controller_dict[light['name']].set_channels([0] * self.get_channel_count(light['name']))
+                continue
+            
+            # Process light with modifiers
+            dmx_values = process_light(light, mfft_data, current_time, modifiers=light_mods['modifiers'])
+            if dmx_values is not None:
+                if light['type'] == 'dimmer':
+                    self.controller_dict[light['name']].dim(dmx_values[0])
+                elif light['type'] == 'rgb':
+                    self.controller_dict[light['name']].set_channels(dmx_values[:6])
+                elif light['type'] == 'strobe':
+                    self.controller_dict[light['name']].set_channels(dmx_values[:2])
+                elif light['type'] == 'laser':
+                    # Ensure we're sending all 10 channels for laser
+                    channels = dmx_values[:10]
+                    # Pad with zeros if needed
+                    if len(channels) < 10:
+                        channels.extend([0] * (10 - len(channels)))
+                    self.controller_dict[light['name']].set_channels(channels)
+                elif light['type'] == 'rockville864':
+                    self.controller_dict[light['name']].set_channels(dmx_values)
                 
-            except Exception as e:
-                print(f"Error processing light {light['name']}: {str(e)} (Error type: {type(e).__name__})")
-
-
     def change_scene(self, scene_name):
         self.turn_off_all_lights()
         # Reset all effect states before changing scene
@@ -216,13 +295,14 @@ class Oculizer(threading.Thread):
         self.running.clear()
 
 ## consolidated version
-class AudioLightController(threading.Thread):
+class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
         threading.Thread.__init__(self)
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.channels = 1
         self.fft_queue = queue.Queue(maxsize=1)  # Only keep the most recent FFT data
+        self.device_idx = get_blackhole_device_idx()
         self.running = threading.Event()
         self.error_queue = queue.Queue()
         
@@ -238,7 +318,7 @@ class AudioLightController(threading.Thread):
             self.error_queue.put(f"Audio callback error: {status}")
         try:
             audio_data = indata.copy().flatten()
-            fft_data = np.abs(rfft(audio_data))
+            fft_data = np.abs(rfft(audio_data)) # replace this with librosa soon
             if self.fft_queue.full():
                 self.fft_queue.get_nowait()  # Discard old data
             self.fft_queue.put_nowait(fft_data)
@@ -252,7 +332,8 @@ class AudioLightController(threading.Thread):
                 channels=self.channels,
                 samplerate=self.sample_rate,
                 blocksize=self.block_size,
-                callback=self.audio_callback
+                callback=self.audio_callback, 
+                device=self.device_idx
             ):
                 while self.running.is_set():
                     self.process_audio_and_lights()
@@ -268,7 +349,7 @@ class AudioLightController(threading.Thread):
         try:
             fft_data = self.fft_queue.get_nowait()
         except queue.Empty:
-            return
+            self.error_queue.put("No FFT data available")
 
         current_time = time.time()
 
@@ -307,39 +388,21 @@ class AudioLightController(threading.Thread):
         return errors
 
 def main():
-    audio_listener = AudioListener()  # Make sure this is imported or defined
-    scene_manager = SceneManager('scenes')
-    light_controller = LightController(audio_listener, 'testing', scene_manager)
-    
-    audio_listener.start()
-    light_controller.start()
-
-    print('Running for 10 seconds')
-    scene_manager.set_scene('testing')
-    time.sleep(10)  
-
-    audio_listener.stop()
-    light_controller.stop()
-    audio_listener.join()
-    light_controller.join()
-
-def main():
-    # init scene manager
-    scene_manager = SceneManager('scenes')
-    # set the initial scene to the test scene
-    scene_manager.set_scene('testing')  
-    # init the light controller with the name of the profile and the scene manager
-    controller = Oculizer('testing', scene_manager)
-    print("Starting Oculizer...")
+    controller = Oculizer('testing', SceneManager('scenes'))
     controller.start()
-    
+    # print out the audio data
     try:
         while True:
-            time.sleep(1)  # Main thread does nothing but keep the program alive
+            fft_data = controller.fft_queue.get_nowait()
+            print(f"Audio data: {np.sum(fft_data)}")
+            errors = controller.get_errors()
+            if errors:
+                print("Errors occurred:", errors)
+            time.sleep(0.1)
     except KeyboardInterrupt:
-        print("Stopping Oculizer...")
-        controller.stop()
-        controller.join()
+        print("Stopping audio listener...")
+    controller.stop()
+    controller.join()
 
 if __name__ == "__main__":
     main()
