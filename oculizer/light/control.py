@@ -11,8 +11,8 @@ Date: 8/20/24
 import numpy as np
 import sounddevice as sd
 from librosa.feature import melspectrogram
-from PyDMXControl.controllers import OpenDMXController
-from PyDMXControl.profiles.Generic import Dimmer, Custom
+from PyDMXControl.controllers import OpenDMXController # type: ignore
+from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager

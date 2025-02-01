@@ -2,6 +2,7 @@
     "name": "Rockville",
     "description": "For testing the Rockville 864 LED Stage Panel (11-channel).",
     "lights": [
-        {"name": "rockville1", "type": "rockville864", "n_channels": 11}
+        {"name": "rockville1", "type": "rockville864", "n_channels": 39},
+        {"name": "rockville2", "type": "rockville864", "n_channels": 39}
     ]
 }

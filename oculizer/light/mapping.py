@@ -387,7 +387,7 @@ def process_time(light, current_time):
             brightness = int(brightness_range[0] + (brightness_range[1] - brightness_range[0]) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
             return [speed, brightness]
 
-def process_light(light, mfft_vec, current_time):
+def process_light(light, mfft_vec, current_time, modifiers=None):
     modulator = light.get('modulator', 'bool')
     
     # Get initial channel values based on modulator
@@ -411,6 +411,20 @@ def process_light(light, mfft_vec, current_time):
             effect_name = effect_config.pop('name')
             channels = apply_effect(effect_name, channels, mfft_vec, effect_config, light['name'])
             effect_config['name'] = effect_name  # Restore the name key
+    
+    # Apply modifiers if provided
+    if channels and modifiers:
+        if 'brightness_scale' in modifiers:
+            # Scale brightness channels based on the modifier
+            if light['type'] == 'dimmer':
+                channels[0] = int(channels[0] * modifiers['brightness_scale'])
+            elif light['type'] == 'rgb':
+                channels[0] = int(channels[0] * modifiers['brightness_scale'])
+            elif light['type'] == 'rockville864':
+                # For Rockville, scale all RGB values
+                for i in range(4, 28, 3):  # RGB sections
+                    for j in range(3):  # R, G, B channels
+                        channels[i + j] = int(channels[i + j] * modifiers['brightness_scale'])
     
     return channels
 

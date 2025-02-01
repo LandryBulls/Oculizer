@@ -56,3 +56,8 @@ class HopperOrchestrator(Orchestrator):
             }
             
         return modifications
+
+# Dictionary mapping orchestrator types to their respective classes
+ORCHESTRATORS = {
+    'hopper': HopperOrchestrator
+}
