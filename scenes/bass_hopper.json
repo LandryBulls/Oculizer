@@ -1,0 +1,53 @@
+{
+    "name": "bass_hopper",
+    "description": "Cycles through multiple lights based on bass frequencies, creating a hopping effect",
+    "key_command": "h",
+    "midi": 72,
+    "orchestrator": {
+        "type": "hopper",
+        "config": {
+            "target_lights": ["rockville1", "rockville2"],
+            "trigger": {
+                "mfft_range": [0, 20],
+                "threshold": 0.1
+            },
+            "transition": {
+                "duration": 0.2
+            }
+        }
+    },
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "panel": {
+                "color": "blue",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0,
+                "brightness": 255
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "panel": {
+                "color": "red",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0,
+                "brightness": 255
+            }
+        }
+    ]
+}
