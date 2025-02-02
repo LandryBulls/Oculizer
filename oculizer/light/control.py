@@ -16,7 +16,7 @@ from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
-from oculizer.light.mapping import process_light, scale_mfft
+from oculizer.light.mapping import process_light, scale_mfft, color_to_rgb
 from oculizer.config import audio_parameters
 from oculizer.utils import load_json
 import threading
@@ -43,6 +43,8 @@ class Oculizer(threading.Thread):
         self.dmx_controller, self.controller_dict = self._load_controller()
         self.scene_changed = threading.Event()
         self.current_orchestrator = None
+        # Set scene_changed event to trigger initial orchestrator setup
+        self.scene_changed.set()
 
     def _get_blackhole_device_idx(self):
         devices = sd.query_devices()
@@ -63,6 +65,9 @@ class Oculizer(threading.Thread):
         curr_channel = 1
         sleeptime = 0.1
 
+        # this will flash each light as it loads it into the controller
+        # this is useful for debugging to ensure that each light is being loaded correctly
+        
         for light in self.profile['lights']:
             if light['type'] == 'dimmer':
                 control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
@@ -86,18 +91,13 @@ class Oculizer(threading.Thread):
                 control_dict[light['name']].set_channels([0, 0])
 
             elif light['type'] == 'laser':
-                # Create a custom fixture with 10 channels for laser
                 laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
                 control_dict[light['name']] = laser_fixture
                 curr_channel += 10
-                
-                # Initialize with standby mode
                 laser_fixture.set_channels([0] * 10)
                 time.sleep(sleeptime)
-                # Test pattern
                 laser_fixture.set_channels([128, 255] + [0] * 8)
                 time.sleep(sleeptime)
-                # Back to standby
                 laser_fixture.set_channels([0] * 10)
 
             elif light['type'] == 'rockville864':
@@ -146,12 +146,22 @@ class Oculizer(threading.Thread):
 
     def process_audio_and_lights(self):
         if self.scene_changed.is_set():
+            print("\nScene change detected, initializing orchestrator...")
             self.scene_changed.clear()
             self.turn_off_all_lights()
             # Initialize orchestrator if configured in new scene
             if 'orchestrator' in self.scene_manager.current_scene:
+                print(f"Found orchestrator config: {self.scene_manager.current_scene['orchestrator']}")
                 orch_config = self.scene_manager.current_scene['orchestrator']
-                self.current_orchestrator = ORCHESTRATORS.get(orch_config['type'])(orch_config['config'])
+                orch_type = orch_config['type']
+                if orch_type in ORCHESTRATORS:
+                    print(f"Creating orchestrator of type: {orch_type}")
+                    self.current_orchestrator = ORCHESTRATORS[orch_type](orch_config['config'])
+                    print(f"Orchestrator initialized: {self.current_orchestrator}")
+                else:
+                    print(f"Error: Unknown orchestrator type '{orch_type}'")
+            else:
+                print("No orchestrator configured in scene")
 
         try:
             mfft_data = self.mfft_queue.get(block=False)
@@ -177,32 +187,19 @@ class Oculizer(threading.Thread):
             try:
                 # Check if light is active according to orchestrator
                 light_mods = modifications.get(light['name'], {'active': True, 'modifiers': {}})
+                
                 if not light_mods['active']:
-                    # Light is disabled by orchestrator
-                    if light['type'] == 'dimmer':
-                        self.controller_dict[light['name']].dim(0)
+                    # Light is disabled by orchestrator - turn it off
+                    if light['type'] == 'rockville864':
+                        self.controller_dict[light['name']].set_channels([0] * 39)
                     else:
                         self.controller_dict[light['name']].set_channels([0] * len(self.controller_dict[light['name']].channels))
                     continue
 
-                # Process light with modifiers
+                # Process light based on configuration
                 dmx_values = process_light(light, mfft_data, current_time, modifiers=light_mods['modifiers'])
                 if dmx_values is not None:
-                    if light['type'] == 'dimmer':
-                        self.controller_dict[light['name']].dim(dmx_values[0])
-                    elif light['type'] == 'rgb':
-                        self.controller_dict[light['name']].set_channels(dmx_values[:6])
-                    elif light['type'] == 'strobe':
-                        self.controller_dict[light['name']].set_channels(dmx_values[:2])
-                    elif light['type'] == 'laser':
-                        # Ensure we're sending all 10 channels for laser
-                        channels = dmx_values[:10]
-                        # Pad with zeros if needed
-                        if len(channels) < 10:
-                            channels.extend([0] * (10 - len(channels)))
-                        self.controller_dict[light['name']].set_channels(channels)
-                    elif light['type'] == 'rockville864':
-                        self.controller_dict[light['name']].set_channels(dmx_values)
+                    self.controller_dict[light['name']].set_channels(dmx_values)
 
             except Exception as e:
                 print(f"Error processing light {light['name']}: {str(e)} (Error type: {type(e).__name__})")
@@ -229,13 +226,24 @@ class Oculizer(threading.Thread):
             # Get the light type from the profile
             light_type = next((light['type'] for light in self.profile['lights'] if light['name'] == light_name), None)
             
-            if light_type == 'laser':
+            if light_type == 'rockville864':
+                # Special handling for rockville - set all 39 channels to 0
+                light_fixture.set_channels([0] * 39)
+            elif light_type == 'laser':
                 # Special handling for laser - set all channels to 0
                 light_fixture.set_channels([0] * 10)
+            elif light_type == 'rgb':
+                # RGB fixtures use 6 channels
+                light_fixture.set_channels([0] * 6)
+            elif light_type == 'strobe':
+                # Strobe fixtures use 2 channels
+                light_fixture.set_channels([0] * 2)
             elif hasattr(light_fixture, 'dim'):
+                # Only use dim for actual dimmer fixtures
                 light_fixture.dim(0)
-            elif hasattr(light_fixture, 'set_channels'):
-                light_fixture.set_channels([0] * light_fixture.channels)
+            else:
+                # Fallback - get number of channels from fixture
+                light_fixture.set_channels([0] * len(light_fixture.channels))
         
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
 

@@ -11,19 +11,32 @@ import queue
 def main():
     # Initialize scene manager and set scene to hopper
     scene_manager = SceneManager('scenes')
-    scene_manager.set_scene('bass_hopper')
+    
+    print("\nInitializing scene manager...")
+    print(f"Available scenes: {list(scene_manager.scenes.keys())}")
+    
+    # Set scene to bass_hopper
+    try:
+        scene_manager.set_scene('bass_hopper')
+        print(f"\nLoaded scene: {scene_manager.current_scene['name']}")
+        print(f"Scene configuration:")
+        print(f"- Orchestrator type: {scene_manager.current_scene['orchestrator']['type']}")
+        print(f"- Target lights: {scene_manager.current_scene['orchestrator']['config']['target_lights']}")
+        print(f"- Trigger config: {scene_manager.current_scene['orchestrator']['config']['trigger']}")
+    except Exception as e:
+        print(f"Error loading scene: {str(e)}")
+        return
     
     # Initialize Oculizer with rockville profile
+    print("\nInitializing Oculizer...")
     light_controller = Oculizer('rockville', scene_manager)
-
-    print("Starting Rockville panel hopper effect test...")
-    print(f"Current scene: {scene_manager.current_scene['name']}")
-    print(f"Target lights: {scene_manager.current_scene['orchestrator']['config']['target_lights']}")
-    print("\nMonitoring audio and orchestrator state...")
+    print(f"Available lights: {light_controller.light_names}")
     
     # Start the light controller
+    print("\nStarting light controller...")
     light_controller.start()
-
+    
+    print("\nMonitoring audio and orchestrator state...")
     try:
         while True:
             try:
@@ -36,9 +49,9 @@ def main():
                 # Get orchestrator state
                 orchestrator = light_controller.current_orchestrator
                 if orchestrator:
-                    current_light = orchestrator.state['active_light']
-                    last_trigger = time.time() - orchestrator.state['last_trigger_time']
-                    transition_progress = (time.time() - orchestrator.state['transition_start']) / orchestrator.config['transition']['duration']
+                    current_light = orchestrator.state.get('active_light', 'None')
+                    last_trigger = time.time() - orchestrator.state.get('last_trigger_time', time.time())
+                    transition_progress = (time.time() - orchestrator.state.get('transition_start', time.time())) / orchestrator.config['transition']['duration']
                     transition_progress = min(1.0, max(0.0, transition_progress))  # Clamp between 0 and 1
                     
                     # Clear the line and print status
@@ -47,11 +60,14 @@ def main():
                           f"Last Trigger: {last_trigger:.2f}s ago | "
                           f"Transition Progress: {transition_progress:.2f}", end='', flush=True)
                 else:
-                    print("\rWaiting for orchestrator initialization...", end='', flush=True)
+                    print(f"\rWaiting for orchestrator initialization... (Current orchestrator: {type(orchestrator)})", end='', flush=True)
                 
+            except queue.Empty:
+                time.sleep(0.1)
             except Exception as e:
-                if not isinstance(e, queue.Empty):
-                    print(f"\nError: {str(e)}")
+                print(f"\nError in main loop: {str(e)}")
+                if hasattr(e, '__traceback__'):
+                    print(f"Error location: {e.__traceback__.tb_frame.f_code.co_filename}:{e.__traceback__.tb_lineno}")
             
             time.sleep(0.1)
 
