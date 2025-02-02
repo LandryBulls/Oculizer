@@ -189,28 +189,18 @@ def process_bool(light):
         try:
             # Initialize 39 channels
             channels = [0] * 39
-            
-            # Master and basic controls
             channels[0] = 255  # Master dimmer always at max
             
             # Handle panel section
             panel_config = light.get('panel', {})
-
-            #color = random.choice(COLORS) if panel_config.get('color', 'random') == 'random' else color_to_rgb(panel_config.get('color', 'random'))
-            #brightness = np.random.randint(panel_config.get('min_brightness', 0), panel_config.get('max_brightness', 255) + 1) if panel_config.get('brightness', 'random') == 'random' else panel_config.get('brightness', 255)
             
             # Set panel controls
-            channels[1] = np.random.randint(0, 256) if panel_config.get('strobe', 'random') == 'random' else panel_config.get('strobe', 0)
+            channels[1] = panel_config.get('strobe', 0)
             channels[2] = panel_config.get('mode', 0)
             channels[3] = panel_config.get('mode_speed', 255)
             
             # Handle panel brightness
-            if panel_config.get('brightness', 'random') == 'random':
-                min_brightness = panel_config.get('min_brightness', 0)
-                max_brightness = panel_config.get('max_brightness', 255)
-                brightness = np.random.randint(min_brightness, max_brightness + 1)
-            else:
-                brightness = panel_config.get('brightness', 255)
+            brightness = panel_config.get('brightness', 255)
             
             # If mode is 0, use direct RGB control
             if channels[2] == 0:
@@ -232,29 +222,25 @@ def process_bool(light):
             
             # Handle bar section
             bar_config = light.get('bar', {})
-            if bar_config.get('enabled', True):
-                channels[28] = np.random.randint(0, 256) if bar_config.get('strobe', 'random') == 'random' else bar_config.get('strobe', 0)
+            if bar_config.get('affect_bar', True):
+                channels[28] = bar_config.get('strobe', 0)
                 channels[29] = bar_config.get('mode', 0)
                 channels[30] = bar_config.get('mode_speed', 255)
-                brightness = bar_config.get('brightness', 255)
+                brightness = bar_config.get('brightness', 0)  # Default to 0 for bar
                 
-                if bar_config.get('brightness', 'random') == 'random':
-                    bar_min_brightness = bar_config.get('min_brightness', 0)
-                    bar_max_brightness = bar_config.get('max_brightness', 255)
-                    brightness = np.random.randint(bar_min_brightness, bar_max_brightness + 1)
-                else:
-                    brightness = bar_config.get('brightness', 255)
-
                 if channels[29] == 0:  # Manual mode
                     channels[31:39] = [brightness] * 8
                 elif channels[29] == "random":
                     channels[29] = 0  # Set to manual mode
-                    # Generate 8 different random values, one for each section
-                    channels[31:39] = [np.random.randint(bar_min_brightness, bar_max_brightness + 1) for _ in range(8)]
+                    # Generate 8 different random values
+                    min_brightness = bar_config.get('min_brightness', 0)
+                    max_brightness = bar_config.get('max_brightness', 255)
+                    channels[31:39] = [np.random.randint(min_brightness, max_brightness + 1) for _ in range(8)]
                 else:
                     channels[31] = 0
                     channels[32:40] = [brightness] * 8
             else:
+                # If affect_bar is False, set all bar channels to 0
                 channels[28:] = [0] * 12
             
             return channels
@@ -264,7 +250,7 @@ def process_bool(light):
             return [0] * 39
             
     elif light['type'] == 'dimmer':
-        if light['brightness']=='random':
+        if light.get('brightness', 'random') == 'random':
             brightness = np.random.randint(light.get('min_brightness', 0), light.get('max_brightness', 255) + 1)
         else:
             brightness = light.get('brightness', 255)
@@ -333,7 +319,7 @@ def process_time(light, current_time):
             
             # Handle bar section
             bar_config = light.get('bar', {})
-            if bar_config.get('enabled', True):
+            if bar_config.get('affect_bar', True):  # Only process bar if affect_bar is True
                 bar_target = bar_config.get('target', 'none')
                 
                 # Set basic bar controls
@@ -356,6 +342,7 @@ def process_time(light, current_time):
                     channels[30] = bar_config.get('mode_speed', 255)  # Set mode speed
                     channels[31:39] = [0] * 8
             else:
+                # If affect_bar is False, set all bar channels to 0
                 channels[28:] = [0] * 12
             
             return channels
@@ -388,29 +375,32 @@ def process_time(light, current_time):
             return [speed, brightness]
 
 def process_light(light, mfft_vec, current_time, modifiers=None):
-    modulator = light.get('modulator', 'bool')
-    
-    # Get initial channel values based on modulator
-    if modulator == 'mfft':
-        channels = process_mfft(light, mfft_vec)
-    elif modulator == 'bool':
-        channels = process_bool(light)
-    elif modulator == 'time':
-        channels = process_time(light, current_time)
-    else:
-        return None
-        
-    # Apply effects if specified
-    if channels and 'effect' in light:
+    # First check if there's an effect
+    if 'effect' in light:
         effect_config = light['effect']
         if isinstance(effect_config, str):
             # Simple case: just effect name
+            channels = [0] * 39 if light['type'] == 'rockville864' else [0] * 6  # Initialize channels
             channels = apply_effect(effect_config, channels, mfft_vec, {}, light['name'])
         elif isinstance(effect_config, dict):
             # Advanced case: effect name and config
             effect_name = effect_config.pop('name')
+            channels = [0] * 39 if light['type'] == 'rockville864' else [0] * 6  # Initialize channels
             channels = apply_effect(effect_name, channels, mfft_vec, effect_config, light['name'])
             effect_config['name'] = effect_name  # Restore the name key
+    else:
+        # No effect, use modulator
+        modulator = light.get('modulator', 'bool')
+        
+        # Get initial channel values based on modulator
+        if modulator == 'mfft':
+            channels = process_mfft(light, mfft_vec)
+        elif modulator == 'bool':
+            channels = process_bool(light)
+        elif modulator == 'time':
+            channels = process_time(light, current_time)
+        else:
+            return None
     
     # Apply modifiers if provided
     if channels and modifiers:
