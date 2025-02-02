@@ -60,56 +60,84 @@ class Oculizer(threading.Thread):
         return load_json(profile_path)
 
     def _load_controller(self):
-        controller = OpenDMXController()
-        control_dict = {}
-        curr_channel = 1
-        sleeptime = 0.1
+        max_retries = 3
+        retry_delay = 1.0  # seconds
+        last_error = None
 
-        # this will flash each light as it loads it into the controller
-        # this is useful for debugging to ensure that each light is being loaded correctly
-        
-        for light in self.profile['lights']:
-            if light['type'] == 'dimmer':
-                control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
-                curr_channel += 1
-                control_dict[light['name']].dim(255)
-                time.sleep(sleeptime)
-                control_dict[light['name']].dim(0)
+        for attempt in range(max_retries):
+            try:
+                if attempt > 0:
+                    print(f"Retrying DMX connection (attempt {attempt + 1}/{max_retries})...")
+                    time.sleep(retry_delay)
+                
+                controller = OpenDMXController()
+                control_dict = {}
+                curr_channel = 1
+                sleeptime = 0.1
 
-            elif light['type'] == 'rgb':
-                control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
-                curr_channel += 6
-                control_dict[light['name']].set_channels([255, 255, 255, 255, 255, 0])
-                time.sleep(sleeptime)
-                control_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+                # this will flash each light as it loads it into the controller
+                # this is useful for debugging to ensure that each light is being loaded correctly
+                
+                for light in self.profile['lights']:
+                    if light['type'] == 'dimmer':
+                        control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
+                        curr_channel += 1
+                        control_dict[light['name']].dim(255)
+                        time.sleep(sleeptime)
+                        control_dict[light['name']].dim(0)
 
-            elif light['type'] == 'strobe':
-                control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
-                curr_channel += 2
-                control_dict[light['name']].set_channels([255, 255])
-                time.sleep(sleeptime)
-                control_dict[light['name']].set_channels([0, 0])
+                    elif light['type'] == 'rgb':
+                        control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
+                        curr_channel += 6
+                        control_dict[light['name']].set_channels([255, 255, 255, 255, 255, 0])
+                        time.sleep(sleeptime)
+                        control_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
 
-            elif light['type'] == 'laser':
-                laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
-                control_dict[light['name']] = laser_fixture
-                curr_channel += 10
-                laser_fixture.set_channels([0] * 10)
-                time.sleep(sleeptime)
-                laser_fixture.set_channels([128, 255] + [0] * 8)
-                time.sleep(sleeptime)
-                laser_fixture.set_channels([0] * 10)
+                    elif light['type'] == 'strobe':
+                        control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
+                        curr_channel += 2
+                        control_dict[light['name']].set_channels([255, 255])
+                        time.sleep(sleeptime)
+                        control_dict[light['name']].set_channels([0, 0])
 
-            elif light['type'] == 'rockville864':
-                control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=39))
-                curr_channel += 39
-                control_dict[light['name']].set_channels([0] * 39)
-                time.sleep(sleeptime)
-                control_dict[light['name']].set_channels([255] * 39)
-                time.sleep(sleeptime)
-                control_dict[light['name']].set_channels([0] * 39)
+                    elif light['type'] == 'laser':
+                        laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
+                        control_dict[light['name']] = laser_fixture
+                        curr_channel += 10
+                        laser_fixture.set_channels([0] * 10)
+                        time.sleep(sleeptime)
+                        laser_fixture.set_channels([128, 255] + [0] * 8)
+                        time.sleep(sleeptime)
+                        laser_fixture.set_channels([0] * 10)
 
-        return controller, control_dict
+                    elif light['type'] == 'rockville864':
+                        control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=39))
+                        curr_channel += 39
+                        control_dict[light['name']].set_channels([0] * 39)
+                        time.sleep(sleeptime)
+                        control_dict[light['name']].set_channels([255] * 39)
+                        time.sleep(sleeptime)
+                        control_dict[light['name']].set_channels([0] * 39)
+
+                return controller, control_dict
+
+            except IOError as e:
+                last_error = e
+                print(f"Failed to connect to DMX interface: {str(e)}")
+                if attempt < max_retries - 1:
+                    print("Will retry after unplugging and replugging the device...")
+                    continue
+                
+                print("\nTroubleshooting steps:")
+                print("1. Unplug and replug your DMX interface")
+                print("2. Check if the device shows up in 'System Information > USB'")
+                print("3. Try a different USB port")
+                print("4. If using a USB hub, try connecting directly to the computer")
+                raise RuntimeError("Failed to connect to DMX interface after multiple attempts") from last_error
+            
+            except Exception as e:
+                print(f"Unexpected error while setting up DMX controller: {str(e)}")
+                raise
 
     def audio_callback(self, indata, frames, time, status):
         if status:
