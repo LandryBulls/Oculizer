@@ -26,6 +26,14 @@ from pathlib import Path
 from oculizer.light.effects import reset_effect_states
 from oculizer.light.orchestrators import ORCHESTRATORS
 
+n_channels = {
+    'dimmer': 1,
+    'rgb': 6,
+    'strobe': 2,
+    'laser': 10,
+    'rockville864': 39
+}
+
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager):
         threading.Thread.__init__(self)
@@ -81,43 +89,53 @@ class Oculizer(threading.Thread):
                 for light in self.profile['lights']:
                     if light['type'] == 'dimmer':
                         control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
-                        curr_channel += 1
+                        n_channels = n_channels['dimmer']
+                        control_dict[light['name']].n_channels = n_channels
+                        curr_channel += n_channels
                         control_dict[light['name']].dim(255)
                         time.sleep(sleeptime)
                         control_dict[light['name']].dim(0)
 
                     elif light['type'] == 'rgb':
                         control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
-                        curr_channel += 6
-                        control_dict[light['name']].set_channels([255, 255, 255, 255, 255, 0])
+                        n_channels = n_channels['rgb']
+                        control_dict[light['name']].n_channels = n_channels
+                        curr_channel += n_channels
+                        control_dict[light['name']].set_channels([255] * n_channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0, 0, 0, 0, 0, 0])
+                        control_dict[light['name']].set_channels([0] * n_channels)
 
                     elif light['type'] == 'strobe':
                         control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
-                        curr_channel += 2
-                        control_dict[light['name']].set_channels([255, 255])
+                        n_channels = n_channels['strobe']
+                        control_dict[light['name']].n_channels = n_channels
+                        curr_channel += n_channels
+                        control_dict[light['name']].set_channels([255] * n_channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0, 0])
+                        control_dict[light['name']].set_channels([0] * n_channels)
 
                     elif light['type'] == 'laser':
                         laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
                         control_dict[light['name']] = laser_fixture
-                        curr_channel += 10
-                        laser_fixture.set_channels([0] * 10)
+                        n_channels = n_channels['laser']
+                        control_dict[light['name']].n_channels = n_channels
+                        curr_channel += n_channels
+                        laser_fixture.set_channels([0] * n_channels)
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([128, 255] + [0] * 8)
+                        laser_fixture.set_channels([128, 255] + [0] * (n_channels - 2))
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([0] * 10)
+                        laser_fixture.set_channels([0] * n_channels)
 
                     elif light['type'] == 'rockville864':
                         control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=39))
-                        curr_channel += 39
-                        control_dict[light['name']].set_channels([0] * 39)
+                        n_channels = n_channels['rockville864']
+                        control_dict[light['name']].n_channels = n_channels
+                        curr_channel += n_channels
+                        control_dict[light['name']].set_channels([0] * n_channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([255] * 39)
+                        control_dict[light['name']].set_channels([255] * n_channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * 39)
+                        control_dict[light['name']].set_channels([0] * n_channels)
 
                 return controller, control_dict
 
@@ -218,10 +236,7 @@ class Oculizer(threading.Thread):
                 
                 if not light_mods['active']:
                     # Light is disabled by orchestrator - turn it off
-                    if light['type'] == 'rockville864':
-                        self.controller_dict[light['name']].set_channels([0] * 39)
-                    else:
-                        self.controller_dict[light['name']].set_channels([0] * len(self.controller_dict[light['name']].channels))
+                    self.controller_dict[light['name']].set_channels([0] * self.controller_dict[light['name']].n_channels)
                     continue
 
                 # Process light based on configuration
@@ -256,22 +271,22 @@ class Oculizer(threading.Thread):
             
             if light_type == 'rockville864':
                 # Special handling for rockville - set all 39 channels to 0
-                light_fixture.set_channels([0] * 39)
+                light_fixture.set_channels([0] * light_fixture.n_channels)
             elif light_type == 'laser':
                 # Special handling for laser - set all channels to 0
-                light_fixture.set_channels([0] * 10)
+                light_fixture.set_channels([0] * light_fixture.n_channels)
             elif light_type == 'rgb':
                 # RGB fixtures use 6 channels
-                light_fixture.set_channels([0] * 6)
+                light_fixture.set_channels([0] * light_fixture.n_channels)
             elif light_type == 'strobe':
                 # Strobe fixtures use 2 channels
-                light_fixture.set_channels([0] * 2)
+                light_fixture.set_channels([0] * light_fixture.n_channels)
             elif hasattr(light_fixture, 'dim'):
                 # Only use dim for actual dimmer fixtures
                 light_fixture.dim(0)
             else:
                 # Fallback - get number of channels from fixture
-                light_fixture.set_channels([0] * len(light_fixture.channels))
+                light_fixture.set_channels([0] * light_fixture.n_channels)
         
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
 
