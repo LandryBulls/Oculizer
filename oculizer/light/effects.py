@@ -167,7 +167,6 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
     # Get panel audio power
     panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
     panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
-    print(f"Panel Power: {panel_power}")  # Debug output
     
     # Handle panel section
     # Check if we should trigger based on wait parameter
@@ -215,7 +214,6 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
                     random_block = random.randint(0, 7)
                     state.custom_state['block_colors'][random_block] = current_color
                 state.sequence_position += 1
-                print(f"Using color {current_color} (position {state.sequence_position-1})")
             elif color_order == 'random':
                 chosen_color = random.choice(panel_colors)
                 state.custom_state['block_colors'] = [
@@ -248,8 +246,6 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
             channels[g_idx] = int(color[1] * brightness / 255)
             channels[b_idx] = int(color[2] * brightness / 255)
             
-            # Debug output
-            print(f"Block {i}: Color RGB{color} at brightness {brightness}")
 
     # Handle bar section
     if config.get('affect_bar', True):
@@ -257,7 +253,6 @@ def rockville_panel_fade(channels: List[int], mfft_data: np.ndarray, config: dic
         bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
         bar_threshold = config.get('bar_threshold', 0.5)
         bar_mode = config.get('bar_mode', 0)
-        print(f"Bar Power: {bar_power}")  # Debug output
 
         # Check if bar_sustain is configured
         bar_sustain = config.get('bar_sustain', None)
@@ -464,8 +459,6 @@ def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, conf
                 channels[g_idx] = color[1]
                 channels[b_idx] = color[2]
             
-            # Debug output
-            print(f"Sequence position: {state.sequence_position}, Active blocks: {left_idx+1}&{right_idx+1}, Colors: RGB{left_color}&RGB{right_color}")
     
     # Handle bar section
     if affect_bar:
@@ -473,7 +466,6 @@ def rockville_sequential_panels(channels: List[int], mfft_data: np.ndarray, conf
         bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
         bar_threshold = config.get('bar_threshold', 0.5)
         bar_mode = config.get('bar_mode', 0)
-        print(f"Bar Power: {bar_power}")  # Debug output
 
         # Check if bar_sustain is configured
         bar_sustain = config.get('bar_sustain', None)
@@ -587,7 +579,6 @@ def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict,
         bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
         bar_threshold = config.get('bar_threshold', 0.5)
         bar_mode = config.get('bar_mode', 0)
-        print(f"Bar Power: {bar_power}")  # Debug output
 
         # Check if bar_sustain is configured
         bar_sustain = config.get('bar_sustain', None)
@@ -689,7 +680,6 @@ def rockville_panel_sustain(channels: List[int], mfft_data: np.ndarray, config: 
     # Get panel audio power
     panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
     panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
-    print(f"Panel Power: {panel_power}")  # Debug output
     
     # Handle panel section
     panel_threshold = config.get('panel_threshold', 0.5)
@@ -736,7 +726,6 @@ def rockville_panel_sustain(channels: List[int], mfft_data: np.ndarray, config: 
                     random_block = random.randint(0, 7)
                     state.custom_state['block_colors'][random_block] = current_color
                 state.sequence_position += 1
-                print(f"Using color {current_color} (position {state.sequence_position-1})")
             elif color_order == 'random':
                 chosen_color = random.choice(panel_colors)
                 state.custom_state['block_colors'] = [
@@ -767,8 +756,6 @@ def rockville_panel_sustain(channels: List[int], mfft_data: np.ndarray, config: 
             channels[g_idx] = int(color[1] * brightness / 255)
             channels[b_idx] = int(color[2] * brightness / 255)
             
-            # Debug output
-            print(f"Block {i}: Color RGB{color} at brightness {brightness}")
 
     # Handle bar section
     if config.get('affect_bar', True):
@@ -776,7 +763,6 @@ def rockville_panel_sustain(channels: List[int], mfft_data: np.ndarray, config: 
         bar_power = np.mean(mfft_data[bar_mfft_range[0]:bar_mfft_range[1]])
         bar_threshold = config.get('bar_threshold', 0.5)
         bar_mode = config.get('bar_mode', 0)
-        print(f"Bar Power: {bar_power}")  # Debug output
 
         # Check if bar_sustain is configured
         bar_sustain = config.get('bar_sustain', None)

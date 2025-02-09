@@ -193,20 +193,16 @@ class Oculizer(threading.Thread):
 
     def process_audio_and_lights(self):
         if self.scene_changed.is_set():
-            print("\nScene change detected, initializing orchestrator...")
             self.scene_changed.clear()
             self.turn_off_all_lights()
             # Initialize orchestrator if configured in new scene
             if 'orchestrator' in self.scene_manager.current_scene:
-                print(f"Found orchestrator config: {self.scene_manager.current_scene['orchestrator']}")
                 orch_config = self.scene_manager.current_scene['orchestrator']
                 orch_type = orch_config['type']
                 if orch_type in ORCHESTRATORS:
-                    print(f"Creating orchestrator of type: {orch_type}")
                     self.current_orchestrator = ORCHESTRATORS[orch_type](orch_config['config'])
-                    print(f"Orchestrator initialized: {self.current_orchestrator}")
                 else:
-                    print(f"Error: Unknown orchestrator type '{orch_type}'")
+                    print(f"Orchestrator type {orch_type} not found")
             else:
                 print("No orchestrator configured in scene")
 
