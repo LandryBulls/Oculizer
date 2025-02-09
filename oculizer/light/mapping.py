@@ -151,35 +151,34 @@ def process_mfft(light, mfft_vec):
                     base_idx = 4 + (i * 3)
                     channels[base_idx:base_idx + 3] = scaled_color
             
-            # Handle strobe bar component
             bar_config = light.get('bar', {})
-            bar_mfft_range = bar_config.get('mfft_range', mfft_range)
-            threshold = bar_config.get('threshold', 0.5)
+            if bar_config.get('affect_bar', True):
+                bar_mfft_range = bar_config.get('bar_mfft_range', (0, len(mfft_vec)))
+                bar_power = np.mean(mfft_vec[bar_mfft_range[0]:bar_mfft_range[1]])
+                bar_threshold = bar_config.get('threshold', 0.5)
+                bar_mode = bar_config.get('mode', 0)
+
+                if bar_power >= bar_threshold:
+                    channels[28] = bar_config.get('strobe', 0)
+                    channels[29] = 0 if bar_mode == 'random' else bar_mode
+                    channels[30] = bar_config.get('mode_speed', 255)
             
-            # Check if power in range exceeds threshold
-            bar_mfft_mean = np.mean(mfft_vec[bar_mfft_range[0]:bar_mfft_range[1]])
-            if bar_mfft_mean >= threshold:
-                # Activate mode and strobe when threshold is exceeded
-                channels[28] = bar_config.get('strobe', 0)  # Strobe bar strobe speed
-                channels[29] = np.random.randint(54, 252) if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
-                channels[30] = np.random.randint(0, 256) if bar_config.get('mode_speed') == 'random' else bar_config.get('mode_speed', 0)
-                
-                # Set individual bar sections based on mode
-                if bar_config.get('mode', 0) == 0:
-                    # In mode 0, allow manual control of each section
-                    sections = bar_config.get('sections', [255] * 8)  # Default to all on if not specified
-                    channels[31] = 255  # Background brightness at max for manual mode
-                    channels[32:40] = sections
+                    if bar_mode == 0:   
+                        for i in range(31, 39):
+                            channels[i] = random.choice(bar_config.get('bar_colors', [0, 255]))
+                    elif bar_mode == 'random':
+                        for i in range(31, 39):
+                            channels[i] = random.choice([0, 255])
+                    else:
+                        for i in range(31, 39):
+                            channels[i] = 0
                 else:
-                    # For other modes, set background brightness to 0 to make patterns visible
-                    channels[31] = 0  # Background brightness at 0
-                    channels[32:40] = [0] * 8  # Let the mode control these channels
-            else:
-                # When threshold not met, disable all bar controls
-                channels[28:] = [0] * 12  # Zero out strobe, mode, speed, and all sections
-            
+                    # If bar is not affected, ensure all bar channels are off
+                    for i in range(28, 39):
+                        channels[i] = 0
+
             return channels
-            
+                    
         except Exception as e:
             print(f"Error processing rockville864 light {light['name']}: {e}")
             return [0] * 39
@@ -195,12 +194,17 @@ def process_bool(light):
             panel_config = light.get('panel', {})
             
             # Set panel controls
-            channels[1] = panel_config.get('strobe', 0)
+            channels[1] = np.random.randint(0, 256) if panel_config.get('strobe') == 'random' else panel_config.get('strobe', 0)
             channels[2] = panel_config.get('mode', 0)
             channels[3] = panel_config.get('mode_speed', 255)
             
             # Handle panel brightness
-            brightness = panel_config.get('brightness', 255)
+            if panel_config.get('brightness') == 'random':
+                min_brightness = panel_config.get('min_brightness', 0)
+                max_brightness = panel_config.get('max_brightness', 255)
+                brightness = np.random.randint(min_brightness, max_brightness + 1)
+            else:
+                brightness = panel_config.get('brightness', 255)
             
             # If mode is 0, use direct RGB control
             if channels[2] == 0:
@@ -224,7 +228,7 @@ def process_bool(light):
             bar_config = light.get('bar', {})
             if bar_config.get('affect_bar', True):
                 channels[28] = bar_config.get('strobe', 0)
-                channels[29] = bar_config.get('mode', 0)
+                channels[29] = 0 if bar_config.get('mode') == 'random' else bar_config.get('mode', 0)
                 channels[30] = bar_config.get('mode_speed', 255)
                 brightness = bar_config.get('brightness', 0)  # Default to 0 for bar
                 
@@ -237,11 +241,10 @@ def process_bool(light):
                     max_brightness = bar_config.get('max_brightness', 255)
                     channels[31:39] = [np.random.randint(min_brightness, max_brightness + 1) for _ in range(8)]
                 else:
-                    channels[31] = 0
-                    channels[32:40] = [brightness] * 8
+                    channels[31:39] = [0] * 8
             else:
                 # If affect_bar is False, set all bar channels to 0
-                channels[28:] = [0] * 12
+                channels[28:39] = [0] * 11  # Fixed number of channels to match array size
             
             return channels
             

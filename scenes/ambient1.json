@@ -102,6 +102,82 @@
             "frequency": 0.04,
             "min_brightness": 0,
             "max_brightness": 50
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.1,
+            "function": "sine",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "pink",
+                "strobe": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "time", 
+            "frequency": 0.15,
+            "function": "sine",
+            "min_brightness": 0,
+            "max_brightness": 200,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "time",
+            "frequency": 0.08,
+            "function": "triangle",
+            "min_brightness": 20,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness", 
+                "mode": 0,
+                "color": "purple",
+                "strobe": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "time",
+            "frequency": 0.12,
+            "function": "sine",
+            "min_brightness": 10,
+            "max_brightness": 180,
+            "panel": {
+                "target": "brightness",
+                "mode": 0, 
+                "color": "white",
+                "strobe": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
         }
     ]
 }

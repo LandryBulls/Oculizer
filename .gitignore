@@ -9,3 +9,4 @@ scripts/demix
 scripts/spec
 song_data
 *.log
+*.log

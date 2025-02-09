@@ -139,14 +139,24 @@ def main(stdscr, profile):
                     break
                 # Check for Ctrl+R (18 is Ctrl+R in ASCII)
                 elif event == 18:  # Ctrl+R
-                    scene_manager.reload_scenes()
-                    scene_manager.scenes = sort_scenes_alphabetically(scene_manager.scenes)
-                    light_controller.change_scene(current_scene_name)
-                    scene_list = list(scene_manager.scenes.items())
-                    total_scenes = len(scene_list)
-                    stdscr.addstr(max_y-1, 0, "Scenes reloaded.")
+                    try:
+                        scene_manager.reload_scenes()
+                        scene_manager.scenes = sort_scenes_alphabetically(scene_manager.scenes)
+                        light_controller.change_scene(current_scene_name)
+                        scene_list = list(scene_manager.scenes.items())
+                        total_scenes = len(scene_list)
+                        stdscr.addstr(max_y-1, 0, "Scenes reloaded successfully.", curses.color_pair(5))
+                    except ValueError as e:
+                        # Split error message into lines if it's too long
+                        error_lines = str(e).split('\n')
+                        for i, line in enumerate(error_lines[:3]):  # Show up to 3 lines of errors
+                            if i == 2 and len(error_lines) > 3:
+                                line += f" (and {len(error_lines)-3} more errors)"
+                            stdscr.addstr(max_y-3+i, 0, line.ljust(max_x), curses.color_pair(1))
+                    except Exception as e:
+                        stdscr.addstr(max_y-1, 0, f"Error reloading scenes: {str(e)}", curses.color_pair(1))
                     stdscr.refresh()
-                    time.sleep(1)
+                    time.sleep(2)  # Give more time to read errors
                 elif event == curses.KEY_UP and selected_index > 0:
                     selected_index -= 1
                     if selected_index < scroll_position:

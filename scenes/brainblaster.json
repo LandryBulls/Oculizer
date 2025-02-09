@@ -84,6 +84,86 @@
             "brightness_range": [0, 255],
             "color": "random",
             "strobe": 255
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "panel_colors": ["red", "blue", "green", "yellow", "black", "black", "black", "black"],
+                "panel_strobe": 255,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_strobe": 0,
+                "bar_colors": [0, 255],  
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864", 
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "panel_colors": ["red", "blue", "green", "yellow", "black", "black", "black", "black"],
+                "panel_strobe": 255,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_strobe": 0,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "panel_colors": ["red", "blue", "green", "yellow", "black", "black", "black", "black"],
+                "panel_strobe": 255,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_strobe": 0,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_splatter", 
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "panel_colors": ["red", "blue", "green", "yellow", "black", "black", "black", "black"],
+                "panel_strobe": 255,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "bar_strobe": 0,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mode": 0
+            }
         }
     ]
 }

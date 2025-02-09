@@ -69,6 +69,66 @@
             "brightness": "random",
             "color": "blue",
             "strobe": "random"
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": "random",
+                "brightness": "random"
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2", 
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": "random",
+                "brightness": "random"
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue", 
+                "strobe": "random",
+                "brightness": "random"
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": "random",
+                "brightness": "random"
+            },
+            "bar": {
+                "affect_bar": false
+            }
         }
     ]
 }

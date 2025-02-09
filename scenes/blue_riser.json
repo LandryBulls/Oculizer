@@ -1,1 +1,176 @@
-{"name": "blue_riser", "description": "blue riser strobe", "type": "build", "midi": 49, "key_command": "b", "lights": [{"name": "rgb1", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb2", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb3", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb4", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb5", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb6", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb7", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}, {"name": "rgb8", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "blue", "strobe": 255}]}
+{
+    "name": "blue_riser",
+    "description": "blue riser strobe",
+    "type": "build",
+    "midi": 49,
+    "key_command": "b",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "blue",
+            "strobe": 255
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "time",
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "colors": ["blue"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "direction": "left_to_right",
+                "sequence_duration": 0.5,
+                "panel_threshold": 0.5,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.25,
+                "bar_colors": [0, 255],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "time",
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "colors": ["blue"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "direction": "right_to_left",
+                "sequence_duration": 0.5,
+                "panel_threshold": 0.5,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.25,
+                "bar_colors": [0, 255],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "time",
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "colors": ["blue"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "direction": "alternating",
+                "sequence_duration": 0.5,
+                "panel_threshold": 0.5,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.25,
+                "bar_colors": [0, 255],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "time",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 255,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 255
+            },
+            "bar": {
+                "affect_bar": true,
+                "mode": 0,
+                "strobe": 255,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 255
+            }
+        }
+    ]
+}
