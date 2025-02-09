@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple, Set
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from scipy.spatial.distance import cosine
+from oculizer.spotify.spotifizer import Spotify
 
 # Define the fixed set of available scenes
 CANDIDATE_SCENES = [
@@ -46,15 +47,20 @@ CANDIDATE_SCENES = [
 ]
 
 class ScenePredictor:
-    def __init__(self, client_id: str, client_secret: str, redirect_uri: str):
-        """Initialize the scene predictor with Spotify credentials."""
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(
-            client_id=client_id,
-            client_secret=client_secret,
-            redirect_uri=redirect_uri,
-            scope="user-read-playback-state"
-        ))
+    def __init__(self, spotify_client=None, auth_manager=None):
+        """Initialize the scene predictor with an existing Spotify client and auth manager."""
+        self.sp = spotify_client
+        self.auth_manager = auth_manager
         self.song_data_dir = 'song_data'
+
+    def _check_and_refresh_token(self):
+        """Check if token needs refresh and refresh if needed."""
+        if self.auth_manager:
+            token_info = self.auth_manager.get_cached_token()
+            if self.auth_manager.is_token_expired(token_info):
+                if 'refresh_token' in token_info:
+                    token_info = self.auth_manager.refresh_access_token(token_info['refresh_token'])
+                    self.sp = Spotify(auth=token_info['access_token'])
 
     def _calculate_song_similarity(self, features1: Dict, features2: Dict) -> float:
         """Calculate similarity between two songs based on their audio features."""
@@ -199,8 +205,9 @@ class ScenePredictor:
         return max(scene_scores.items(), key=lambda x: x[1])[0]
 
     def process_new_track(self, track_id: str) -> Optional[Dict]:
-        """Process a new track and save its data with predicted scenes."""
+        """Process a new track, refreshing token if needed."""
         try:
+            self._check_and_refresh_token()
             # Get track data and audio features from Spotify
             track_info = self.sp.track(track_id)
             audio_features = self.sp.audio_features([track_id])[0]
@@ -251,3 +258,4 @@ class ScenePredictor:
         except Exception as e:
             logging.error(f"Error processing track {track_id}: {str(e)}")
             return None
+

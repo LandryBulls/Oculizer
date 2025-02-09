@@ -29,7 +29,11 @@ class Spotifizer(threading.Thread):
         self.section_lock = threading.Lock()
 
     def _create_auth_manager(self, client_id, client_secret, redirect_uri):
-        scopes = ['user-read-playback-state', 'user-modify-playback-state']
+        scopes = [
+            'user-read-playback-state',
+            'user-modify-playback-state',
+            'user-library-read'
+        ]
         return SpotifyOAuth(
             client_id=client_id,
             client_secret=client_secret,

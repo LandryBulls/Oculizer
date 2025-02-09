@@ -5,6 +5,7 @@ import threading
 import curses
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
+from oculizer.scenes.scene_prediction import ScenePredictor
 from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
@@ -50,6 +51,26 @@ COLOR_PAIRS = {
     'skull': (curses.COLOR_GREEN, curses.COLOR_BLACK),
 }
 
+def setup_logging():
+    """Set up logging configuration for all modules"""
+    log_format = '%(asctime)s - %(levelname)s - %(message)s'
+    log_file = os.path.join(os.path.dirname(__file__), 'oculizer.log')
+    
+    # Clear any existing handlers to avoid duplicates
+    root_logger = logging.getLogger()
+    root_logger.handlers = []
+    
+    # Set up file handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(logging.Formatter(log_format))
+    
+    # Configure the root logger
+    logging.basicConfig(
+        level=logging.INFO,
+        format=log_format,
+        handlers=[file_handler]
+    )
+
 def setup_colors():
     curses.start_color()
     for i, (name, (fg, bg)) in enumerate(COLOR_PAIRS.items(), start=1):
@@ -88,6 +109,7 @@ class SpotifyOculizerController:
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
         self.spotifizer = self.create_spotifizer()
+        self.scene_predictor = ScenePredictor(spotify_client=self.spotifizer.spotify, auth_manager=self.spotifizer.auth_manager)
         self.song_data_dir = 'song_data'
         self.current_song_id = None
         self.current_song_data = None
@@ -97,9 +119,8 @@ class SpotifyOculizerController:
         self.watchdog = WatchdogTimer(10, self.reinitialize)  # 10-second timeout
         self.reinitialize_flag = threading.Event()
         
-        # Set up logging
+        # Set up logging for curses display
         self.log_messages = deque(maxlen=9)
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         self.log_handler = self.LogHandler(self.log_messages)
         logging.getLogger().addHandler(self.log_handler)
 
@@ -215,41 +236,62 @@ class SpotifyOculizerController:
             logging.info(f"Updated to section index: {self.current_section_index}")
 
     def load_song_data(self, song_id):
+        """Modified to use scene prediction for new songs."""
         try:
             filename = os.path.join(self.song_data_dir, f"{song_id}.json")
             if os.path.exists(filename):
                 with open(filename, 'r') as f:
                     return json.load(f)
             else:
-                self.info_message = f"Song data not found for {song_id}. Using default scene."
-                logging.warning(f"Song data not found for {song_id}. Using default scene.")
-                return None
+                # Process new track with scene prediction
+                self.info_message = f"Processing new track {song_id} with scene prediction..."
+                logging.info(f"Processing new track {song_id} with scene prediction...")
+                
+                track_data = self.scene_predictor.process_new_track(song_id)
+                if track_data:
+                    self.info_message = f"Scene prediction completed for {song_id}"
+                    logging.info(f"Scene prediction completed for {song_id}")
+                    return track_data
+                else:
+                    self.info_message = f"Failed to process track {song_id}"
+                    logging.warning(f"Failed to process track {song_id}")
+                    return None
+                    
         except Exception as e:
-            self.error_message = f"Error loading song data: {str(e)}"
-            logging.error(f"Error loading song data: {str(e)}")
+            self.error_message = f"Error loading/predicting song data: {str(e)}"
+            logging.error(f"Error loading/predicting song data: {str(e)}")
             return None
 
     def turn_off_all_lights(self):
         try:
             for light_name, light_fixture in self.oculizer.controller_dict.items():
-                if hasattr(light_fixture, 'dim'):
+                # Get the light type from the profile
+                light_type = next((light['type'] for light in self.oculizer.profile['lights'] 
+                                if light['name'] == light_name), None)
+                
+                if light_type == 'laser':
+                    # Special handling for laser - set all channels to 0
+                    light_fixture.set_channels([0] * 10)
+                elif hasattr(light_fixture, 'dim'):
                     light_fixture.dim(0)
                 elif hasattr(light_fixture, 'set_channels'):
                     light_fixture.set_channels([0] * light_fixture.channels)
-            self.oculizer.dmx_controller.update()       # this is a magic piece of code that is broken, but it saves the day somehow
+            
+            self.oculizer.dmx_controller.update()  # this is a magic piece of code that is broken, but it saves the day somehow
             logging.info("All lights turned off")
         except Exception as e:
             if not 'OpenDMXController' in str(e):
-                self.error_message = f"Error turning off lights: {str(e)}"
-                logging.error(f"Error turning off lights: {str(e)}")
+                self.error_message = f"Error turning off lights: {str(e)}\n{traceback.format_exc()}"
+                logging.error(f"Error turning off lights: {str(e)}\n{traceback.format_exc()}")
 
     def update_lighting(self, force_update=False):
+        """Update lighting based on current section with improved scene handling."""
         try:
             if self.current_song_data is None:
                 self.turn_off_all_lights()
                 self.scene_manager.set_scene('party')
                 self.info_message = "No song data found. Using default scene."
-                #logging.info("No song data found. Using default scene.")
+                logging.info("No song data found. Using default scene.")
                 return
 
             sections = self.current_song_data.get('sections', [])
@@ -263,18 +305,51 @@ class SpotifyOculizerController:
 
             if self.current_section_index is not None:
                 current_section = sections[self.current_section_index]
-                scene = current_section.get('scene', 'party')
                 
+                # Check if section has a valid scene
+                scene = current_section.get('scene')
+                if not scene or scene not in self.scene_manager.scenes:
+                    # If no valid scene, try to predict based on audio features
+                    scene = self._predict_fallback_scene(current_section)
+                    
                 if scene != self.scene_manager.current_scene['name'] or force_update:
                     self.info_message = f"Changing to scene: {scene}"
                     logging.info(f"Changing to scene: {scene}")
                     self.turn_off_all_lights()
                     self.scene_manager.set_scene(scene)
+                    
             else:
                 logging.warning(f"Current section index is None.")
+                
         except Exception as e:
             self.error_message = f"Error updating lighting: {str(e)}"
             logging.error(f"Error updating lighting: {str(e)}")
+
+    def _predict_fallback_scene(self, section):
+        """Predict a scene based on section characteristics if no scene is assigned."""
+        try:
+            # Get basic audio features
+            loudness = section.get('loudness', -60)
+            tempo = section.get('tempo', 120)
+            duration = section.get('duration', 30)
+            
+            # Simple rule-based fallback prediction
+            if loudness > -5 and tempo > 150:
+                return 'brainblaster'
+            elif loudness > -10 and tempo > 140:
+                return 'electric'
+            elif loudness > -15 and tempo > 130:
+                return 'party'
+            elif duration < 15:  # Short section
+                return 'rightround'
+            elif tempo < 100:  # Slower tempo
+                return 'ambient1'
+            else:
+                return 'party'
+                
+        except Exception as e:
+            logging.error(f"Error in fallback scene prediction: {str(e)}")
+            return 'party'
 
     def handle_user_input(self):
         try:
@@ -370,6 +445,7 @@ class SpotifyOculizerController:
 
 def main(stdscr):
     setup_colors()
+    setup_logging()  # Set up logging before creating any objects
 
     try:
         credspath = os.path.join(os.path.dirname(__file__), 'spotify_credentials.txt')
