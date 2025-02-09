@@ -276,14 +276,13 @@ def process_bool(light):
 def process_time(light, current_time):
     if light['type'] == 'rockville864':
         try:
-            t = current_time
             frequency = light.get('frequency', 1)
             function = light.get('function', 'sine')
             min_value = light.get('min_brightness', 0)
             max_value = light.get('max_brightness', 255)
             
             # Calculate time-based value
-            value = int(min_value + (max_value - min_value) * time_function(t, frequency, function))
+            value = int(min_value + (max_value - min_value) * time_function(current_time, frequency, function))
             
             # Initialize channels
             channels = [0] * 39
@@ -352,15 +351,17 @@ def process_time(light, current_time):
             return [0] * 39
             
     elif light['type'] == 'dimmer':
-        if light['brightness']=='random':
-            brightness = np.random.randint(light.get('min_brightness', 0), light.get('max_brightness', 255) + 1)
-        else:
-            brightness = light.get('brightness', 255)
-        return [brightness]
+        # get the time function value
+        value = int(light.get('min_brightness', 0) + (light.get('max_brightness', 255) - light.get('min_brightness', 0)) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
+        return [value]
+
     elif light['type'] == 'rgb':
         color = color_to_rgb(light.get('color', 'random'))
         strobe = light.get('strobe', 0)
-        return [light.get('brightness', 255), *color, strobe, 0]
+        # get the time function value
+        value = int(light.get('min_brightness', 0) + (light.get('max_brightness', 255) - light.get('min_brightness', 0)) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
+        return [value, *color, strobe, 0]
+    
     elif light['type'] == 'strobe':
         target = light.get('target', 'both')
         speed_range = light.get('speed_range', [0, 255])

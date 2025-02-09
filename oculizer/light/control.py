@@ -16,7 +16,7 @@ from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
-from oculizer.light.mapping import process_light, scale_mfft, color_to_rgb
+from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
 from oculizer.utils import load_json
 import threading
@@ -26,6 +26,7 @@ from pathlib import Path
 from oculizer.light.effects import reset_effect_states
 from oculizer.light.orchestrators import ORCHESTRATORS
 
+global n_channels
 n_channels = {
     'dimmer': 1,
     'rgb': 6,
@@ -83,59 +84,59 @@ class Oculizer(threading.Thread):
                 curr_channel = 1
                 sleeptime = 0.1
 
-                # this will flash each light as it loads it into the controller
-                # this is useful for debugging to ensure that each light is being loaded correctly
+                # Access the global n_channels dictionary
+                global n_channels
                 
                 for light in self.profile['lights']:
                     if light['type'] == 'dimmer':
                         control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
-                        n_channels = n_channels['dimmer']
-                        control_dict[light['name']].n_channels = n_channels
-                        curr_channel += n_channels
+                        channels = n_channels['dimmer']
+                        control_dict[light['name']].n_channels = channels
+                        curr_channel += channels
                         control_dict[light['name']].dim(255)
                         time.sleep(sleeptime)
                         control_dict[light['name']].dim(0)
 
                     elif light['type'] == 'rgb':
                         control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
-                        n_channels = n_channels['rgb']
-                        control_dict[light['name']].n_channels = n_channels
-                        curr_channel += n_channels
-                        control_dict[light['name']].set_channels([255] * n_channels)
+                        channels = n_channels['rgb']
+                        control_dict[light['name']].n_channels = channels
+                        curr_channel += channels
+                        control_dict[light['name']].set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * n_channels)
+                        control_dict[light['name']].set_channels([0] * channels)
 
                     elif light['type'] == 'strobe':
                         control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
-                        n_channels = n_channels['strobe']
-                        control_dict[light['name']].n_channels = n_channels
-                        curr_channel += n_channels
-                        control_dict[light['name']].set_channels([255] * n_channels)
+                        channels = n_channels['strobe']
+                        control_dict[light['name']].n_channels = channels
+                        curr_channel += channels
+                        control_dict[light['name']].set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * n_channels)
+                        control_dict[light['name']].set_channels([0] * channels)
 
                     elif light['type'] == 'laser':
                         laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
                         control_dict[light['name']] = laser_fixture
-                        n_channels = n_channels['laser']
-                        control_dict[light['name']].n_channels = n_channels
-                        curr_channel += n_channels
-                        laser_fixture.set_channels([0] * n_channels)
+                        channels = n_channels['laser']
+                        control_dict[light['name']].n_channels = channels
+                        curr_channel += channels
+                        laser_fixture.set_channels([0] * channels)
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([128, 255] + [0] * (n_channels - 2))
+                        laser_fixture.set_channels([128, 255] + [0] * (channels - 2))
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([0] * n_channels)
+                        laser_fixture.set_channels([0] * channels)
 
                     elif light['type'] == 'rockville864':
                         control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=39))
-                        n_channels = n_channels['rockville864']
-                        control_dict[light['name']].n_channels = n_channels
-                        curr_channel += n_channels
-                        control_dict[light['name']].set_channels([0] * n_channels)
+                        channels = n_channels['rockville864']
+                        control_dict[light['name']].n_channels = channels
+                        curr_channel += channels
+                        control_dict[light['name']].set_channels([0] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([255] * n_channels)
+                        control_dict[light['name']].set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * n_channels)
+                        control_dict[light['name']].set_channels([0] * channels)
 
                 return controller, control_dict
 
