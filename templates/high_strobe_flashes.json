@@ -1,0 +1,35 @@
+{
+    "name": "high_strobe_flashes",
+    "description": "High strobe flashes",
+    "lights": [
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "mfft",
+            "threshold": 0.05,
+            "brightness": 255,
+            "mfft_range": [115, 127],
+            "power_range": [1, 4],
+            "speed": 1
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.05,
+                "strobe": 255,
+                "mode": "random",
+                "mode_speed": 255,
+                "brightness": 255,
+                "min_brightness": 0,
+                "max_brightness": 255
+            }
+        }
+    ]
+}

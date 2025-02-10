@@ -1,0 +1,31 @@
+{
+    "name": "time_pulse",
+    "description": "Smooth time-based pulsing effect for both panel and bar sections",
+    "key_command": "t",
+    "midi": 59,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "time",
+            "frequency": 0.5,
+            "function": "sine",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 100,
+                "mode_speed": 255
+            },
+            "bar": {
+                "enabled": true,
+                "target": "sections",
+                "mode": "random",
+                "strobe": 255,
+                "mode_speed": 255
+            }
+        }
+    ]
+} 

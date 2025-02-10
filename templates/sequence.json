@@ -1,0 +1,60 @@
+{
+    "name": "sequence",
+    "description": "Sequential activation of panel pairs with configurable direction and colors",
+    "key_command": "q",
+    "midi": 60,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["white", "blue", "teal"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["white", "blue", "teal"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "right_to_left",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }
+        }
+    ]
+}

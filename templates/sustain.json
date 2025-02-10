@@ -1,0 +1,64 @@
+{
+    "name": "sustain",
+    "description": "Panel sections sustain full brightness after being triggered by bass frequencies, with bar strobe on high frequencies",
+    "key_command": "s",
+    "midi": 60,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_sustain",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "white"],
+                "coverage": 0.5,
+                "combo_mode": "mix",
+                "color_order": "next",
+                "sustain_duration": 0.2,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 0,
+                "affect_bar": false,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255],
+                "mode_speed": 255
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_sustain",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "white"],
+                "coverage": 0.5,
+                "combo_mode": "mix",
+                "color_order": "next",
+                "sustain_duration": 0.2,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 0,
+                "affect_bar": false,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255],
+                "mode_speed": 255
+            }
+        }
+    ]
+} 

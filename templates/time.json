@@ -1,0 +1,35 @@
+{
+    "name": "time",
+    "description": "Time-based effects",
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.1,
+            "function": "sine",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "pink",
+                "strobe": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.1,
+            "min_brightness": 0,
+            "max_brightness": 100,
+            "color": "blue"
+        }
+    ]
+}
