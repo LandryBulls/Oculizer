@@ -84,6 +84,70 @@
             "brightness_range": [5, 255],
             "color": "white",
             "strobe": 0
-        }
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "white",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "white",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "white",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "white",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        }   
     ]
 }

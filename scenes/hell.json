@@ -1,1 +1,154 @@
-{"name": "hell", "description": "Stochastic red strobe on rgbs. All else off.", "type": "effect", "midi": 59, "key_command": "8", "lights": [{"name": "rgb1", "type": "rgb", "modulator": "bool", "brightness": "random", "max_brightness": 50, "color": "red", "strobe": "random"}, {"name": "rgb2", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb3", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb4", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb5", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb6", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb7", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}, {"name": "rgb8", "type": "rgb", "modulator": "bool", "brightness": "random", "color": "red", "strobe": "random"}]}
+{
+    "name": "hell",
+    "description": "Stochastic red strobe on rgbs. All else off.",
+    "type": "effect",
+    "midi": 59,
+    "key_command": "8",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 50,
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool", 
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random", 
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "red",
+            "strobe": "random"
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_colors": ["red", "black", "black", "black"],
+                "panel_strobe": 100,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],  
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_colors": ["red", "black", "black", "black"],
+                "panel_strobe": 100,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],  
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_colors": ["red", "black", "black", "black"],
+                "panel_strobe": 100,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],  
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],  
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_colors": ["red", "black", "black", "black"],
+                "panel_strobe": 100,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],  
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        }
+    ]
+}

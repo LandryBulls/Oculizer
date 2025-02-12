@@ -1,1 +1,153 @@
-{"name": "chill_blue", "description": "All RGB lights set to blue, subtly reactive to music", "type": "effect", "midi": 37, "key_command": "p", "lights": [{"name": "rgb1", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb2", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb3", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb4", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb5", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb6", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb7", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}, {"name": "rgb8", "type": "rgb", "modulator": "mfft", "color": "blue", "mfft_range": [0, 128], "power_range": [0, 0.5], "brightness_range": [30, 175], "strobe": 0}]}
+{
+    "name": "chill_blue",
+    "description": "All RGB lights set to blue, subtly reactive to music",
+    "type": "effect",
+    "midi": 37,
+    "key_command": "p",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "blue",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "blue",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "blue",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        },   
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [0.5, 3],
+                "brightness_range": [30, 255],
+                "color": "blue",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": false
+            }   
+        }   
+    ]
+}

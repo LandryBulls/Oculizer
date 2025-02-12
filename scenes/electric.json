@@ -89,14 +89,15 @@
                 "direction": "alternating",
                 "sequence_duration": 0.2,
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.01,
                 "panel_strobe": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "bar_threshold": 0.1,
                 "bar_colors": [0, 255],
                 "bar_mode": 0,
-                "bar_sustain": 0.1
+                "bar_sustain": 0.1,
+                "bar_strobe": 255
             }
         },
         {
@@ -104,18 +105,22 @@
             "type": "rockville864",
             "modulator": "mfft",
             "effect": {
-                "name": "rockville_splatter",
-                "panel_colors": ["white", "black", "black", "black"],
+                "name": "rockville_sequential_panels",
+                "colors": ["white"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "direction": "alternating",
+                "sequence_duration": 0.2,
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.01,
                 "panel_strobe": 255,
-                "affect_panel": false,
                 "affect_bar": true,
                 "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
-                "bar_colors": [0, 20],
+                "bar_threshold": 0.1,
+                "bar_colors": [0, 255],
                 "bar_mode": 0,
-                "bar_strobe": 200
+                "bar_sustain": 0.1,
+                "bar_strobe": 255
             }
         },
         {
@@ -123,23 +128,22 @@
             "type": "rockville864",
             "modulator": "mfft",
             "effect": {
-                "name": "rockville_panel_sustain",
+                "name": "rockville_sequential_panels",
                 "colors": ["white"],
                 "combo_mode": "pure",
                 "color_order": "next",
-                "coverage": 0.3,
+                "direction": "alternating",
+                "sequence_duration": 0.2,
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.01,
                 "panel_strobe": 255,
-                "sustain_duration": 0.1,
-                "min_brightness": 0,
-                "max_brightness": 50,
                 "affect_bar": true,
                 "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "bar_threshold": 0.1,
                 "bar_colors": [0, 255],
                 "bar_mode": 0,
-                "bar_sustain": 0.1
+                "bar_sustain": 0.1,
+                "bar_strobe": 255
             }
         },
         {
@@ -154,14 +158,15 @@
                 "direction": "alternating",
                 "sequence_duration": 0.2,
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.01,
                 "panel_strobe": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "bar_threshold": 0.1,
                 "bar_colors": [0, 255],
                 "bar_mode": 0,
-                "bar_sustain": 0.1
+                "bar_sustain": 0.1,
+                "bar_strobe": 255
             }
         }
     ]
