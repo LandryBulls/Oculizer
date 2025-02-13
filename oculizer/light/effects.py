@@ -549,7 +549,7 @@ def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict,
 
     # Set master dimmer and control channels
     channels[0] = 255  # Master dimmer
-    channels[1] = config.get('panel_strobe', 0)  # Panel strobe
+    channels[1] = np.random.randint(0, 256) if config.get('panel_strobe') == 'random' else config.get('panel_strobe', 0)  # Panel strobe
     channels[2] = 0    # Panel manual mode
     channels[3] = config.get('mode_speed', 255)  # Mode speed
     
@@ -618,7 +618,7 @@ def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict,
         else:
             # Use original behavior (no sustain)
             if bar_power >= bar_threshold:
-                channels[28] = config.get('bar_strobe', 0)
+                channels[28] = np.random.randint(0, 256) if config.get('bar_strobe') == 'random' else config.get('bar_strobe', 0)
                 channels[29] = bar_mode
                 channels[30] = config.get('mode_speed', 255)
             

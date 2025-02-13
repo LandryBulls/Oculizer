@@ -89,6 +89,82 @@
             "type": "laser",
             "modulator": "mfft",
             "power_range": [0.3, 0.5]
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [1, 20],
+                "panel_threshold": -1,
+                "panel_colors": ["green", "black"],
+                "panel_strobe": "random",
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [1, 20],
+                "panel_threshold": -1,
+                "panel_colors": ["green", "black"],
+                "panel_strobe": "random",
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [1, 20],
+                "panel_threshold": -1,
+                "panel_colors": ["green", "black"],
+                "panel_strobe": "random",
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_mfft_range": [1, 20],
+                "panel_threshold": -1,
+                "panel_colors": ["green", "black"],
+                "panel_strobe": "random",
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_strobe": 255,
+                "bar_colors": [0, 255],
+                "affect_panel": true,
+                "affect_bar": false,
+                "bar_mode": 0
+            }
         }
     ]
 }

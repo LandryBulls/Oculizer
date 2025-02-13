@@ -130,7 +130,7 @@ def process_mfft(light, mfft_vec):
                 
                 # Channels 1-4: Master and panel effects
                 channels[0] = 255  # Master dimmer always at max
-                channels[1] = panel_config.get('strobe', 0)  # Panel strobe speed
+                channels[1] = np.random.randint(0, 256) if panel_config.get('strobe') == 'random' else panel_config.get('strobe', 0)  # Panel strobe speed
                 channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
                 channels[3] = brightness_magnitude if panel_config.get('mode_speed', 255) == 'auto' else panel_config.get('mode_speed', 0)  # Mode speed
                 
@@ -385,6 +385,24 @@ def process_light(light, mfft_vec, current_time, modifiers=None):
     # First check if there's an effect
     if 'effect' in light:
         effect_config = light['effect']
+        
+        # Handle time modulation if configured
+        if 'time_modulation' in effect_config:
+            time_mod = effect_config['time_modulation']
+            if not modifiers:
+                modifiers = {}
+            # Calculate time-based brightness scale
+            brightness_scale = time_function(
+                current_time,
+                time_mod.get('frequency', 1.0),
+                time_mod.get('function', 'sine')
+            )
+            # Scale between min and max
+            min_bright = time_mod.get('min_brightness', 0) / 255
+            max_bright = time_mod.get('max_brightness', 255) / 255
+            brightness_scale = min_bright + (max_bright - min_bright) * brightness_scale
+            modifiers['brightness_scale'] = brightness_scale
+        
         if isinstance(effect_config, str):
             # Simple case: just effect name
             channels = [0] * 39 if light['type'] == 'rockville864' else [0] * 6  # Initialize channels

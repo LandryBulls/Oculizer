@@ -1,1 +1,190 @@
-{"name": "trance", "description": "All RGBs pulsing purple with a sine wave and maximum strobe", "key_command": "v", "midi": 54, "lights": [{"name": "rgb1", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb2", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb3", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb4", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb5", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb6", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb7", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "rgb8", "type": "rgb", "modulator": "time", "function": "sine", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "purple", "strobe": 255}, {"name": "discoball", "type": "dimmer", "modulator": "bool", "brightness": 255}]}
+{
+    "name": "trance",
+    "description": "All RGBs pulsing purple with a sine wave and maximum strobe",
+    "key_command": "v",
+    "midi": 54,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "discoball",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 255
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "time_modulation": {
+                    "frequency": 0.2,        
+                    "function": "sine",     
+                    "min_brightness": 0,    
+                    "max_brightness": 255    
+                },
+                "panel_colors": ["purple", "blue", "black"],
+                "panel_threshold": -1,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_strobe": 255,
+                "bar_threshold": 0.2,
+                "bar_colors": [0, 100],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "time_modulation": {
+                    "frequency": 0.2,        
+                    "function": "sine",     
+                    "min_brightness": 0,    
+                    "max_brightness": 255    
+                },
+                "panel_colors": ["purple", "blue", "black"],
+                "panel_threshold": -1,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_strobe": 255,
+                "bar_threshold": 0.2,
+                "bar_colors": [0, 100],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "time_modulation": {
+                    "frequency": 0.2,        
+                    "function": "sine",     
+                    "min_brightness": 0,    
+                    "max_brightness": 255    
+                },
+                "panel_colors": ["purple", "blue", "black"],
+                "panel_threshold": -1,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_strobe": 255,
+                "bar_threshold": 0.2,
+                "bar_colors": [0, 100],
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "time_modulation": {
+                    "frequency": 0.2,        
+                    "function": "sine",     
+                    "min_brightness": 0,    
+                    "max_brightness": 255    
+                },
+                "panel_colors": ["purple", "blue", "black"],
+                "panel_threshold": -1,
+                "panel_strobe": 255,
+                "affect_bar": true,
+                "bar_strobe": 255,
+                "bar_threshold": 0.2,
+                "bar_colors": [0, 100],
+                "bar_mode": 0
+            }
+        }
+    ]
+}

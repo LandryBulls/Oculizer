@@ -81,10 +81,11 @@
                 "panel_threshold": 0,
                 "panel_strobe": 255,
                 "affect_panel": true,
-                "affect_bar": false,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
                 "bar_colors": [0, 255],
+                "bar_strobe": 255,
                 "bar_mode": 0
             }
         },
@@ -99,10 +100,11 @@
                 "panel_threshold": 0,
                 "panel_strobe": 255,
                 "affect_panel": true,
-                "affect_bar": false,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
                 "bar_colors": [0, 255],
+                "bar_strobe": 255,
                 "bar_mode": 0
             }
         },
@@ -117,15 +119,16 @@
                 "panel_threshold": 0,
                 "panel_strobe": 255,
                 "affect_panel": true,
-                "affect_bar": false,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
                 "bar_colors": [0, 255],
+                "bar_strobe": 255,
                 "bar_mode": 0
             }
         },
         {
-            "name": "rockville4",
+            "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
             "effect": {
@@ -135,10 +138,11 @@
                 "panel_threshold": 0,
                 "panel_strobe": 255,
                 "affect_panel": true,
-                "affect_bar": false,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.5,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
                 "bar_colors": [0, 255],
+                "bar_strobe": 255,
                 "bar_mode": 0
             }
         }

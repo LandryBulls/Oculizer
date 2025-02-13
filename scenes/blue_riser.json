@@ -104,7 +104,7 @@
                 "color_order": "next",
                 "direction": "left_to_right",
                 "sequence_duration": 0.5,
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.2,
                 "panel_strobe": 255,
                 "affect_bar": true,
                 "bar_sustain": 0.25,
@@ -123,7 +123,7 @@
                 "color_order": "next",
                 "direction": "right_to_left",
                 "sequence_duration": 0.5,
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.2,
                 "panel_strobe": 255,
                 "affect_bar": true,
                 "bar_sustain": 0.25,
@@ -142,7 +142,7 @@
                 "color_order": "next",
                 "direction": "alternating",
                 "sequence_duration": 0.5,
-                "panel_threshold": 0.5,
+                "panel_threshold": 0.2,
                 "panel_strobe": 255,
                 "affect_bar": true,
                 "bar_sustain": 0.25,
@@ -154,22 +154,19 @@
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "time",
-            "panel": {
-                "target": "brightness",
-                "mode": 0,
-                "color": "blue",
-                "strobe": 255,
-                "brightness": "random",
-                "min_brightness": 0,
-                "max_brightness": 255
-            },
-            "bar": {
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "colors": ["blue"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "direction": "alternating",
+                "sequence_duration": 0.5,
+                "panel_threshold": 0.2,
+                "panel_strobe": 255,
                 "affect_bar": true,
-                "mode": 0,
-                "strobe": 255,
-                "brightness": "random",
-                "min_brightness": 0,
-                "max_brightness": 255
+                "bar_sustain": 0.25,
+                "bar_colors": [0, 255],
+                "bar_mode": 0
             }
         }
     ]

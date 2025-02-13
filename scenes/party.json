@@ -140,22 +140,23 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": "trip",
+                "colors": ["blue", "purple"],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 0.5,
-                "panel_strobe": 255,
-                "fade_duration": 0.5,
+                "panel_strobe": 200,
+                "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.1,
+                "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.25
+                "bar_mode": 156,
+                "bar_sustain": 0.25,
+                "bar_strobe": 255
             }
         },
         {
@@ -164,22 +165,23 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": "trip",
+                "colors": ["pink", "blue", "purple"],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 0.5,
-                "panel_strobe": 255,
-                "fade_duration": 0.5,
+                "panel_strobe": 200,
+                "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.1,
+                "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.25
+                "bar_mode": 156,
+                "bar_sustain": 0.25,
+                "bar_strobe": 255
             }
         },
         {
@@ -188,22 +190,23 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": "trip",
+                "colors": ["pink", "blue", "purple"],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 0.5,
-                "panel_strobe": 255,
-                "fade_duration": 0.5,
+                "panel_strobe": 200,
+                "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.1,
+                "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.25
+                "bar_mode": 156,
+                "bar_sustain": 0.25,
+                "bar_strobe": 255
             }
         },
         {
@@ -212,22 +215,23 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": "trip",
+                "colors": ["pink", "blue", "purple"],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 0.5,
-                "panel_strobe": 255,
-                "fade_duration": 0.5,
+                "panel_strobe": 200,
+                "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
                 "affect_bar": true,
                 "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.1,
+                "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.25
+                "bar_mode": 156,
+                "bar_sustain": 0.25,
+                "bar_strobe": 255
             }
         }
     ]
