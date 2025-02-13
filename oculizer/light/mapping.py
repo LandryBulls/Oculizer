@@ -117,39 +117,42 @@ def process_mfft(light, mfft_vec):
         try:
             # Handle panel component (8 sets of RGB bulbs)
             panel_config = light.get('panel', {})
-            panel_mfft_range = panel_config.get('mfft_range', mfft_range)
-            panel_power_range = panel_config.get('power_range', power_range)
-            panel_value_range = panel_config.get('brightness_range', value_range)
-            
-            # Calculate panel brightness from audio
-            brightness_magnitude = mfft_to_value(mfft_vec, panel_mfft_range, panel_power_range, panel_value_range)
-            
-            # Initialize 39 channels
-            channels = [0] * 39
-            
-            # Channels 1-4: Master and panel effects
-            channels[0] = 255  # Master dimmer always at max
-            channels[1] = panel_config.get('strobe', 0)  # Panel strobe speed
-            channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
-            channels[3] = brightness_magnitude if panel_config.get('mode_speed', 255) == 'auto' else panel_config.get('mode_speed', 0)  # Mode speed
-            
-            # If mode is 0, use direct RGB control, otherwise RGB channels are background
-            if channels[2] == 0:
-                color = color_to_rgb(panel_config.get('color', 'random'))
-                scaled_color = [int(c * brightness_magnitude / 255) for c in color]
+            if panel_config.get('affect_panel', True):
+                panel_mfft_range = panel_config.get('mfft_range', mfft_range)
+                panel_power_range = panel_config.get('power_range', power_range)
+                panel_value_range = panel_config.get('brightness_range', value_range)
                 
-                # Set all 8 RGB bulb sets (channels 5-28)
-                for i in range(8):
-                    base_idx = 4 + (i * 3)
-                    channels[base_idx:base_idx + 3] = scaled_color
+                # Calculate panel brightness from audio
+                brightness_magnitude = mfft_to_value(mfft_vec, panel_mfft_range, panel_power_range, panel_value_range)
+                
+                # Initialize 39 channels
+                channels = [0] * 39
+                
+                # Channels 1-4: Master and panel effects
+                channels[0] = 255  # Master dimmer always at max
+                channels[1] = panel_config.get('strobe', 0)  # Panel strobe speed
+                channels[2] = np.random.randint(126, 255) if panel_config.get('mode') == 'random' else panel_config.get('mode', 0)
+                channels[3] = brightness_magnitude if panel_config.get('mode_speed', 255) == 'auto' else panel_config.get('mode_speed', 0)  # Mode speed
+                
+                # If mode is 0, use direct RGB control, otherwise RGB channels are background
+                if channels[2] == 0:
+                    color = color_to_rgb(panel_config.get('color', 'random'))
+                    scaled_color = [int(c * brightness_magnitude / 255) for c in color]
+                    
+                    # Set all 8 RGB bulb sets (channels 5-28)
+                    for i in range(8):
+                        base_idx = 4 + (i * 3)
+                        channels[base_idx:base_idx + 3] = scaled_color
+                else:
+                    # When mode is active, use color as background
+                    color = color_to_rgb(panel_config.get('color', 'random'))
+                    scaled_color = [int(c * brightness_magnitude / 255) for c in color]
+                    # Set background color for all RGB channels
+                    for i in range(8):
+                        base_idx = 4 + (i * 3)
+                        channels[base_idx:base_idx + 3] = scaled_color
             else:
-                # When mode is active, use color as background
-                color = color_to_rgb(panel_config.get('color', 'random'))
-                scaled_color = [int(c * brightness_magnitude / 255) for c in color]
-                # Set background color for all RGB channels
-                for i in range(8):
-                    base_idx = 4 + (i * 3)
-                    channels[base_idx:base_idx + 3] = scaled_color
+                channels = [0] * 39
             
             bar_config = light.get('bar', {})
             if bar_config.get('affect_bar', True):
@@ -244,7 +247,7 @@ def process_bool(light):
                     channels[31:39] = [0] * 8
             else:
                 # If affect_bar is False, set all bar channels to 0
-                channels[28:39] = [0] * 11  # Fixed number of channels to match array size
+                channels[28:39] = [0] * 11  
             
             return channels
             
