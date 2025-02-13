@@ -13,6 +13,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
     parser.add_argument('-p', '--profile', type=str, default='rockville',
                       help='Profile to use (default: rockville)')
+    parser.add_argument('-i', '--input', type=str, default='blackhole',
+                      help='Audio input device to use (default: blackhole, options: blackhole, scarlett)')
     return parser.parse_args()
 
 def sort_scenes_alphabetically(scenes):
@@ -45,11 +47,11 @@ def find_scene_by_prefix(scenes, prefix):
             return i
     return -1
 
-def main(stdscr, profile):
+def main(stdscr, profile, input_device):
     # Initialize scene manager and light controller
     scene_manager = SceneManager('scenes')
     scene_manager.set_scene('party')  # Set an initial scene
-    light_controller = Oculizer(profile, scene_manager)
+    light_controller = Oculizer(profile, scene_manager, input_device)
     light_controller.start()
 
     # Sort scenes alphabetically
@@ -222,4 +224,4 @@ def main(stdscr, profile):
 
 if __name__ == '__main__':
     args = parse_args()
-    curses.wrapper(lambda stdscr: main(stdscr, args.profile)) 
+    curses.wrapper(lambda stdscr: main(stdscr, args.profile, args.input.lower())) 

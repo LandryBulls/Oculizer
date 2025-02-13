@@ -36,15 +36,16 @@ n_channels = {
 }
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager):
+    def __init__(self, profile_name, scene_manager, input_device='blackhole'):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
+        self.input_device = input_device.lower()
         self.sample_rate = audio_parameters['SAMPLERATE']
         self.block_size = audio_parameters['BLOCKSIZE']
         self.hop_length = audio_parameters['HOP_LENGTH']
         self.channels = 1
         self.mfft_queue = queue.Queue(maxsize=1)
-        self.device_idx = self._get_blackhole_device_idx()
+        self.device_idx = self._get_audio_device_idx()
         self.running = threading.Event()
         self.scene_manager = scene_manager
         self.profile = self._load_profile()
@@ -55,12 +56,21 @@ class Oculizer(threading.Thread):
         # Set scene_changed event to trigger initial orchestrator setup
         self.scene_changed.set()
 
-    def _get_blackhole_device_idx(self):
+    def _get_audio_device_idx(self):
         devices = sd.query_devices()
         for i, device in enumerate(devices):
-            if 'BlackHole' in device['name']:
+            if self.input_device == 'blackhole' and 'BlackHole' in device['name']:
                 return i
-        return None
+            elif self.input_device == 'scarlett' and 'Scarlett' in device['name'] and device['max_input_channels'] > 0:
+                return i
+        
+        # If device not found, print available devices and raise error
+        print("\nAvailable audio input devices:")
+        for i, device in enumerate(devices):
+            if device['max_input_channels'] > 0:  # Only show input devices
+                print(f"{i}: {device['name']}")
+        
+        raise ValueError(f"Audio input device '{self.input_device}' not found. Please check available devices above.")
 
     def _load_profile(self):
         current_dir = Path(__file__).resolve().parent
