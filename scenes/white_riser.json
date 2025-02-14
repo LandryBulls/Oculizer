@@ -1,1 +1,173 @@
-{"name": "white_riser", "description": "white riser strobe", "type": "build", "midi": 48, "key_command": "b", "lights": [{"name": "rgb1", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.2, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb2", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb3", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb4", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb5", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb6", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb7", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}, {"name": "rgb8", "type": "rgb", "modulator": "time", "function": "sawtooth_forward", "frequency": 0.5, "min_brightness": 0, "max_brightness": 255, "color": "white", "strobe": 255}]}
+{
+    "name": "white_riser",
+    "description": "white riser strobe",
+    "type": "build",
+    "midi": 48,
+    "key_command": "b",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.2,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "time",
+            "function": "sawtooth_forward",
+            "frequency": 0.5,
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 255,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 255,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 255,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864", 
+            "modulator": "time",
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 255,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        }
+    ]
+}

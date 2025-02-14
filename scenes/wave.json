@@ -92,6 +92,74 @@
       "max_brightness": 255,
       "color": "blue",
       "strobe": 0
+    },
+    {
+      "name": "rockville1",
+      "type": "rockville864",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "blue",
+        "strobe": 0,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
+    },
+    {
+      "name": "rockville2",
+      "type": "rockville864",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "blue",
+        "strobe": 0,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
+    },
+    {
+      "name": "rockville3",
+      "type": "rockville864",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "blue",
+        "strobe": 0,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
+    },
+    {
+      "name": "rockville4",
+      "type": "rockville864",
+      "modulator": "time",
+      "function": "sine",
+      "frequency": 0.1,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "blue",
+        "strobe": 0,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
     }
   ]
 }
