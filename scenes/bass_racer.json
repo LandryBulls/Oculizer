@@ -1,5 +1,5 @@
 {
-    "name": "blue_bass_pulse",
+    "name": "bass_racer",
     "description": "All RGBs pulsing blue with bass, high-frequency reactive strobe",
     "key_command": "r",
     "midi": 52,
@@ -85,16 +85,6 @@
             "strobe": 255
         },
         {
-            "name": "strobe",
-            "type": "strobe",
-            "modulator": "mfft",
-            "threshold": 0.05,
-            "brightness": 255,
-            "mfft_range": [115, 127],
-            "power_range": [1, 4],
-            "speed": 1
-        },
-        {
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
@@ -178,7 +168,7 @@
     "orchestrator": {
         "type": "racer",
         "config": {
-            "target_lights": ["rockville1", "rgb1", "rockville2", "rgb2", "rgb3", "rgb4", "rockville3", "rgb5", "rockville4", "rgb6"],
+            "target_lights": ["rockville1", "rockville2", "rockville3", "rockville4", "rgb1", "rgb2", "rgb3", "rgb4", "rgb5", "rgb6", "rgb7", "rgb8"],
             "frequency": 8,
             "order": "forward"
         }

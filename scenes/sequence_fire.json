@@ -1,0 +1,112 @@
+{
+    "name": "sequence_fire",
+    "description": "Sequential activation with warm fire colors",
+    "key_command": "1",
+    "midi": 61,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["red", "orange", "yellow"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["red", "orange", "yellow"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["red", "orange", "yellow"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["red", "orange", "yellow"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": true,
+                "bar_sustain": 0.2,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.03,
+                "bar_mode": "random",
+                "bar_strobe": 255,
+                "bar_colors": [255]
+            }   
+        }
+    ]
+} 

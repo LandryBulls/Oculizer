@@ -12,7 +12,7 @@
             "effect": {
                 "name": "rockville_splatter",
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 1.0,
                 "panel_colors": ["green", "purple", "black"],
                 "panel_strobe": 255,
                 "bar_mfft_range": [115, 127],
@@ -32,7 +32,7 @@
             "effect": {
                 "name": "rockville_splatter",
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 1.0,
                 "panel_colors": ["green", "purple", "black"],
                 "panel_strobe": 255,
                 "bar_mfft_range": [115, 127],
@@ -52,7 +52,7 @@
             "effect": {
                 "name": "rockville_splatter",
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 1.0,
                 "panel_colors": ["green", "purple", "black"],
                 "panel_strobe": 255,
                 "bar_mfft_range": [115, 127],
@@ -72,7 +72,7 @@
             "effect": {
                 "name": "rockville_splatter",
                 "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
+                "panel_threshold": 1.0,
                 "panel_colors": ["green", "purple", "black"],
                 "panel_strobe": 255,
                 "bar_mfft_range": [115, 127],

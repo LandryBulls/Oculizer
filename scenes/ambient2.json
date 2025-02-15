@@ -110,7 +110,7 @@
             "frequency": 0.1,
             "function": "sine",
             "min_brightness": 0,
-            "max_brightness": 255,
+            "max_brightness": 75,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -129,7 +129,7 @@
             "frequency": 0.15,
             "function": "sine", 
             "min_brightness": 0,
-            "max_brightness": 200,
+            "max_brightness": 75,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -148,7 +148,7 @@
             "frequency": 0.08,
             "function": "triangle",
             "min_brightness": 20,
-            "max_brightness": 255,
+            "max_brightness": 75,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -167,7 +167,7 @@
             "frequency": 0.12,
             "function": "sine",
             "min_brightness": 10,
-            "max_brightness": 180,
+            "max_brightness": 75,
             "panel": {
                 "target": "brightness",
                 "mode": 0,

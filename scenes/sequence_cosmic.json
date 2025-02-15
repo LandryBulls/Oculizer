@@ -1,8 +1,8 @@
 {
-    "name": "sequence",
-    "description": "Sequential activation of panel pairs with configurable direction and colors",
-    "key_command": "q",
-    "midi": 60,
+    "name": "sequence_cosmic",
+    "description": "Sequential activation with cosmic colors",
+    "key_command": "3",
+    "midi": 63,
     "lights": [
         {
             "name": "rockville1",
@@ -13,7 +13,7 @@
                 "name": "rockville_sequential_panels",
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 2.0,
-                "colors": ["white", "blue", "teal"],
+                "colors": ["purple", "pink", "blue"],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "sequence_duration": 0.15,
@@ -39,7 +39,7 @@
                 "name": "rockville_sequential_panels",
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 2.0,
-                "colors": ["white", "blue", "teal"],
+                "colors": ["purple", "pink", "blue"],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "sequence_duration": 0.15,
@@ -65,7 +65,7 @@
                 "name": "rockville_sequential_panels",
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 2.0,
-                "colors": ["white", "blue", "teal"],
+                "colors": ["purple", "pink", "blue"],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "sequence_duration": 0.15,
@@ -91,7 +91,7 @@
                 "name": "rockville_sequential_panels",
                 "panel_mfft_range": [0, 20],
                 "panel_threshold": 2.0,
-                "colors": ["white", "blue", "teal"],
+                "colors": ["purple", "pink", "blue"],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "sequence_duration": 0.15,
@@ -109,4 +109,4 @@
             }   
         }
     ]
-}
+} 

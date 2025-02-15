@@ -11,7 +11,7 @@ from oculizer.scenes import SceneManager
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
-    parser.add_argument('-p', '--profile', type=str, default='rockville',
+    parser.add_argument('-p', '--profile', type=str, default='bbgv',
                       help='Profile to use (default: rockville)')
     parser.add_argument('-i', '--input', type=str, default='blackhole',
                       help='Audio input device to use (default: blackhole, options: blackhole, scarlett)')

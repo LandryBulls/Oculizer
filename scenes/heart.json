@@ -1,1 +1,0 @@
-{"name": "heart", "description": "Warm and cozy for acoustic songs.", "type": "effect", "midi": 73, "key_command": "v", "lights": [{"name": "orb", "type": "dimmer", "modulator": "mfft", "mfft_range": [0, 20], "brightness_range": [50, 255], "power_range": [0, 5]}]}

@@ -1,0 +1,132 @@
+{
+    "name": "white",
+    "description": "white",
+    "type": "effect",
+    "midi": 80,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb2", 
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb", 
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool", 
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white", 
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "color": "white",
+            "brightness": 255,
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 0,
+                "brightness": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864", 
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 0,
+                "brightness": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 0,
+                "brightness": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "white",
+                "strobe": 0,
+                "brightness": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        }
+    ]
+} 

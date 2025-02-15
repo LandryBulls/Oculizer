@@ -1,15 +1,15 @@
 {
-    "name": "chill_pink",
-    "description": "All RGB lights set to pink, subtly reactive to music",
+    "name": "chill_red",
+    "description": "All RGB lights set to red, subtly reactive to music",
     "type": "effect",
-    "midi": 39,
-    "key_command": "p",
+    "midi": 40,
+    "key_command": "q",
     "lights": [
         {
             "name": "rgb1",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -19,7 +19,7 @@
             "name": "rgb2",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -29,7 +29,7 @@
             "name": "rgb3",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -39,7 +39,7 @@
             "name": "rgb4",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -49,7 +49,7 @@
             "name": "rgb5",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -59,7 +59,7 @@
             "name": "rgb6",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -69,7 +69,7 @@
             "name": "rgb7",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -79,7 +79,7 @@
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "pink",
+            "color": "red",
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
             "brightness_range": [10, 100],
@@ -93,7 +93,7 @@
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
                 "brightness_range": [10, 75],
-                "color": "pink",
+                "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
@@ -109,7 +109,7 @@
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
                 "brightness_range": [10, 75],
-                "color": "pink",
+                "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
@@ -125,7 +125,7 @@
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
                 "brightness_range": [10, 75],
-                "color": "pink",
+                "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
@@ -141,7 +141,7 @@
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
                 "brightness_range": [10, 75],
-                "color": "pink",
+                "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
@@ -150,4 +150,4 @@
             }   
         }   
     ]
-}
+} 

@@ -1,1 +1,0 @@
-{"name": "disco", "description": "Disco scene. Disco ball and RGB wavies.", "type": "effect", "midi": 72, "key_command": "4", "lights": [{"name": "discoball", "type": "dimmer", "modulator": "bool", "brightness": 100}]}
