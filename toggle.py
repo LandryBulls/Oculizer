@@ -5,6 +5,7 @@ import curses
 import time
 import argparse
 from collections import OrderedDict
+import math
 
 from oculizer.light import Oculizer
 from oculizer.scenes import SceneManager
@@ -12,7 +13,7 @@ from oculizer.scenes import SceneManager
 def parse_args():
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
     parser.add_argument('-p', '--profile', type=str, default='bbgv',
-                      help='Profile to use (default: rockville)')
+                      help='Profile to use (default: bbgv)')
     parser.add_argument('-i', '--input', type=str, default='blackhole',
                       help='Audio input device to use (default: blackhole, options: blackhole, scarlett)')
     return parser.parse_args()
@@ -47,6 +48,30 @@ def find_scene_by_prefix(scenes, prefix):
             return i
     return -1
 
+def calculate_grid_dimensions(scene_list, max_x, max_y):
+    # Find the longest scene name to determine column width
+    max_name_length = max(len(scene[0]) for scene in scene_list) + 2  # Add 2 for padding
+    
+    # Calculate number of columns that can fit
+    num_columns = max(1, min(len(scene_list), max_x // max_name_length))
+    
+    # Calculate number of rows needed
+    num_rows = math.ceil(len(scene_list) / num_columns)
+    
+    # Adjust column width to be uniform
+    column_width = max_x // num_columns
+    
+    return num_rows, num_columns, column_width
+
+def get_grid_position(index, num_columns):
+    row = index // num_columns
+    col = index % num_columns
+    return row, col
+
+def get_index_from_position(row, col, num_columns, total_scenes):
+    index = row * num_columns + col
+    return min(index, total_scenes - 1)
+
 def main(stdscr, profile, input_device):
     # Initialize scene manager and light controller
     scene_manager = SceneManager('scenes')
@@ -57,28 +82,29 @@ def main(stdscr, profile, input_device):
     # Sort scenes alphabetically
     scene_manager.scenes = sort_scenes_alphabetically(scene_manager.scenes)
 
-    # Enable mouse events and keyboard input with extended mouse tracking
+    # Enable mouse events and keyboard input
     curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
     print('\033[?1003h')  # Enable mouse movement tracking
-    stdscr.keypad(1)  # Enable keypad mode for arrow keys
-    stdscr.nodelay(1)  # Non-blocking input
+    stdscr.keypad(1)
+    stdscr.nodelay(1)
     init_colors()
 
-    # Initialize navigation variables
-    scroll_position = 0  # Current scroll position
-    selected_index = 0  # Currently selected (but not activated) scene index
+    # Initialize variables
+    selected_index = 0
     current_scene_name = scene_manager.current_scene['name']
-    hover_y = -1  # Track mouse hover position
-    search_string = ""  # Track current search string
-    last_search_time = time.time()  # Track when the last search character was entered
+    search_string = ""
+    last_search_time = time.time()
+    hover_pos = (-1, -1)
 
     try:
         while True:
             stdscr.clear()
             max_y, max_x = stdscr.getmaxyx()
-            visible_range = max_y - 5  # Reserve space for header and footer
-            total_scenes = len(scene_manager.scenes)
             scene_list = list(scene_manager.scenes.items())
+            total_scenes = len(scene_list)
+
+            # Calculate grid layout
+            num_rows, num_columns, column_width = calculate_grid_dimensions(scene_list, max_x, max_y - 5)
 
             # Display header
             header_text = f"Current scene: {current_scene_name} (Profile: {profile})"
@@ -86,60 +112,53 @@ def main(stdscr, profile, input_device):
             if search_string:
                 header_text += f" [Search: {search_string}]"
             
-            # Calculate padding to right-align commands
             padding = max(1, max_x - len(header_text) - len(commands_text))
-            
-            # Display header line with right-aligned commands
             stdscr.addstr(0, 0, header_text, curses.color_pair(5))
             stdscr.addstr(0, len(header_text) + padding, commands_text, curses.color_pair(6))
-            
             stdscr.addstr(1, 0, "Available scenes:", curses.color_pair(5))
 
-            # Display scenes
-            for i, (scene, _) in enumerate(scene_list[scroll_position:scroll_position+visible_range]):
-                if i >= visible_range:
+            # Display scenes in grid
+            for i, (scene, _) in enumerate(scene_list):
+                row, col = get_grid_position(i, num_columns)
+                if row >= num_rows or row >= max_y - 5:  # Account for header and footer
                     break
-                
-                display_y = i + 3
+
+                display_y = row + 3  # Start after header
+                display_x = col * column_width
+
                 scene_str = scene
-                if len(scene_str) > max_x:
-                    scene_str = scene_str[:max_x-3] + "..."
+                if len(scene_str) > column_width - 2:
+                    scene_str = scene_str[:column_width - 5] + "..."
 
                 # Determine scene display style
                 if scene == current_scene_name:
-                    color = curses.color_pair(1)  # White on green for active scene
-                elif i + scroll_position == selected_index:
-                    color = curses.color_pair(2)  # Black on yellow for selected scene
-                elif display_y == hover_y:
-                    color = curses.color_pair(3)  # White on blue for hover
+                    color = curses.color_pair(1)
+                elif i == selected_index:
+                    color = curses.color_pair(2)
+                elif (row, col) == hover_pos:
+                    color = curses.color_pair(3)
                 else:
-                    color = curses.color_pair(4)  # White on default for other scenes
+                    color = curses.color_pair(4)
 
-                # Pad the scene name with spaces to fill the line for full-width highlighting
-                scene_str = scene_str.ljust(max_x)
+                # Pad scene name to column width
+                scene_str = scene_str.ljust(column_width - 1)
+                stdscr.addstr(display_y, display_x, scene_str, color)
 
-                stdscr.addstr(display_y, 0, scene_str, color)
-
-            # Display scroll information and instructions
-            if total_scenes > visible_range:
-                stdscr.addstr(max_y-2, 0, f"Scroll: {scroll_position+1}-{min(scroll_position+visible_range, total_scenes)}/{total_scenes}")
-            stdscr.addstr(max_y-1, 0, "Ctrl+Q to quit, Ctrl+R to reload, type to search, Up/Down/Mouse to navigate, Enter to activate", curses.color_pair(6))
+            # Display instructions
+            instructions = "Ctrl+Q to quit, Ctrl+R to reload, type to search, Arrow keys to navigate, Enter to activate"
+            stdscr.addstr(max_y-1, 0, instructions, curses.color_pair(6))
 
             stdscr.refresh()
 
-            # Handle input
             try:
                 event = stdscr.getch()
                 current_time = time.time()
 
-                # Reset search string if more than 1 second has passed since last character
                 if search_string and current_time - last_search_time > 1.0:
                     search_string = ""
 
-                # Check for Ctrl+Q (17 is Ctrl+Q in ASCII)
                 if event == 17:  # Ctrl+Q
                     break
-                # Check for Ctrl+R (18 is Ctrl+R in ASCII)
                 elif event == 18:  # Ctrl+R
                     try:
                         scene_manager.reload_scenes()
@@ -148,66 +167,58 @@ def main(stdscr, profile, input_device):
                         scene_list = list(scene_manager.scenes.items())
                         total_scenes = len(scene_list)
                         stdscr.addstr(max_y-1, 0, "Scenes reloaded successfully.", curses.color_pair(5))
-                    except ValueError as e:
-                        # Split error message into lines if it's too long
-                        error_lines = str(e).split('\n')
-                        for i, line in enumerate(error_lines[:3]):  # Show up to 3 lines of errors
-                            if i == 2 and len(error_lines) > 3:
-                                line += f" (and {len(error_lines)-3} more errors)"
-                            stdscr.addstr(max_y-3+i, 0, line.ljust(max_x), curses.color_pair(1))
                     except Exception as e:
                         stdscr.addstr(max_y-1, 0, f"Error reloading scenes: {str(e)}", curses.color_pair(1))
                     stdscr.refresh()
-                    time.sleep(2)  # Give more time to read errors
-                elif event == curses.KEY_UP and selected_index > 0:
-                    selected_index -= 1
-                    if selected_index < scroll_position:
-                        scroll_position = selected_index
-                    search_string = ""  # Clear search when using arrow keys
-                elif event == curses.KEY_DOWN and selected_index < total_scenes - 1:
-                    selected_index += 1
-                    if selected_index >= scroll_position + visible_range:
-                        scroll_position = selected_index - visible_range + 1
-                    search_string = ""  # Clear search when using arrow keys
+                    time.sleep(2)
+                elif event in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
+                    row, col = get_grid_position(selected_index, num_columns)
+                    
+                    if event == curses.KEY_UP and row > 0:
+                        row -= 1
+                    elif event == curses.KEY_DOWN and row < num_rows - 1:
+                        row += 1
+                    elif event == curses.KEY_LEFT and col > 0:
+                        col -= 1
+                    elif event == curses.KEY_RIGHT and col < num_columns - 1:
+                        col += 1
+                    
+                    new_index = get_index_from_position(row, col, num_columns, total_scenes)
+                    if 0 <= new_index < total_scenes:
+                        selected_index = new_index
+                        search_string = ""
                 elif event == curses.KEY_MOUSE:
                     _, mx, my, _, bstate = curses.getmouse()
-                    if my >= 3 and my < min(3 + visible_range, 3 + total_scenes):
-                        hover_y = my
-                        if bstate & curses.BUTTON1_CLICKED:  # Left click
-                            new_index = scroll_position + (my - 3)
-                            if new_index < total_scenes:
+                    if my >= 3 and my < min(3 + num_rows, max_y - 1):
+                        row = my - 3
+                        col = mx // column_width
+                        hover_pos = (row, col)
+                        
+                        if bstate & curses.BUTTON1_CLICKED:
+                            new_index = get_index_from_position(row, col, num_columns, total_scenes)
+                            if 0 <= new_index < total_scenes:
                                 selected_index = new_index
-                                search_string = ""  # Clear search when clicking
-                elif event == curses.KEY_ENTER or event == 10 or event == 13:  # Enter key
+                                search_string = ""
+                elif event in [curses.KEY_ENTER, 10, 13]:  # Enter key
                     if 0 <= selected_index < total_scenes:
                         new_scene = scene_list[selected_index][0]
                         light_controller.change_scene(new_scene)
                         current_scene_name = new_scene
-                        search_string = ""  # Clear search when activating scene
+                        search_string = ""
                 elif event == 27:  # ESC key
-                    search_string = ""  # Clear search string
-                elif event == curses.KEY_BACKSPACE or event == 127 or event == 8:  # Backspace
+                    search_string = ""
+                elif event in [curses.KEY_BACKSPACE, 127, 8]:  # Backspace
                     search_string = search_string[:-1]
                     last_search_time = current_time
                     new_index = find_scene_by_prefix(scene_list, search_string)
                     if new_index != -1:
                         selected_index = new_index
-                        # Adjust scroll position if necessary
-                        if selected_index < scroll_position:
-                            scroll_position = selected_index
-                        elif selected_index >= scroll_position + visible_range:
-                            scroll_position = selected_index - visible_range + 1
                 elif 32 <= event <= 126:  # Printable characters
                     search_string += chr(event)
                     last_search_time = current_time
                     new_index = find_scene_by_prefix(scene_list, search_string)
                     if new_index != -1:
                         selected_index = new_index
-                        # Adjust scroll position if necessary
-                        if selected_index < scroll_position:
-                            scroll_position = selected_index
-                        elif selected_index >= scroll_position + visible_range:
-                            scroll_position = selected_index - visible_range + 1
 
             except curses.error:
                 pass
@@ -215,9 +226,7 @@ def main(stdscr, profile, input_device):
             time.sleep(0.01)
 
     finally:
-        # Clean up mouse tracking
         print('\033[?1003l')
-        # Clean up light controller
         light_controller.stop()
         light_controller.join()
         curses.endwin()
