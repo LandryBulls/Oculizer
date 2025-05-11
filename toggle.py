@@ -6,14 +6,23 @@ import time
 import argparse
 from collections import OrderedDict
 import math
+import logging
+from io import StringIO
 
 from oculizer.light import Oculizer
 from oculizer.scenes import SceneManager
 
+# Add a log handler that writes to a string buffer
+log_buffer = StringIO()
+log_handler = logging.StreamHandler(log_buffer)
+log_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+logging.getLogger().addHandler(log_handler)
+logging.getLogger().setLevel(logging.INFO)
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
-    parser.add_argument('-p', '--profile', type=str, default='bbgv',
-                      help='Profile to use (default: bbgv)')
+    parser.add_argument('-p', '--profile', type=str, default='rockville',
+                      help='Profile to use (default: rockville)')
     parser.add_argument('-i', '--input', type=str, default='blackhole',
                       help='Audio input device to use (default: blackhole, options: blackhole, scarlett)')
     return parser.parse_args()
@@ -38,6 +47,10 @@ def init_colors():
     curses.init_pair(6, curses.COLOR_MAGENTA, -1)
     # Search text: Yellow text on default background
     curses.init_pair(7, curses.COLOR_YELLOW, -1)
+    # Add new color pairs for status display
+    curses.init_pair(8, curses.COLOR_GREEN, -1)  # Success/Active status
+    curses.init_pair(9, curses.COLOR_RED, -1)    # Error/Warning status
+    curses.init_pair(10, curses.COLOR_BLUE, -1)  # Info status
 
 def find_scene_by_prefix(scenes, prefix):
     if not prefix:
@@ -104,7 +117,7 @@ def main(stdscr, profile, input_device):
             total_scenes = len(scene_list)
 
             # Calculate grid layout
-            num_rows, num_columns, column_width = calculate_grid_dimensions(scene_list, max_x, max_y - 5)
+            num_rows, num_columns, column_width = calculate_grid_dimensions(scene_list, max_x, max_y - 15)  # Reserve space for status
 
             # Display header
             header_text = f"Current scene: {current_scene_name} (Profile: {profile})"
@@ -120,7 +133,7 @@ def main(stdscr, profile, input_device):
             # Display scenes in grid
             for i, (scene, _) in enumerate(scene_list):
                 row, col = get_grid_position(i, num_columns)
-                if row >= num_rows or row >= max_y - 5:  # Account for header and footer
+                if row >= num_rows or row >= max_y - 15:  # Account for header and status section
                     break
 
                 display_y = row + 3  # Start after header
@@ -143,6 +156,44 @@ def main(stdscr, profile, input_device):
                 # Pad scene name to column width
                 scene_str = scene_str.ljust(column_width - 1)
                 stdscr.addstr(display_y, display_x, scene_str, color)
+
+            # Display status section
+            status_y = max_y - 12
+            stdscr.addstr(status_y, 0, "=== System Status ===", curses.color_pair(5))
+            
+            # Display current scene details
+            scene_info = scene_manager.current_scene
+            stdscr.addstr(status_y + 1, 2, f"Active Scene: {current_scene_name}", curses.color_pair(8))
+            if 'orchestrator' in scene_info:
+                orch_type = scene_info['orchestrator']['type']
+                stdscr.addstr(status_y + 1, 40, f"Orchestrator: {orch_type}", curses.color_pair(10))
+
+            # Display audio input status
+            audio_status = "✓ Connected" if light_controller.running.is_set() else "✗ Disconnected"
+            audio_color = curses.color_pair(8) if light_controller.running.is_set() else curses.color_pair(9)
+            stdscr.addstr(status_y + 2, 2, f"Audio Input ({input_device}): {audio_status}", audio_color)
+
+            # Display active lights
+            active_lights = [light['name'] for light in scene_info['lights'] if light['name'] in light_controller.light_names]
+            stdscr.addstr(status_y + 3, 2, "Active Lights:", curses.color_pair(10))
+            light_str = ", ".join(active_lights)
+            if len(light_str) > max_x - 20:
+                light_str = light_str[:max_x - 23] + "..."
+            stdscr.addstr(status_y + 3, 16, light_str, curses.color_pair(8))
+
+            # Display recent logs
+            stdscr.addstr(status_y + 5, 0, "=== Recent Logs ===", curses.color_pair(5))
+            log_lines = log_buffer.getvalue().splitlines()[-5:]  # Get last 5 log lines
+            for i, line in enumerate(log_lines):
+                if i + status_y + 6 < max_y - 1:
+                    color = curses.color_pair(4)
+                    if "ERROR" in line:
+                        color = curses.color_pair(9)
+                    elif "WARNING" in line:
+                        color = curses.color_pair(7)
+                    elif "INFO" in line:
+                        color = curses.color_pair(10)
+                    stdscr.addstr(status_y + 6 + i, 2, line[:max_x-4], color)
 
             # Display instructions
             instructions = "Ctrl+Q to quit, Ctrl+R to reload, type to search, Arrow keys to navigate, Enter to activate"
