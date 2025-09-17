@@ -12,6 +12,8 @@ import numpy as np
 import sounddevice as sd
 from librosa.feature import melspectrogram
 from PyDMXControl.controllers import OpenDMXController # type: ignore
+from oculizer.light.enttec_controller import EnttecProController
+from oculizer.light.dmx_config import get_dmx_config
 from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
 from oculizer.custom_profiles.RGB import RGB
 from oculizer.custom_profiles.ADJ_strobe import Strobe
@@ -72,6 +74,95 @@ class Oculizer(threading.Thread):
         
         raise ValueError(f"Audio input device '{self.input_device}' not found. Please check available devices above.")
 
+    def _create_dimmer_fixture(self, name, start_channel, channels, controller):
+        """Create a dimmer fixture for EnttecProController."""
+        class DimmerFixture:
+            def __init__(self, name, start_channel, channels, controller):
+                self.name = name
+                self.start_channel = start_channel
+                self.n_channels = channels
+                self.controller = controller
+            
+            def dim(self, value):
+                """Set dimmer value."""
+                self.controller.set_channel(self.start_channel, value)
+            
+            def set_channels(self, values):
+                """Set channel values."""
+                for i, value in enumerate(values):
+                    if i < self.n_channels:
+                        self.controller.set_channel(self.start_channel + i, value)
+        
+        return DimmerFixture(name, start_channel, channels, controller)
+
+    def _create_rgb_fixture(self, name, start_channel, channels, controller):
+        """Create an RGB fixture for EnttecProController."""
+        class RGBFixture:
+            def __init__(self, name, start_channel, channels, controller):
+                self.name = name
+                self.start_channel = start_channel
+                self.n_channels = channels
+                self.controller = controller
+            
+            def set_channels(self, values):
+                """Set RGB channel values."""
+                for i, value in enumerate(values):
+                    if i < self.n_channels:
+                        self.controller.set_channel(self.start_channel + i, value)
+        
+        return RGBFixture(name, start_channel, channels, controller)
+
+    def _create_strobe_fixture(self, name, start_channel, channels, controller):
+        """Create a strobe fixture for EnttecProController."""
+        class StrobeFixture:
+            def __init__(self, name, start_channel, channels, controller):
+                self.name = name
+                self.start_channel = start_channel
+                self.n_channels = channels
+                self.controller = controller
+            
+            def set_channels(self, values):
+                """Set strobe channel values."""
+                for i, value in enumerate(values):
+                    if i < self.n_channels:
+                        self.controller.set_channel(self.start_channel + i, value)
+        
+        return StrobeFixture(name, start_channel, channels, controller)
+
+    def _create_laser_fixture(self, name, start_channel, channels, controller):
+        """Create a laser fixture for EnttecProController."""
+        class LaserFixture:
+            def __init__(self, name, start_channel, channels, controller):
+                self.name = name
+                self.start_channel = start_channel
+                self.n_channels = channels
+                self.controller = controller
+            
+            def set_channels(self, values):
+                """Set laser channel values."""
+                for i, value in enumerate(values):
+                    if i < self.n_channels:
+                        self.controller.set_channel(self.start_channel + i, value)
+        
+        return LaserFixture(name, start_channel, channels, controller)
+
+    def _create_rockville_fixture(self, name, start_channel, channels, controller):
+        """Create a Rockville fixture for EnttecProController."""
+        class RockvilleFixture:
+            def __init__(self, name, start_channel, channels, controller):
+                self.name = name
+                self.start_channel = start_channel
+                self.n_channels = channels
+                self.controller = controller
+            
+            def set_channels(self, values):
+                """Set Rockville channel values."""
+                for i, value in enumerate(values):
+                    if i < self.n_channels:
+                        self.controller.set_channel(self.start_channel + i, value)
+        
+        return RockvilleFixture(name, start_channel, channels, controller)
+
     def _load_profile(self):
         current_dir = Path(__file__).resolve().parent
         project_root = current_dir.parent.parent
@@ -89,7 +180,13 @@ class Oculizer(threading.Thread):
                     print(f"Retrying DMX connection (attempt {attempt + 1}/{max_retries})...")
                     time.sleep(retry_delay)
                 
-                controller = OpenDMXController()
+                # Use EnttecProController for DMXKing ultraDMX MAX
+                dmx_config = get_dmx_config()
+                controller = EnttecProController(
+                    port=dmx_config['port'],
+                    baudrate=dmx_config['baudrate'],
+                    timeout=dmx_config['timeout']
+                )
                 control_dict = {}
                 curr_channel = 1
                 sleeptime = 0.1
@@ -97,56 +194,56 @@ class Oculizer(threading.Thread):
                 # Access the global n_channels dictionary
                 global n_channels
                 
+                # Create custom fixture objects for EnttecProController
                 for light in self.profile['lights']:
                     if light['type'] == 'dimmer':
-                        control_dict[light['name']] = controller.add_fixture(Dimmer(name=light['name'], start_channel=curr_channel))
                         channels = n_channels['dimmer']
-                        control_dict[light['name']].n_channels = channels
+                        fixture = self._create_dimmer_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
                         curr_channel += channels
-                        control_dict[light['name']].dim(255)
+                        fixture.dim(255)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].dim(0)
+                        fixture.dim(0)
 
                     elif light['type'] == 'rgb':
-                        control_dict[light['name']] = controller.add_fixture(RGB(name=light['name'], start_channel=curr_channel))
                         channels = n_channels['rgb']
-                        control_dict[light['name']].n_channels = channels
+                        fixture = self._create_rgb_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
                         curr_channel += channels
-                        control_dict[light['name']].set_channels([255] * channels)
+                        fixture.set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
 
                     elif light['type'] == 'strobe':
-                        control_dict[light['name']] = controller.add_fixture(Strobe(name=light['name'], start_channel=curr_channel))
                         channels = n_channels['strobe']
-                        control_dict[light['name']].n_channels = channels
+                        fixture = self._create_strobe_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
                         curr_channel += channels
-                        control_dict[light['name']].set_channels([255] * channels)
+                        fixture.set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
 
                     elif light['type'] == 'laser':
-                        laser_fixture = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=10))
-                        control_dict[light['name']] = laser_fixture
                         channels = n_channels['laser']
-                        control_dict[light['name']].n_channels = channels
+                        fixture = self._create_laser_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
                         curr_channel += channels
-                        laser_fixture.set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([128, 255] + [0] * (channels - 2))
+                        fixture.set_channels([128, 255] + [0] * (channels - 2))
                         time.sleep(sleeptime)
-                        laser_fixture.set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
 
                     elif light['type'] == 'rockville864':
-                        control_dict[light['name']] = controller.add_fixture(Custom(name=light['name'], start_channel=curr_channel, channels=39))
                         channels = n_channels['rockville864']
-                        control_dict[light['name']].n_channels = channels
+                        fixture = self._create_rockville_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
                         curr_channel += channels
-                        control_dict[light['name']].set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([255] * channels)
+                        fixture.set_channels([255] * channels)
                         time.sleep(sleeptime)
-                        control_dict[light['name']].set_channels([0] * channels)
+                        fixture.set_channels([0] * channels)
 
                 return controller, control_dict
 
@@ -273,32 +370,16 @@ class Oculizer(threading.Thread):
 
     def turn_off_all_lights(self):
         for light_name, light_fixture in self.controller_dict.items():
-            # Get the light type from the profile
-            light_type = next((light['type'] for light in self.profile['lights'] if light['name'] == light_name), None)
-            
-            if light_type == 'rockville864':
-                # Special handling for rockville - set all 39 channels to 0
-                light_fixture.set_channels([0] * light_fixture.n_channels)
-            elif light_type == 'laser':
-                # Special handling for laser - set all channels to 0
-                light_fixture.set_channels([0] * light_fixture.n_channels)
-            elif light_type == 'rgb':
-                # RGB fixtures use 6 channels
-                light_fixture.set_channels([0] * light_fixture.n_channels)
-            elif light_type == 'strobe':
-                # Strobe fixtures use 2 channels
-                light_fixture.set_channels([0] * light_fixture.n_channels)
-            elif hasattr(light_fixture, 'dim'):
-                # Only use dim for actual dimmer fixtures
-                light_fixture.dim(0)
-            else:
-                # Fallback - get number of channels from fixture
-                light_fixture.set_channels([0] * light_fixture.n_channels)
+            # All fixture types now use set_channels method
+            light_fixture.set_channels([0] * light_fixture.n_channels)
         
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
 
     def stop(self):
         self.running.clear()
+        # Close DMX controller connection
+        if hasattr(self, 'dmx_controller') and self.dmx_controller:
+            self.dmx_controller.close()
 
 def main():
     # init scene manager
