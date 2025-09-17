@@ -31,7 +31,7 @@ class EnttecProController:
     SET_WIDGET_PARAMETERS = 0x04
     SEND_RDM_DISCOVERY_REQUEST = 0x10
     
-    def __init__(self, port: str, baudrate: int = 57600, timeout: float = 1.0):
+    def __init__(self, port: str, baudrate: int = 57600, timeout: float = 1.0, check_widget_params: bool = True):
         """
         Initialize the Enttec Pro controller.
         
@@ -39,6 +39,7 @@ class EnttecProController:
             port: Serial port path (e.g., '/dev/ttyUSB0' on Linux, 'COM3' on Windows)
             baudrate: Serial communication baud rate (default: 57600)
             timeout: Serial timeout in seconds
+            check_widget_params: Whether to check widget parameters on initialization (default: True)
         """
         self.port = port
         self.baudrate = baudrate
@@ -50,8 +51,9 @@ class EnttecProController:
         # Initialize serial connection
         self._connect()
         
-        # Get widget parameters to verify connection
-        self._get_widget_parameters()
+        # Get widget parameters to verify connection (optional)
+        if check_widget_params:
+            self._get_widget_parameters()
     
     def _connect(self):
         """Establish serial connection to the DMX interface."""
@@ -92,7 +94,8 @@ class EnttecProController:
                 print(f"DMX MAB time: {response[4]} μs")
                 print(f"DMX output period: {response[5]} μs")
             else:
-                print("Warning: Could not read widget parameters")
+                # Widget parameters not available - this is often normal for some DMX interfaces
+                pass
                 
         except Exception as e:
             print(f"Warning: Error getting widget parameters: {str(e)}")
