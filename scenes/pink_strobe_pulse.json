@@ -1,0 +1,164 @@
+{
+    "name": "pink_strobe_pulse",
+    "description": "All RGBs pulsing pink, reactive to low frequencies, strobe",
+    "key_command": "p",
+    "midi": 68,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "pink",
+                "panel_threshold": -1,
+                "strobe": 255,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "pink",
+                "panel_threshold": -1,
+                "strobe": 255,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "pink",
+                "panel_threshold": -1,
+                "strobe": 255,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "pink",
+                "panel_threshold": -1,
+                "strobe": 255,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        }
+    ]
+}

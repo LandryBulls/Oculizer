@@ -11,12 +11,12 @@ Date: 8/20/24
 import numpy as np
 import sounddevice as sd
 from librosa.feature import melspectrogram
-from PyDMXControl.controllers import OpenDMXController # type: ignore
+#from PyDMXControl.controllers import OpenDMXController # type: ignore
 from oculizer.light.enttec_controller import EnttecProController
 from oculizer.light.dmx_config import get_dmx_config
-from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
-from oculizer.custom_profiles.RGB import RGB
-from oculizer.custom_profiles.ADJ_strobe import Strobe
+#from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
+#from oculizer.custom_profiles.RGB import RGB
+#from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
 from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
@@ -64,6 +64,8 @@ class Oculizer(threading.Thread):
             if self.input_device == 'blackhole' and 'BlackHole' in device['name']:
                 return i
             elif self.input_device == 'scarlett' and 'Scarlett' in device['name'] and device['max_input_channels'] > 0:
+                return i
+            elif self.input_device == 'cable' and 'CABLE' in device['name'] and device['max_input_channels'] > 0:
                 return i
         
         # If device not found, print available devices and raise error

@@ -1,0 +1,150 @@
+{
+    "name": "white_fairies",
+    "description": "Stochastic white strobe on all RGBs. All else off.",
+    "type": "effect",
+    "midi": 64,
+    "key_command": "f",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb2", 
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb", 
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool", 
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white", 
+            "strobe": "random"
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "color": "white",
+            "strobe": "random"
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_colors": ["white", "black", "black", "black"],
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_strobe": 255,
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_colors": [0, 255],
+                "bar_strobe": 255,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_colors": ["white", "black", "black", "black"],
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_strobe": 255,
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_colors": [0, 255],
+                "bar_strobe": 255,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_colors": ["white", "black", "black", "black"],
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_strobe": 255,
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_colors": [0, 255],
+                "bar_strobe": 255,
+                "bar_mode": 0
+            }
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "effect": {
+                "name": "rockville_splatter",
+                "panel_colors": ["white", "black", "black", "black"],
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 0,
+                "panel_strobe": 255,
+                "affect_panel": true,
+                "affect_bar": true,
+                "bar_mfft_range": [115, 127],
+                "bar_threshold": 0.01,
+                "bar_colors": [0, 255],
+                "bar_strobe": 255,
+                "bar_mode": 0
+            }
+        }
+    ]
+}

@@ -14,8 +14,8 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
     parser.add_argument('-p', '--profile', type=str, default='bbgv',
                       help='Profile to use (default: bbgv)')
-    parser.add_argument('-i', '--input', type=str, default='blackhole',
-                      help='Audio input device to use (default: blackhole, options: blackhole, scarlett)')
+    parser.add_argument('-i', '--input', type=str, default='cable',
+                      help='Audio input device to use (default: cable, options: cable, blackhole, scarlett)')
     return parser.parse_args()
 
 def sort_scenes_alphabetically(scenes):
