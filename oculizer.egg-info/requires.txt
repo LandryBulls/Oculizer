@@ -2,10 +2,9 @@ numpy
 scipy
 sounddevice
 librosa
-pyaudio
 pydub
 scipy
 sounddevice
 soundfile
-sklearn
+scikit-learn
 PyDMXControl

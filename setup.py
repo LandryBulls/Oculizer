@@ -14,7 +14,7 @@ setup(
         'scipy', 
         'sounddevice',
         'soundfile',
-        'sklearn',
+        'scikit-learn',
         'PyDMXControl'
     ],
 )

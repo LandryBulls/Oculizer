@@ -1,14 +1,14 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: oculizer
 Version: 0.1
 Requires-Dist: numpy
 Requires-Dist: scipy
 Requires-Dist: sounddevice
 Requires-Dist: librosa
-Requires-Dist: pyaudio
 Requires-Dist: pydub
 Requires-Dist: scipy
 Requires-Dist: sounddevice
 Requires-Dist: soundfile
-Requires-Dist: sklearn
+Requires-Dist: scikit-learn
 Requires-Dist: PyDMXControl
+Dynamic: requires-dist

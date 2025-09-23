@@ -1,8 +1,5 @@
 README.md
 setup.py
-custom_profiles/ADJ_strobe.py
-custom_profiles/RGB.py
-custom_profiles/__init__.py
 oculizer/__init__.py
 oculizer/config.py
 oculizer/interface.py
@@ -15,9 +12,16 @@ oculizer.egg-info/requires.txt
 oculizer.egg-info/top_level.txt
 oculizer/audio/__init__.py
 oculizer/audio/audio_listener.py
+oculizer/custom_profiles/ADJ_strobe.py
+oculizer/custom_profiles/RGB.py
+oculizer/custom_profiles/__init__.py
 oculizer/light/__init__.py
 oculizer/light/control.py
+oculizer/light/dmx_config.py
+oculizer/light/effects.py
+oculizer/light/enttec_controller.py
 oculizer/light/mapping.py
+oculizer/light/orchestrators.py
 oculizer/scenes/__init__.py
 oculizer/scenes/scene_manager.py
 oculizer/scenes/scene_prediction.py

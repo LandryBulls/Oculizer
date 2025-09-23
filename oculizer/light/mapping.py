@@ -91,6 +91,15 @@ def process_mfft(light, mfft_vec):
         strobe = light.get('strobe', 0)
         return [brightness, *color, strobe, 0]
     
+    elif light['type'] == 'pinspot':
+        brightness = mfft_to_value(mfft_vec, mfft_range, power_range, value_range)
+        color = color_to_rgb(light.get('color', 'random'))
+        strobe = light.get('strobe', 0)
+        # Channel config: [R, G, B, W, MASTER_DIMMER, STROBE]
+        # Scale color by brightness and keep W at 0
+        scaled_color = [int(c * brightness / 255) for c in color]
+        return [*scaled_color, 0, brightness, strobe]
+    
     elif light['type'] == 'strobe':
         threshold = light.get('threshold', 0.5)
         mfft_mean = np.mean(mfft_vec[mfft_range[0]:mfft_range[1]])
@@ -272,6 +281,19 @@ def process_bool(light):
         strobe = np.random.randint(0, 256) if light.get('strobe', 'random') == 'random' else light.get('strobe', 0)
         colorfade = light.get('colorfade', 0)
         return [brightness, *color, strobe, colorfade]
+    elif light['type'] == 'pinspot':
+        if light.get('brightness', 'random') == 'random':
+            min_brightness = light.get('min_brightness', 0)
+            max_brightness = light.get('max_brightness', 255)
+            brightness = np.random.randint(min_brightness, max_brightness + 1)
+        else:
+            brightness = light.get('brightness', 255)
+        color = color_to_rgb(light.get('color', 'random'))
+        strobe = np.random.randint(0, 256) if light.get('strobe', 'random') == 'random' else light.get('strobe', 0)
+        # Channel config: [R, G, B, W, MASTER_DIMMER, STROBE]
+        # Scale color by brightness and keep W at 0
+        scaled_color = [int(c * brightness / 255) for c in color]
+        return [*scaled_color, 0, brightness, strobe]
     elif light['type'] == 'strobe':
         speed = np.random.randint(0, 256) if light.get('speed', 'random') == 'random' else light.get('speed', 255)
         brightness = np.random.randint(0, 256) if light.get('brightness', 'random') == 'random' else light.get('brightness', 255)
@@ -368,6 +390,16 @@ def process_time(light, current_time):
         value = int(light.get('min_brightness', 0) + (light.get('max_brightness', 255) - light.get('min_brightness', 0)) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
         return [value, *color, strobe, 0]
     
+    elif light['type'] == 'pinspot':
+        color = color_to_rgb(light.get('color', 'random'))
+        strobe = light.get('strobe', 0)
+        # get the time function value
+        value = int(light.get('min_brightness', 0) + (light.get('max_brightness', 255) - light.get('min_brightness', 0)) * time_function(current_time, light.get('frequency', 1), light.get('function', 'sine')))
+        # Channel config: [R, G, B, W, MASTER_DIMMER, STROBE]
+        # Scale color by brightness and keep W at 0
+        scaled_color = [int(c * value / 255) for c in color]
+        return [*scaled_color, 0, value, strobe]
+    
     elif light['type'] == 'strobe':
         target = light.get('target', 'both')
         speed_range = light.get('speed_range', [0, 255])
@@ -435,6 +467,12 @@ def process_light(light, mfft_vec, current_time, modifiers=None):
                 channels[0] = int(channels[0] * modifiers['brightness_scale'])
             elif light['type'] == 'rgb':
                 channels[0] = int(channels[0] * modifiers['brightness_scale'])
+            elif light['type'] == 'pinspot':
+                # For pinspot, scale RGB channels and master dimmer
+                channels[0] = int(channels[0] * modifiers['brightness_scale'])  # R
+                channels[1] = int(channels[1] * modifiers['brightness_scale'])  # G
+                channels[2] = int(channels[2] * modifiers['brightness_scale'])  # B
+                channels[4] = int(channels[4] * modifiers['brightness_scale'])  # MASTER_DIMMER
             elif light['type'] == 'rockville864':
                 # For Rockville, scale all RGB values
                 for i in range(4, 28, 3):  # RGB sections

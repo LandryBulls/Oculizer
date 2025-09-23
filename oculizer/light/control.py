@@ -11,12 +11,8 @@ Date: 8/20/24
 import numpy as np
 import sounddevice as sd
 from librosa.feature import melspectrogram
-#from PyDMXControl.controllers import OpenDMXController # type: ignore
 from oculizer.light.enttec_controller import EnttecProController
 from oculizer.light.dmx_config import get_dmx_config
-#from PyDMXControl.profiles.Generic import Dimmer, Custom # type: ignore
-#from oculizer.custom_profiles.RGB import RGB
-#from oculizer.custom_profiles.ADJ_strobe import Strobe
 from oculizer.scenes import SceneManager
 from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
@@ -34,11 +30,12 @@ n_channels = {
     'rgb': 6,
     'strobe': 2,
     'laser': 10,
-    'rockville864': 39
+    'rockville864': 39,
+    'pinspot': 6
 }
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager, input_device='blackhole'):
+    def __init__(self, profile_name, scene_manager, input_device='cable'):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -239,6 +236,17 @@ class Oculizer(threading.Thread):
                     elif light['type'] == 'rockville864':
                         channels = n_channels['rockville864']
                         fixture = self._create_rockville_fixture(light['name'], curr_channel, channels, controller)
+                        control_dict[light['name']] = fixture
+                        curr_channel += channels
+                        fixture.set_channels([0] * channels)
+                        time.sleep(sleeptime)
+                        fixture.set_channels([255] * channels)
+                        time.sleep(sleeptime)
+                        fixture.set_channels([0] * channels)
+
+                    elif light['type'] == 'pinspot':
+                        channels = n_channels['pinspot']
+                        fixture = self._create_rgb_fixture(light['name'], curr_channel, channels, controller)
                         control_dict[light['name']] = fixture
                         curr_channel += channels
                         fixture.set_channels([0] * channels)

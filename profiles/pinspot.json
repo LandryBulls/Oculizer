@@ -1,0 +1,7 @@
+{
+    "name": "pinspot",
+    "description": "Pinspot development (ADJ Pinspot LED Quad DMX).",
+    "lights": [
+        {"name": "pinspot", "type": "pinspot", "n_channels": 6}
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "name": "ps",
+    "description": "Red sine wave on pinspot",
+    "key_command": "ps",
+    "midi": 80,
+    "lights": [
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "time",
+            "frequency": 1.0,
+            "function": "sine",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "color": "red",
+            "strobe": 0
+        }
+    ]
+}
