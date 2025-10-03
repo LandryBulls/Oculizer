@@ -74,13 +74,12 @@
             "brightness_range": [0, 40]
         },
         {
-            "name": "discoball",
-            "type": "dimmer",
-            "modulator": "time",
-            "function": "sine",
-            "frequency": 0.05,
-            "min_brightness": 0,
-            "max_brightness": 255
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 0
         },
         {
             "name": "strobe",

@@ -35,7 +35,8 @@ n_channels = {
 }
 
 class Oculizer(threading.Thread):
-    def __init__(self, profile_name, scene_manager, input_device='cable'):
+    def __init__(self, profile_name, scene_manager, input_device='cable', 
+                 scene_prediction_enabled=False, scene_prediction_device=None):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -54,6 +55,24 @@ class Oculizer(threading.Thread):
         self.current_orchestrator = None
         # Set scene_changed event to trigger initial orchestrator setup
         self.scene_changed.set()
+        
+        # Scene prediction setup
+        self.scene_prediction_enabled = scene_prediction_enabled
+        self.scene_prediction_device = scene_prediction_device
+        self.scene_predictor = None
+        self.prediction_stream = None
+        self.prediction_audio_queue = queue.Queue()
+        self.prediction_audio_cache = None  # Will be initialized if needed
+        self.scene_cache = None
+        self.current_predicted_scene = None
+        self.latest_prediction = None  # Store the latest raw prediction
+        self.current_cluster = None
+        self.last_prediction_time = 0
+        self.prediction_interval = 0.1
+        self.prediction_count = 0
+        
+        if scene_prediction_enabled:
+            self._init_scene_prediction()
 
     def _get_audio_device_idx(self):
         devices = sd.query_devices()
@@ -64,6 +83,10 @@ class Oculizer(threading.Thread):
                 return i
             elif self.input_device == 'cable' and 'CABLE' in device['name'] and device['max_input_channels'] > 0:
                 return i
+            elif self.input_device == 'cable_input' and 'CABLE Input' in device['name'] and device['max_input_channels'] > 0:
+                return i
+            elif self.input_device == 'cable_output' and 'CABLE Output' in device['name'] and device['max_input_channels'] > 0:
+                return i
         
         # If device not found, print available devices and raise error
         print("\nAvailable audio input devices:")
@@ -72,6 +95,117 @@ class Oculizer(threading.Thread):
                 print(f"{i}: {device['name']}")
         
         raise ValueError(f"Audio input device '{self.input_device}' not found. Please check available devices above.")
+
+    def _init_scene_prediction(self):
+        """Initialize scene prediction components."""
+        from oculizer.scene_predictors.v1.predictor import ScenePredictor
+        from collections import deque
+        import librosa
+        
+        # Initialize scene predictor (32kHz for EfficientAT model)
+        self.scene_predictor = ScenePredictor(sr=32000)
+        
+        # Initialize audio cache for 4 seconds at 32kHz
+        self.prediction_audio_cache = deque(maxlen=32000 * 4)
+        
+        # Initialize scene cache for mode calculation (50 predictions ~5 seconds)
+        self.scene_cache = deque(maxlen=50)
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Scene prediction initialized (device: {self.scene_prediction_device})")
+
+    def prediction_audio_callback(self, indata, frames, time_info, status):
+        """Callback for scene prediction audio stream."""
+        if status:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Prediction audio status: {status}")
+        
+        # Convert stereo to mono by averaging channels
+        if len(indata.shape) > 1:
+            mono_data = np.mean(indata, axis=1)
+        else:
+            mono_data = indata.flatten()
+        
+        # Add to queue for processing
+        self.prediction_audio_queue.put(mono_data.copy())
+
+    def update_scene_prediction(self):
+        """Process scene prediction from audio cache."""
+        if not self.scene_prediction_enabled:
+            return
+        
+        current_time = time.time()
+        
+        # Check if it's time for prediction
+        if current_time - self.last_prediction_time < self.prediction_interval:
+            return
+        
+        # Process any queued audio data
+        while not self.prediction_audio_queue.empty():
+            try:
+                audio_chunk = self.prediction_audio_queue.get_nowait()
+                self.prediction_audio_cache.extend(audio_chunk)
+            except queue.Empty:
+                break
+        
+        # Check if we have enough cached audio (4 seconds at 32kHz)
+        if len(self.prediction_audio_cache) < 32000 * 4:
+            return
+        
+        try:
+            # Convert cache to numpy array
+            audio_data = np.array(self.prediction_audio_cache)
+            
+            # Resample if needed (prediction cache is at system sample rate, need 32kHz)
+            # Note: In dual-stream mode, prediction device might have different sample rate
+            prediction_sample_rate = 48000  # Typical for CABLE Output
+            if prediction_sample_rate != 32000:
+                import librosa
+                audio_data = librosa.resample(
+                    audio_data,
+                    orig_sr=prediction_sample_rate,
+                    target_sr=32000
+                )
+            
+            # Make prediction
+            scene, cluster = self.scene_predictor.predict(audio_data, return_cluster=True)
+            self.latest_prediction = scene  # Store the raw prediction
+            self.scene_cache.append(scene)
+            
+            # Update current scene using mode of recent predictions
+            if self.scene_cache:
+                try:
+                    from statistics import mode
+                    self.current_predicted_scene = mode(self.scene_cache)
+                except:
+                    # If no unique mode (tie), use the most recent
+                    self.current_predicted_scene = self.scene_cache[-1]
+            
+            self.current_cluster = cluster
+            self.last_prediction_time = current_time
+            self.prediction_count += 1
+            
+            # Log prediction periodically with cache info
+            if self.prediction_count % 10 == 0:
+                import logging
+                from collections import Counter
+                logger = logging.getLogger(__name__)
+                
+                # Get distribution of scenes in cache for debugging
+                scene_counts = Counter(self.scene_cache)
+                cache_info = f"Cache({len(self.scene_cache)}): {dict(scene_counts)}"
+                
+                logger.info(
+                    f"[{self.prediction_count:04d}] Prediction: {scene}, "
+                    f"Mode: {self.current_predicted_scene}, Cluster: {cluster} | {cache_info}"
+                )
+                
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"Error in scene prediction: {e}")
 
     def _create_dimmer_fixture(self, name, start_channel, channels, controller):
         """Create a dimmer fixture for EnttecProController."""
@@ -280,7 +414,13 @@ class Oculizer(threading.Thread):
             print(f"Audio callback error: {status}")
             return
         
-        audio_data = indata.copy().flatten()
+        # Handle stereo input - average channels 1 and 2 for Scarlett loopback
+        if len(indata.shape) > 1 and indata.shape[1] >= 2:
+            # Average the first two channels (0 and 1, which are channels 1 and 2)
+            audio_data = np.mean(indata[:, :2], axis=1)
+        else:
+            audio_data = indata.copy().flatten()
+        
         mfft_data = np.mean(melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
         mfft_data = scale_mfft(mfft_data)
         
@@ -293,20 +433,59 @@ class Oculizer(threading.Thread):
 
     def run(self):
         self.running.set()
+        
+        # Determine channels for main FFT stream
+        # Use 2 channels for Scarlett to capture loopback on channels 1&2
+        device_info = sd.query_devices(self.device_idx)
+        main_channels = 2 if 'Scarlett' in device_info['name'] else self.channels
+        
         try:
+            # Start main audio stream for FFT/DMX control
             with sd.InputStream(
                 device=self.device_idx,
-                channels=self.channels,
+                channels=main_channels,
                 samplerate=self.sample_rate,
                 blocksize=self.block_size,
                 callback=self.audio_callback
             ):
+                # Start scene prediction stream if enabled and separate device specified
+                if self.scene_prediction_enabled and self.scene_prediction_device is not None:
+                    pred_device_info = sd.query_devices(self.scene_prediction_device)
+                    pred_channels = 2 if ('Scarlett' in pred_device_info['name'] or 
+                                         'CABLE' in pred_device_info['name']) else 1
+                    
+                    self.prediction_stream = sd.InputStream(
+                        device=self.scene_prediction_device,
+                        channels=pred_channels,
+                        samplerate=48000,  # Typical for CABLE Output
+                        blocksize=1024,
+                        callback=self.prediction_audio_callback
+                    )
+                    self.prediction_stream.start()
+                    
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(f"Started prediction stream on device {self.scene_prediction_device}")
+                
+                # Main processing loop
                 while self.running.is_set():
                     self.process_audio_and_lights()
+                    
+                    # Update scene prediction periodically
+                    if self.scene_prediction_enabled:
+                        self.update_scene_prediction()
+                    
                     time.sleep(0.001)
+                    
         except Exception as e:
             print(f"Error in audio stream: {str(e)}")
-            print(f"Origin script: {e.__traceback__.tb_frame.f_globals['__file__']}")    
+            import traceback
+            traceback.print_exc()
+        finally:
+            # Clean up prediction stream
+            if self.prediction_stream:
+                self.prediction_stream.stop()
+                self.prediction_stream.close()    
 
     def process_audio_and_lights(self):
         if self.scene_changed.is_set():

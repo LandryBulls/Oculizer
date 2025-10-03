@@ -1,17 +1,13 @@
 import os
-import json
 import time
 import threading
 import curses
 import argparse
-import traceback
-import spotipy
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
-from oculizer.scenes.scene_prediction import ScenePredictor
-from oculizer.spotify import Spotifizer
 import logging
 from collections import deque
+import sounddevice as sd
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
@@ -80,47 +76,29 @@ def setup_colors():
         curses.init_pair(i, fg, bg)
         COLOR_PAIRS[name] = i
 
-class WatchdogTimer:
-    def __init__(self, timeout, callback):
-        self.timeout = timeout
-        self.callback = callback
-        self.timer = threading.Timer(self.timeout, self.handle_timeout)
-        self.last_reset = time.time()
-
-    def reset(self):
-        self.timer.cancel()
-        self.last_reset = time.time()
-        self.timer = threading.Timer(self.timeout, self.handle_timeout)
-        self.timer.start()
-
-    def handle_timeout(self):
-        if time.time() - self.last_reset >= self.timeout:
-            self.callback()
-
-    def stop(self):
-        self.timer.cancel()
-
-class SpotifyOculizerController:
-    def __init__(self, client_id, client_secret, redirect_uri, stdscr, profile='garage'):
+class AudioOculizerController:
+    def __init__(self, stdscr, profile='garage', input_device='scarlett', 
+                 dual_stream=True, prediction_device=None):
         self.stdscr = stdscr
         curses.curs_set(0)
         self.stdscr.nodelay(1)
         
         self.scene_manager = SceneManager('scenes')
-        self.oculizer = Oculizer(profile, self.scene_manager)
-        self.client_id = client_id
-        self.client_secret = client_secret
-        self.redirect_uri = redirect_uri
-        self.spotifizer = self.create_spotifizer()
-        self.scene_predictor = ScenePredictor(spotify_client=self.spotifizer.spotify, auth_manager=self.spotifizer.auth_manager)
-        self.song_data_dir = 'song_data'
-        self.current_song_id = None
-        self.current_song_data = None
-        self.current_section_index = None
+        
+        # Initialize Oculizer with scene prediction support
+        # dual_stream=True: Use separate device for scene prediction (default)
+        # dual_stream=False: Use same audio stream for both FFT and prediction
+        self.oculizer = Oculizer(
+            profile_name=profile,
+            scene_manager=self.scene_manager,
+            input_device=input_device,
+            scene_prediction_enabled=True,
+            scene_prediction_device=prediction_device if dual_stream else None
+        )
+        
+        self.dual_stream = dual_stream
         self.error_message = ""
         self.info_message = ""
-        self.watchdog = WatchdogTimer(10, self.reinitialize)  # 10-second timeout
-        self.reinitialize_flag = threading.Event()
         
         # Set up logging for curses display
         self.log_messages = deque(maxlen=9)
@@ -139,8 +117,6 @@ class SpotifyOculizerController:
     def start(self):
         try:
             self.oculizer.start()
-            self.spotifizer.start()
-            self.watchdog.reset()
             self.run()
         except Exception as e:
             self.error_message = f"Error starting controller: {str(e)}"
@@ -152,118 +128,34 @@ class SpotifyOculizerController:
         update_thread.start()
 
         while True:
-            if self.reinitialize_flag.is_set():
-                self.perform_reinitialization()
             self.handle_user_input()
             self.update_display()
-            self.watchdog.reset()  # Reset the watchdog timer
             time.sleep(0.05)
 
-    def create_spotifizer(self):
-        return Spotifizer(self.client_id, self.client_secret, self.redirect_uri)
-
-    def refresh_spotify_token(self):
-        try:
-            self.spotifizer.stop()
-            self.spotifizer = self.create_spotifizer()
-            self.spotifizer.start()
-            logging.info("Spotify token refreshed successfully")
-        except Exception as e:
-            logging.error(f"Error refreshing Spotify token: {str(e)}")
-
     def update_loop(self):
+        """Update lighting based on real-time audio predictions."""
+        last_scene = None
+        
         while True:
             try:
-                if self.spotifizer.playing:
-                    song_changed = self.check_and_update_song()
-                    self.update_current_section()
-                    self.update_lighting(force_update=song_changed)
-                else:
-                    self.scene_manager.set_scene('party')
-            except spotipy.SpotifyException as e:
-                if e.http_status == 401 and 'The access token expired' in str(e):
-                    logging.warning("Spotify access token expired. Refreshing...")
-                    self.refresh_spotify_token()
-                else:
-                    self.error_message = f"Spotify API error: {str(e)}"
-                    logging.error(f"Spotify API error: {str(e)}")
+                # Get current scene from oculizer's integrated prediction
+                current_scene = self.oculizer.current_predicted_scene
+                
+                if current_scene and current_scene != last_scene:
+                    # Scene has changed
+                    if current_scene in self.scene_manager.scenes:
+                        self.info_message = f"Changing to scene: {current_scene}"
+                        logging.info(f"Changing to scene: {current_scene}")
+                        self.oculizer.change_scene(current_scene)
+                        last_scene = current_scene
+                    else:
+                        logging.warning(f"Scene '{current_scene}' not found in scene manager")
+                        
             except Exception as e:
                 self.error_message = f"Error in update loop: {str(e)}"
                 logging.error(f"Error in update loop: {str(e)}")
+            
             time.sleep(0.1)
-
-    def reinitialize(self):
-        logging.warning("Watchdog detected a freeze. Triggering reinitialization.")
-        self.reinitialize_flag.set()
-
-    def perform_reinitialization(self):
-        logging.info("Performing reinitialization...")
-        self.stop()
-        time.sleep(1)  # Allow time for threads to stop
-
-        # Reinitialize components
-        self.scene_manager = SceneManager('scenes')
-        self.oculizer = Oculizer('garage', self.scene_manager)
-        self.spotifizer = self.create_spotifizer()
-
-        # Restart components
-        self.oculizer.start()
-        self.spotifizer.start()
-
-        self.reinitialize_flag.clear()
-        self.watchdog.reset()
-        logging.info("Reinitialization complete.")
-
-    def check_and_update_song(self):
-        if self.spotifizer.current_track_id != self.current_song_id:
-            self.current_song_id = self.spotifizer.current_track_id
-            self.current_song_data = self.load_song_data(self.current_song_id)
-            self.current_section_index = None  # Reset section index
-            self.info_message = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
-            logging.info(f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}")
-            return True
-        return False
-
-    def update_current_section(self):
-        if self.current_song_data is None:
-            return
-
-        current_time = self.spotifizer.progress / 1000
-        sections = self.current_song_data.get('sections', [])
-
-        new_section_index = next((i for i, section in enumerate(sections) if section['start'] <= current_time < (section['start'] + section['duration'])), None)
-        time.sleep(0.1)
-
-        if new_section_index != self.current_section_index:
-            self.current_section_index = new_section_index
-            logging.info(f"Updated to section index: {self.current_section_index}")
-
-    def load_song_data(self, song_id):
-        """Modified to use scene prediction for new songs."""
-        try:
-            filename = os.path.join(self.song_data_dir, f"{song_id}.json")
-            if os.path.exists(filename):
-                with open(filename, 'r') as f:
-                    return json.load(f)
-            else:
-                # Process new track with scene prediction
-                self.info_message = f"Processing new track {song_id} with scene prediction..."
-                logging.info(f"Processing new track {song_id} with scene prediction...")
-                
-                track_data = self.scene_predictor.process_new_track(song_id)
-                if track_data:
-                    self.info_message = f"Scene prediction completed for {song_id}"
-                    logging.info(f"Scene prediction completed for {song_id}")
-                    return track_data
-                else:
-                    self.info_message = f"Failed to process track {song_id}"
-                    logging.warning(f"Failed to process track {song_id}")
-                    return None
-                    
-        except Exception as e:
-            self.error_message = f"Error loading/predicting song data: {str(e)}"
-            logging.error(f"Error loading/predicting song data: {str(e)}")
-            return None
 
     def turn_off_all_lights(self):
         try:
@@ -283,76 +175,7 @@ class SpotifyOculizerController:
             self.oculizer.dmx_controller.update()  # this is a magic piece of code that is broken, but it saves the day somehow
             logging.info("All lights turned off")
         except Exception as e:
-            if not 'OpenDMXController' in str(e):
-                self.error_message = f"Error turning off lights: {str(e)}\n{traceback.format_exc()}"
-                logging.error(f"Error turning off lights: {str(e)}\n{traceback.format_exc()}")
-
-    def update_lighting(self, force_update=False):
-        """Update lighting based on current section with improved scene handling."""
-        try:
-            if self.current_song_data is None:
-                self.turn_off_all_lights()
-                self.scene_manager.set_scene('party')
-                self.info_message = "No song data found. Using default scene."
-                logging.info("No song data found. Using default scene.")
-                return
-
-            sections = self.current_song_data.get('sections', [])
-
-            if not sections:
-                self.turn_off_all_lights()
-                self.scene_manager.set_scene('party')
-                self.info_message = "No sections found in song data. Using default scene."
-                logging.warning("No sections found in song data. Using default scene.")
-                return
-
-            if self.current_section_index is not None:
-                current_section = sections[self.current_section_index]
-                
-                # Check if section has a valid scene
-                scene = current_section.get('scene')
-                if not scene or scene not in self.scene_manager.scenes:
-                    # If no valid scene, try to predict based on audio features
-                    scene = self._predict_fallback_scene(current_section)
-                    
-                if scene != self.scene_manager.current_scene['name'] or force_update:
-                    self.info_message = f"Changing to scene: {scene}"
-                    logging.info(f"Changing to scene: {scene}")
-                    self.turn_off_all_lights()
-                    self.scene_manager.set_scene(scene)
-                    
-            else:
-                logging.warning(f"Current section index is None.")
-                
-        except Exception as e:
-            self.error_message = f"Error updating lighting: {str(e)}"
-            logging.error(f"Error updating lighting: {str(e)}")
-
-    def _predict_fallback_scene(self, section):
-        """Predict a scene based on section characteristics if no scene is assigned."""
-        try:
-            # Get basic audio features
-            loudness = section.get('loudness', -60)
-            tempo = section.get('tempo', 120)
-            duration = section.get('duration', 30)
-            
-            # Simple rule-based fallback prediction
-            if loudness > -5 and tempo > 150:
-                return 'brainblaster'
-            elif loudness > -10 and tempo > 140:
-                return 'electric'
-            elif loudness > -15 and tempo > 130:
-                return 'party'
-            elif duration < 15:  # Short section
-                return 'rightround'
-            elif tempo < 100:  # Slower tempo
-                return 'ambient1'
-            else:
-                return 'party'
-                
-        except Exception as e:
-            logging.error(f"Error in fallback scene prediction: {str(e)}")
-            return 'party'
+            logging.error(f"Error turning off lights: {str(e)}")
 
     def handle_user_input(self):
         try:
@@ -397,26 +220,47 @@ class SpotifyOculizerController:
                     self.stdscr.addstr(start_row + i, ascii_start - skull_width - 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
                     self.stdscr.addstr(start_row + i, ascii_start + ascii_width + 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
 
-            # Display current song and progress (top left)
-            if self.spotifizer.playing:
-                song_info = f"Now playing: {self.spotifizer.title} by {self.spotifizer.artist}"
-                self.stdscr.addstr(2, 0, song_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
-                progress = f"Progress: {self.spotifizer.progress / 1000:.2f}s"
-                self.stdscr.addstr(3, 0, progress, curses.color_pair(COLOR_PAIRS['info']))
+            # Display audio device info (top left)
+            fft_device_info = sd.query_devices(self.oculizer.device_idx)
+            fft_device_name = fft_device_info['name']
+            
+            if self.dual_stream and self.oculizer.scene_prediction_device:
+                pred_device_info = sd.query_devices(self.oculizer.scene_prediction_device)
+                pred_device_name = pred_device_info['name']
+                audio_info = f"FFT: {fft_device_name[:30]} | Prediction: {pred_device_name[:30]}"
             else:
-                self.stdscr.addstr(2, 0, "No song playing", curses.color_pair(COLOR_PAIRS['warning']))
+                audio_info = f"Audio: {fft_device_name}"
+            
+            self.stdscr.addstr(2, 0, audio_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            # Display profile
+            profile_info = f"Profile: {self.oculizer.profile_name}"
+            self.stdscr.addstr(3, 0, profile_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
-            # Display current scene (top left, below song info)
+            # Display current scene (top left)
             scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
             self.stdscr.addstr(5, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            # Display prediction info
+            if self.oculizer.latest_prediction is not None:
+                pred_info = f"Latest prediction: {self.oculizer.latest_prediction}"
+                self.stdscr.addstr(6, 0, pred_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            if self.oculizer.current_predicted_scene is not None:
+                mode_info = f"Prediction mode: {self.oculizer.current_predicted_scene}"
+                self.stdscr.addstr(7, 0, mode_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            if self.oculizer.current_cluster is not None:
+                cluster_info = f"Cluster: {self.oculizer.current_cluster}"
+                self.stdscr.addstr(8, 0, cluster_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
             # Display log messages (bottom)
-            log_start = height - len(self.log_messages) - 3
+            log_start = height - len(self.log_messages) - 4
             self.stdscr.addstr(log_start, 0, "Log Messages:", curses.color_pair(COLOR_PAIRS['log']) | curses.A_BOLD)
             for i, message in enumerate(self.log_messages):
                 self.stdscr.addstr(log_start + i + 1, 0, message[:width-1], curses.color_pair(COLOR_PAIRS['log']))
 
-            # Display info message (bottom)
+            # Display info message (bottom - with blank line above)
             if self.info_message:
                 self.stdscr.addstr(height-3, 0, self.info_message[:width-1], curses.color_pair(COLOR_PAIRS['info']) | curses.A_BOLD)
 
@@ -437,40 +281,46 @@ class SpotifyOculizerController:
     def stop(self):
         try:
             self.oculizer.stop()
-            self.spotifizer.stop()
             self.oculizer.join()
-            self.spotifizer.join()
-            self.watchdog.stop()
-            logging.info("Spotify Oculizer Controller stopped")
+            logging.info("Audio Oculizer Controller stopped")
         except Exception as e:
             self.error_message = f"Error stopping controller: {str(e)}"
             logging.error(f"Error stopping controller: {str(e)}")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Spotify-integrated Oculizer controller')
+    parser = argparse.ArgumentParser(
+        description='Real-time audio-based Oculizer controller with dual-stream support',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Dual-stream mode (default):
+  - FFT stream: Scarlett 2i2 loopback (delayed through Ableton) for DMX modulation
+  - Prediction stream: CABLE Output (real-time) for scene prediction
+  
+Single-stream mode (--single-stream):
+  - Uses the same audio source for both FFT and scene prediction
+        """
+    )
     parser.add_argument('-p', '--profile', type=str, default='garage',
-                      help='Profile to use (default: garage)')
+                      help='Lighting profile to use (default: garage)')
+    parser.add_argument('-i', '--input-device', type=str, default='scarlett',
+                      help='Audio input device for FFT/DMX (default: scarlett)')
+    parser.add_argument('--prediction-device', type=int, default=1,
+                      help='Device index for scene prediction in dual-stream mode (default: 1)')
+    parser.add_argument('--single-stream', action='store_true',
+                      help='Use single audio stream for both FFT and prediction')
+    parser.add_argument('--list-devices', action='store_true',
+                      help='List available audio devices and exit')
     return parser.parse_args()
 
-def main(stdscr):
+def main(stdscr, profile, input_device, dual_stream, prediction_device):
     setup_colors()
-    setup_logging()  # Set up logging before creating any objects
-    args = parse_args()
-
-    try:
-        credspath = os.path.join(os.path.dirname(__file__), 'spotify_credentials.txt')
-        with open(credspath) as f:
-            lines = f.readlines()
-            client_id = lines[0].strip().split(' ')[1]
-            client_secret = lines[1].strip().split(' ')[1]
-            redirect_uri = lines[2].strip().split(' ')[1]
-    except Exception as e:
-        stdscr.addstr(0, 0, f"Error reading Spotify credentials: {str(e)}", curses.color_pair(1))
-        stdscr.refresh()
-        time.sleep(5)
-        return
-
-    controller = SpotifyOculizerController(client_id, client_secret, redirect_uri, stdscr, args.profile)
+    controller = AudioOculizerController(
+        stdscr, 
+        profile=profile,
+        input_device=input_device,
+        dual_stream=dual_stream,
+        prediction_device=prediction_device
+    )
     
     try:
         controller.start()
@@ -482,4 +332,25 @@ def main(stdscr):
         time.sleep(5)
 
 if __name__ == "__main__":
-    wrapper(main)
+    # Parse args first to handle --list-devices without curses
+    args = parse_args()
+    setup_logging()  # Set up logging before creating any objects
+    
+    # List devices if requested (don't use curses for this)
+    if args.list_devices:
+        print("\nAvailable audio devices:")
+        devices = sd.query_devices()
+        print(devices)
+        print("\n=== Input Devices ===")
+        for i, device in enumerate(devices):
+            if isinstance(device, dict) and device.get('max_input_channels', 0) > 0:
+                print(f"{i}: {device['name']} ({device['max_input_channels']} channels)")
+    else:
+        dual_stream = not args.single_stream
+        wrapper(lambda stdscr: main(
+            stdscr, 
+            args.profile, 
+            args.input_device,
+            dual_stream,
+            args.prediction_device if dual_stream else None
+        ))

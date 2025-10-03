@@ -82,10 +82,12 @@
         "brightness": 0
       },
       {
-        "name": "discoball",
-        "type": "dimmer",
+        "name": "pinspot",
+        "type": "pinspot",
         "modulator": "bool",
-        "brightness": 0
+        "brightness": 0,
+        "color": "white",
+        "strobe": 0
       },
       {
         "name": "ropes",

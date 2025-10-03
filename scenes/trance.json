@@ -93,10 +93,12 @@
             "strobe": 255
         },
         {
-            "name": "discoball",
-            "type": "dimmer",
+            "name": "pinspot",
+            "type": "pinspot",
             "modulator": "bool",
-            "brightness": 255
+            "brightness": 255,
+            "color": "white",
+            "strobe": 0
         },
         {
             "name": "rockville1",
