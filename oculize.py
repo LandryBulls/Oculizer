@@ -282,7 +282,10 @@ class AudioOculizerController:
     def stop(self):
         try:
             self.oculizer.stop()
-            self.oculizer.join()
+            # Use timeout to avoid hanging indefinitely on Windows
+            self.oculizer.join(timeout=3.0)
+            if self.oculizer.is_alive():
+                logging.warning("Oculizer thread did not stop within timeout")
             logging.info("Audio Oculizer Controller stopped")
         except Exception as e:
             self.error_message = f"Error stopping controller: {str(e)}"

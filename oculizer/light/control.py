@@ -117,6 +117,10 @@ class Oculizer(threading.Thread):
 
     def prediction_audio_callback(self, indata, frames, time_info, status):
         """Callback for scene prediction audio stream."""
+        # Check if still running to avoid queue operations after stop
+        if not self.running.is_set():
+            return
+            
         if status:
             import logging
             logger = logging.getLogger(__name__)
@@ -128,8 +132,11 @@ class Oculizer(threading.Thread):
         else:
             mono_data = indata.flatten()
         
-        # Add to queue for processing
-        self.prediction_audio_queue.put(mono_data.copy())
+        # Add to queue for processing (non-blocking to avoid hanging)
+        try:
+            self.prediction_audio_queue.put_nowait(mono_data.copy())
+        except queue.Full:
+            pass  # Drop frame if queue is full to avoid blocking
 
     def update_scene_prediction(self):
         """Process scene prediction from audio cache."""
@@ -482,10 +489,14 @@ class Oculizer(threading.Thread):
             import traceback
             traceback.print_exc()
         finally:
-            # Clean up prediction stream
+            # Clean up prediction stream if not already stopped
             if self.prediction_stream:
-                self.prediction_stream.stop()
-                self.prediction_stream.close()    
+                try:
+                    self.prediction_stream.stop()
+                    self.prediction_stream.close()
+                    self.prediction_stream = None
+                except Exception as e:
+                    print(f"Error closing prediction stream in finally: {e}")    
 
     def process_audio_and_lights(self):
         if self.scene_changed.is_set():
@@ -566,6 +577,18 @@ class Oculizer(threading.Thread):
 
     def stop(self):
         self.running.clear()
+        
+        # Stop and close prediction stream first
+        if self.prediction_stream:
+            try:
+                self.prediction_stream.stop()
+                self.prediction_stream.close()
+                self.prediction_stream = None
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error stopping prediction stream: {e}")
+        
         # Close DMX controller connection
         if hasattr(self, 'dmx_controller') and self.dmx_controller:
             self.dmx_controller.close()
