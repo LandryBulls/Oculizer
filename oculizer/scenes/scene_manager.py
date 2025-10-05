@@ -1,3 +1,17 @@
+"""
+SceneManager - Scene configuration loader and manager for Oculizer lighting system.
+
+This module provides the SceneManager class which handles loading, managing, and 
+switching between lighting scene configurations stored as JSON files. Each scene 
+defines specific lighting parameters and behaviors that can be applied to the 
+lighting system.
+
+The SceneManager:
+- Loads all scene JSON files from a specified directory
+- Validates scene data and provides error handling for malformed files
+- Maintains the current active scene
+- Supports runtime scene switching and reloading
+"""
 import os
 import json
 import logging
@@ -9,7 +23,13 @@ class SceneManager:
         self.scenes = self.load_json_files(scenes_directory)
         if not self.scenes:
             raise ValueError("No valid scenes found in directory")
-        self.current_scene = self.scenes[list(self.scenes.keys())[0]]
+        # Default to 'party' scene if available, otherwise use first available scene
+        if 'party' in self.scenes:
+            self.current_scene = self.scenes['party']
+            logging.info("Error - Defaulting to 'party' scene")
+        else:
+            self.current_scene = self.scenes[list(self.scenes.keys())[0]]
+            logging.warning("'party' scene not found, defaulting to '%s'", list(self.scenes.keys())[0])
 
     def load_json_files(self, directory):
         data = {}
@@ -44,11 +64,16 @@ class SceneManager:
         """Reload all scenes from disk, preserving current scene if possible"""
         current_scene_name = self.current_scene['name']
         self.scenes = self.load_json_files('scenes')
-        # Try to restore the previous scene, fall back to first scene if not found
+        # Try to restore the previous scene, fall back to 'party' or first scene if not found
         if current_scene_name in self.scenes:
             self.current_scene = self.scenes[current_scene_name]
+        elif 'party' in self.scenes:
+            self.current_scene = self.scenes['party']
+            logging.warning("Previous scene '%s' not found, defaulting to 'party'", current_scene_name)
         else:
             self.current_scene = self.scenes[list(self.scenes.keys())[0]]
+            logging.warning("Previous scene '%s' and 'party' not found, defaulting to '%s'", 
+                          current_scene_name, list(self.scenes.keys())[0])
 
 def main():
     scene_manager = SceneManager('scenes')

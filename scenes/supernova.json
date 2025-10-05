@@ -1,0 +1,250 @@
+{
+    "name": "supernova",
+    "description": "A cosmic explosion of light - hopping RGBs, fading panels, sequential bars, and pulsing core. Maximum system complexity.",
+    "key_command": "n",
+    "midi": 48,
+    "lights": [
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "time",
+            "function": "cosine",
+            "frequency": 0.8,
+            "min_brightness": 100,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 0
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "mfft",
+            "mfft_range": [90, 110],
+            "power_range": [0.1, 1.0],
+            "brightness": 200,
+            "speed": 180
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "red",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "orange",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "yellow",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "green",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "pink",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "white",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [15, 40],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "time_modulation": {
+                    "frequency": 0.4,
+                    "function": "sine",
+                    "min_brightness": 50,
+                    "max_brightness": 255
+                },
+                "colors": ["red", "orange", "yellow", "pink", "purple", "blue"],
+                "combo_mode": "mix",
+                "color_order": "random",
+                "coverage": 0.8,
+                "panel_mfft_range": [15, 40],
+                "panel_threshold": 1.0,
+                "panel_strobe": 0,
+                "fade_duration": 0.6,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "affect_bar": true,
+                "bar_mfft_range": [110, 127],
+                "bar_threshold": 0.03,
+                "bar_colors": [150, 255],
+                "bar_mode": 0,
+                "bar_sustain": 0.2,
+                "bar_strobe": 200
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [15, 40],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "time_modulation": {
+                    "frequency": 0.4,
+                    "function": "sine",
+                    "min_brightness": 50,
+                    "max_brightness": 255
+                },
+                "colors": ["red", "orange", "yellow", "pink", "purple", "blue"],
+                "combo_mode": "mix",
+                "color_order": "random",
+                "coverage": 0.8,
+                "panel_mfft_range": [15, 40],
+                "panel_threshold": 1.0,
+                "panel_strobe": 0,
+                "fade_duration": 0.6,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "affect_bar": true,
+                "bar_mfft_range": [110, 127],
+                "bar_threshold": 0.03,
+                "bar_colors": [150, 255],
+                "bar_mode": 0,
+                "bar_sustain": 0.2,
+                "bar_strobe": 200
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [15, 40],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "time_modulation": {
+                    "frequency": 0.4,
+                    "function": "sine",
+                    "min_brightness": 50,
+                    "max_brightness": 255
+                },
+                "colors": ["red", "orange", "yellow", "pink", "purple", "blue"],
+                "combo_mode": "mix",
+                "color_order": "random",
+                "coverage": 0.8,
+                "panel_mfft_range": [15, 40],
+                "panel_threshold": 1.0,
+                "panel_strobe": 0,
+                "fade_duration": 0.6,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "affect_bar": true,
+                "bar_mfft_range": [110, 127],
+                "bar_threshold": 0.03,
+                "bar_colors": [150, 255],
+                "bar_mode": 0,
+                "bar_sustain": 0.2,
+                "bar_strobe": 200
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [15, 40],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "time_modulation": {
+                    "frequency": 0.4,
+                    "function": "sine",
+                    "min_brightness": 50,
+                    "max_brightness": 255
+                },
+                "colors": ["red", "orange", "yellow", "pink", "purple", "blue"],
+                "combo_mode": "mix",
+                "color_order": "random",
+                "coverage": 0.8,
+                "panel_mfft_range": [15, 40],
+                "panel_threshold": 1.0,
+                "panel_strobe": 0,
+                "fade_duration": 0.6,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "affect_bar": true,
+                "bar_mfft_range": [110, 127],
+                "bar_threshold": 0.03,
+                "bar_colors": [150, 255],
+                "bar_mode": 0,
+                "bar_sustain": 0.2,
+                "bar_strobe": 200
+            }
+        }
+    ],
+    "orchestrator": {
+        "type": "hopper",
+        "config": {
+            "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb5", "rgb6", "rgb7", "rgb8"],
+            "trigger": {
+                "mfft_range": [0, 12],
+                "threshold": 2.0
+            },
+            "transition": {
+                "duration": 0.15
+            }
+        }
+    }
+}
+

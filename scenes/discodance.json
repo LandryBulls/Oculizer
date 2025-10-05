@@ -1,0 +1,191 @@
+{
+    "name": "discodance",
+    "description": "White disco ball, purple low-frequency RGBs/Rockvilles, high-frequency strobing bars and strobe light",
+    "type": "effect",
+    "midi": 46,
+    "key_command": "x",
+    "lights": [
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "bool",
+            "brightness": 255,
+            "color": "white",
+            "strobe": 0
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "mfft",
+            "mfft_range": [115, 127],
+            "power_range": [0.05, 1.0],
+            "brightness": 255,
+            "speed": 255
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb2", 
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb", 
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft", 
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "purple",
+            "mfft_range": [1, 20],
+            "power_range": [0.5, 4],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": true,
+                "mfft_range": [115, 127],
+                "power_range": [0.05, 1.0],
+                "brightness_range": [0, 255],
+                "mode": 0,
+                "strobe": 255
+            }   
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": true,
+                "mfft_range": [115, 127],
+                "power_range": [0.05, 1.0],
+                "brightness_range": [0, 255],
+                "mode": 0,
+                "strobe": 255
+            }   
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": true,
+                "mfft_range": [115, 127],
+                "power_range": [0.05, 1.0],
+                "brightness_range": [0, 255],
+                "mode": 0,
+                "strobe": 255
+            }   
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [1, 20],
+                "power_range": [0.5, 4],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "strobe": 0
+            },
+            "bar": {
+                "affect_bar": true,
+                "mfft_range": [115, 127],
+                "power_range": [0.05, 1.0],
+                "brightness_range": [0, 255],
+                "mode": 0,
+                "strobe": 255
+            }   
+        }
+    ]
+}
+

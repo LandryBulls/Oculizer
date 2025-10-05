@@ -5,16 +5,27 @@ setup(
     version="0.1",
     packages=find_packages(),
     install_requires=[
-        # List your dependencies here
-        'numpy',
-        'scipy',
-        'sounddevice',
-        'librosa',
+        # Core dependencies
+        'numpy>=1.21.0',
+        'scipy>=1.7.0',
+        
+        # Audio processing
+        'librosa>=0.9.2',
+        'sounddevice>=0.4.6',
+        'soundfile>=0.11.0',
         'pydub',
-        'scipy', 
-        'sounddevice',
-        'soundfile',
-        'scikit-learn',
-        'PyDMXControl'
+        
+        # Machine learning
+        'scikit-learn>=1.0.0',
+        'joblib>=1.1.0',
+        'torch>=1.13.0',
+        'efficientat>=0.0.1',
+        
+        # Lighting control
+        'pyserial>=3.5',
+        'PyDMXControl',
+        
+        # Terminal UI (Windows only)
+        'windows-curses>=2.3.0; sys_platform == "win32"',
     ],
 )

@@ -70,6 +70,7 @@ def mfft_to_value(mfft_vec, mfft_range, power_range, value_range):
 def time_function(t, frequency, function):
     functions = {
         'sine': lambda t, f: np.sin(t * f * 2 * np.pi) * 0.5 + 0.5,
+        'cosine': lambda t, f: np.cos(t * f * 2 * np.pi) * 0.5 + 0.5,
         'square': lambda t, f: np.sign(np.sin(t * f * 2 * np.pi)) * 0.5 + 0.5,
         'triangle': lambda t, f: np.abs(((t * f) % 2) - 1),
         'sawtooth_forward': lambda t, f: (t * f) % 1,
