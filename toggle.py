@@ -4,6 +4,7 @@ import threading
 import curses
 import time
 import argparse
+import platform
 from collections import OrderedDict
 import math
 
@@ -11,11 +12,15 @@ from oculizer.light import Oculizer
 from oculizer.scenes import SceneManager
 
 def parse_args():
+    # Detect OS and set defaults
+    is_macos = platform.system() == 'Darwin'
+    default_input = 'blackhole' if is_macos else 'cable'
+    
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
     parser.add_argument('-p', '--profile', type=str, default='bbgv',
                       help='Profile to use (default: bbgv)')
-    parser.add_argument('-i', '--input', type=str, default='cable',
-                      help='Audio input device to use (default: cable, options: cable, blackhole, scarlett)')
+    parser.add_argument('-i', '--input', type=str, default=default_input,
+                      help=f'Audio input device to use (default: {default_input}, options: cable, blackhole, scarlett)')
     return parser.parse_args()
 
 def sort_scenes_alphabetically(scenes):

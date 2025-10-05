@@ -1,0 +1,107 @@
+{
+    "name": "garage2025",
+    "description": "Garage 2025 Setup",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "orb1",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "orb2",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "orb3",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "n_channels": 6
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "laser",
+            "type": "laser",
+            "n_channels": 10
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "n_channels": 2
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "n_channels": 6
+        }
+    ]
+}
+

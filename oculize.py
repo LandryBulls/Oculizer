@@ -3,6 +3,7 @@ import time
 import threading
 import curses
 import argparse
+import platform
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
 import logging
@@ -288,6 +289,11 @@ class AudioOculizerController:
             logging.error(f"Error stopping controller: {str(e)}")
 
 def parse_args():
+    # Detect OS and set defaults
+    is_macos = platform.system() == 'Darwin'
+    default_input_device = 'blackhole' if is_macos else 'scarlett'
+    default_single_stream = is_macos
+    
     parser = argparse.ArgumentParser(
         description='Real-time audio-based Oculizer controller with dual-stream support',
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -302,12 +308,12 @@ Single-stream mode (--single-stream):
     )
     parser.add_argument('-p', '--profile', type=str, default='garage',
                       help='Lighting profile to use (default: garage)')
-    parser.add_argument('-i', '--input-device', type=str, default='scarlett',
-                      help='Audio input device for FFT/DMX (default: scarlett)')
+    parser.add_argument('-i', '--input-device', type=str, default=default_input_device,
+                      help=f'Audio input device for FFT/DMX (default: {default_input_device})')
     parser.add_argument('--prediction-device', type=int, default=1,
                       help='Device index for scene prediction in dual-stream mode (default: 1)')
-    parser.add_argument('--single-stream', action='store_true',
-                      help='Use single audio stream for both FFT and prediction')
+    parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
+                      help=f'Use single audio stream for both FFT and prediction (default on macOS: {default_single_stream})')
     parser.add_argument('--list-devices', action='store_true',
                       help='List available audio devices and exit')
     return parser.parse_args()
