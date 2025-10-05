@@ -43,11 +43,6 @@
             "n_channels": 1
         },
         {
-            "name": "orb3",
-            "type": "dimmer",
-            "n_channels": 1
-        },
-        {
             "name": "bulb",
             "type": "dimmer",
             "n_channels": 1
