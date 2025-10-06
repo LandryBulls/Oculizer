@@ -1,0 +1,25 @@
+{
+    "name": "discolaser",
+    "description": "Disco ball with sine wave and dimmer lasers",
+    "key_command": "d",
+    "midi": 68,
+    "lights": [
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 8.0,
+            "min_brightness": 255,
+            "max_brightness": 255,
+            "color": "white",
+            "strobe": 0
+        },
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 255
+        }
+    ]
+}

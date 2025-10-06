@@ -76,7 +76,13 @@
         "brightness": 0
       },
       {
-        "name": "orb",
+        "name": "orb1",
+        "type": "dimmer",
+        "modulator": "bool",
+        "brightness": 0
+      },
+      {
+        "name": "orb2",
         "type": "dimmer",
         "modulator": "bool",
         "brightness": 0

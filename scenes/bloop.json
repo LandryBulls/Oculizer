@@ -78,7 +78,7 @@
                 "target": "brightness",
                 "mode": 0,
                 "color": "blue",
-                "strobe": "random",
+                "strobe": 200,
                 "brightness": "random"
             },
             "bar": {
@@ -93,7 +93,7 @@
                 "target": "brightness",
                 "mode": 0,
                 "color": "blue",
-                "strobe": "random",
+                "strobe": 200,
                 "brightness": "random"
             },
             "bar": {
@@ -108,7 +108,7 @@
                 "target": "brightness",
                 "mode": 0,
                 "color": "blue", 
-                "strobe": "random",
+                "strobe": 200,
                 "brightness": "random"
             },
             "bar": {
@@ -123,7 +123,7 @@
                 "target": "brightness",
                 "mode": 0,
                 "color": "blue",
-                "strobe": "random",
+                "strobe": 200,
                 "brightness": "random"
             },
             "bar": {

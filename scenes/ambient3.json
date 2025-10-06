@@ -94,7 +94,15 @@
             "max_brightness": 70
         },
         {
-            "name": "orb",
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 50,
+            "max_brightness": 100
+        },
+        {
+            "name": "orb2",
             "type": "dimmer",
             "modulator": "bool",
             "brightness": "random",

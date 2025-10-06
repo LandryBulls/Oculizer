@@ -1,0 +1,35 @@
+{
+    "name": "laser_strobe",
+    "description": "Laser show with strobe effects on high frequencies",
+    "key_command": "l",
+    "midi": 76,
+    "lights": [
+        {
+            "name": "lasers",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255]
+        },
+        {
+            "name": "laser",
+            "type": "laser",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.3, 0.8],
+            "zoom_range": [0, 127],
+            "speed_range": [0, 255]
+        },
+        {
+            "name": "strobe",
+            "type": "strobe",
+            "modulator": "mfft",
+            "threshold": 0.05,
+            "brightness": 255,
+            "mfft_range": [115, 127],
+            "power_range": [0.08, 1.0],
+            "speed": 1
+        }
+    ]
+}

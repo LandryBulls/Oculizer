@@ -1,2 +1,3 @@
-strobe bar too strong in most scenes that use it. discodance has a good sensitivity. 
-make a green strobe pulse
+- strobe bar too strong in most scenes that use it. discodance has a good sensitivity. 
+- make a green strobe pulse
+- refactor so that profiles include spatial configurations (the order of lights to be activated if they are to be sequenced, as in bass_hopper or speedracer effects)

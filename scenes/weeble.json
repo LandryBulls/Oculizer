@@ -95,7 +95,7 @@
                 "brightness_range": [0, 255],
                 "color": "green",
                 "panel_threshold": -1,
-                "strobe": 255,
+                "strobe": 200,
                 "mode": 0,
                 "mode_speed": 255
             },
@@ -114,7 +114,7 @@
                 "brightness_range": [0, 255],
                 "color": "green",
                 "panel_threshold": -1,
-                "strobe": 255,
+                "strobe": 200,
                 "mode": 0,
                 "mode_speed": 255
             },
@@ -133,7 +133,7 @@
                 "brightness_range": [0, 255],
                 "color": "green",
                 "panel_threshold": -1,
-                "strobe": 255,
+                "strobe": 200,
                 "mode": 0,
                 "mode_speed": 255
             },
@@ -152,7 +152,7 @@
                 "brightness_range": [0, 255],
                 "color": "green",
                 "panel_threshold": -1,
-                "strobe": 255,
+                "strobe": 200,
                 "mode": 0,
                 "mode_speed": 255
             },

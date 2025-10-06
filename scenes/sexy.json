@@ -86,7 +86,15 @@
             "strobe": 0
         },
         {
-            "name": "orb",
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 128],
+            "power_range": [0, 1],
+            "brightness_range": [20, 255]
+        },
+        {
+            "name": "orb2",
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 128],

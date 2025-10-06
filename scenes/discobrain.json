@@ -1,0 +1,19 @@
+{
+    "name": "discobrain",
+    "description": "Disco ball with rainbow colors and sine wave strobe",
+    "key_command": "b",
+    "midi": 66,
+    "lights": [
+        {
+            "name": "pinspot",
+            "type": "pinspot",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.2,
+            "min_brightness": 15,
+            "max_brightness": 255,
+            "color": "rainbow",
+            "strobe": 255
+        }
+    ]
+}

@@ -101,7 +101,15 @@
       "max_brightness": 30
     },
     {
-      "name": "orb",
+      "name": "orb1",
+      "type": "dimmer",
+      "modulator": "mfft",
+      "mfft_range": [0, 30],
+      "power_range": [0, 0.3],
+      "brightness_range": [0, 70]
+    },
+    {
+      "name": "orb2",
       "type": "dimmer",
       "modulator": "mfft",
       "mfft_range": [0, 30],

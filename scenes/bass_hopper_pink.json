@@ -1,0 +1,101 @@
+{
+    "name": "bass_hopper_pink",
+    "description": "Cycles through multiple lights based on bass frequencies, creating a hopping effect in pink tones",
+    "key_command": "h",
+    "midi": 72,
+    "orchestrator": {
+        "type": "hopper",
+        "config": {
+            "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb8", "rgb7", "rgb6", "rgb5"],
+            "trigger": {
+                "mfft_range": [0, 20],
+                "threshold": 2.0
+            },
+            "transition": {
+                "duration": 0.2
+            }
+        }
+    },
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255],
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [0, 255],
+            "color": "pink",
+            "strobe": 255
+        }
+    ]
+}

@@ -109,76 +109,64 @@
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_colors": ["red", "blue", "green", "yellow", "purple", "black", "black", "black"],
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
-                "panel_strobe": 200,
-                "affect_panel": true,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.02,
-                "bar_colors": [0, 0, 255],
-                "bar_strobe": 255,
-                "bar_mode": 0
+                "mfft_range": [110, 127],
+                "threshold": 0.02,
+                "colors": [0, 0, 255],
+                "strobe": 255,
+                "mode": 0
             }
         },
         {
             "name": "rockville2",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_colors": ["red", "blue", "green", "yellow", "purple", "black", "black", "black"],
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
-                "panel_strobe": 200,
-                "affect_panel": true,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.02,
-                "bar_colors": [0, 0, 255],
-                "bar_strobe": 255,
-                "bar_mode": 0
+                "mfft_range": [110, 127],
+                "threshold": 0.02,
+                "colors": [0, 0, 255],
+                "strobe": 255,
+                "mode": 0
             }
         },
         {
             "name": "rockville3",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_colors": ["red", "blue", "green", "yellow", "purple", "black", "black", "black"],
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
-                "panel_strobe": 200,
-                "affect_panel": true,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.02,
-                "bar_colors": [0, 0, 255],
-                "bar_strobe": 255,
-                "bar_mode": 0
+                "mfft_range": [110, 127],
+                "threshold": 0.02,
+                "colors": [0, 0, 255],
+                "strobe": 255,
+                "mode": 0
             }
         },
         {
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_colors": ["red", "blue", "green", "yellow", "purple", "black", "black", "black"],
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.5,
-                "panel_strobe": 200,
-                "affect_panel": true,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
-                "bar_threshold": 0.02,
-                "bar_colors": [0, 0, 255],
-                "bar_strobe": 255,
-                "bar_mode": 0
+                "mfft_range": [110, 127],
+                "threshold": 0.02,
+                "colors": [0, 0, 255],
+                "strobe": 255,
+                "mode": 0
             }
         }
     ]

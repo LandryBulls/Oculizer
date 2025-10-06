@@ -9,7 +9,7 @@
             "type": "pinspot",
             "modulator": "time",
             "function": "sine",
-            "frequency": 0.3,
+            "frequency": 0.8,
             "min_brightness": 50,
             "max_brightness": 255,
             "color": "purple",
@@ -107,7 +107,7 @@
                 "colors": ["red", "orange", "yellow", "green", "blue", "purple", "pink"],
                 "combo_mode": "pure",
                 "color_order": "next",
-                "sequence_duration": 0.25,
+                "sequence_duration": 0.15,
                 "direction": "alternating",
                 "wait": false,
                 "panel_strobe": 0,
@@ -133,7 +133,7 @@
                 "colors": ["red", "orange", "yellow", "green", "blue", "purple", "pink"],
                 "combo_mode": "pure",
                 "color_order": "next",
-                "sequence_duration": 0.25,
+                "sequence_duration": 0.15,
                 "direction": "alternating",
                 "wait": false,
                 "panel_strobe": 0,
@@ -159,7 +159,7 @@
                 "colors": ["red", "orange", "yellow", "green", "blue", "purple", "pink"],
                 "combo_mode": "pure",
                 "color_order": "next",
-                "sequence_duration": 0.25,
+                "sequence_duration": 0.15,
                 "direction": "alternating",
                 "wait": false,
                 "panel_strobe": 0,
@@ -185,7 +185,7 @@
                 "colors": ["red", "orange", "yellow", "green", "blue", "purple", "pink"],
                 "combo_mode": "pure",
                 "color_order": "next",
-                "sequence_duration": 0.25,
+                "sequence_duration": 0.15,
                 "direction": "alternating",
                 "wait": false,
                 "panel_strobe": 0,
@@ -204,7 +204,7 @@
         "type": "racer",
         "config": {
             "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb5", "rgb6", "rgb7", "rgb8"],
-            "frequency": 6,
+            "frequency": 20,
             "order": "forward"
         }
     }

@@ -1,8 +1,21 @@
 {
-    "name": "prance",
-    "description": "All RGBs pulsing blue with bass, high-frequency reactive strobe",
-    "key_command": "r",
-    "midi": 56,
+    "name": "bass_hopper_blue",
+    "description": "Cycles through multiple lights based on bass frequencies, creating a hopping effect in blue tones",
+    "key_command": "h",
+    "midi": 72,
+    "orchestrator": {
+        "type": "hopper",
+        "config": {
+            "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb8", "rgb7", "rgb6", "rgb5"],
+            "trigger": {
+                "mfft_range": [0, 20],
+                "threshold": 2.0
+            },
+            "transition": {
+                "duration": 0.2
+            }
+        }
+    },
     "lights": [
         {
             "name": "rgb1",
@@ -10,9 +23,9 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [0, 255],
             "color": "blue",
-            "strobe": 0
+            "strobe": 255
         },
         {
             "name": "rgb2",
@@ -20,9 +33,9 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
-            "color": "blue",
-            "strobe": 0
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 255
         },
         {
             "name": "rgb3",
@@ -30,9 +43,9 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [0, 255],
             "color": "blue",
-            "strobe": 0
+            "strobe": 255
         },
         {
             "name": "rgb4",
@@ -40,39 +53,9 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb5",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
-            "color": "blue",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
-            "color": "blue",
-            "strobe": 0
+            "brightness_range": [0, 255],
+            "color": "white",
+            "strobe": 255
         },
         {
             "name": "rgb8",
@@ -80,25 +63,39 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
+            "brightness_range": [0, 255],
+            "color": "white",
+            "strobe": 255
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 255
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
             "color": "blue",
-            "strobe": 0
+            "strobe": 255
         },
         {
-            "name": "orb1",
-            "type": "dimmer",
+            "name": "rgb5",
+            "type": "rgb",
             "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
-            "mfft_range": [100, 127],
-            "power_range": [0, 0.05]
-        },
-        {
-            "name": "orb2",
-            "type": "dimmer",
-            "modulator": "mfft",
-            "brightness_range": [0, 255],
-            "mfft_range": [100, 127],
-            "power_range": [0, 0.05]
+            "color": "blue",
+            "strobe": 255
         }
     ]
 }

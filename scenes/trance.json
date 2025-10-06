@@ -98,7 +98,7 @@
             "modulator": "time",
             "function": "cosine",
             "frequency": 0.2,
-            "min_brightness": 0,
+            "min_brightness": 30,
             "max_brightness": 255,
             "color": "white",
             "strobe": 0
@@ -113,12 +113,12 @@
                     "frequency": 0.2,        
                     "function": "sine",     
                     "min_brightness": 0,    
-                    "max_brightness": 255    
+                    "max_brightness": 75    
                 },
-                "panel_colors": ["purple", "blue", "black"],
+                "panel_colors": ["purple", "black"],
                 "panel_threshold": -1,
                 "panel_strobe": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_strobe": 255,
                 "bar_threshold": 0.2,
                 "bar_colors": [0, 100],
@@ -135,12 +135,12 @@
                     "frequency": 0.2,        
                     "function": "sine",     
                     "min_brightness": 0,    
-                    "max_brightness": 255    
+                    "max_brightness": 75    
                 },
-                "panel_colors": ["purple", "blue", "black"],
+                "panel_colors": ["purple", "black"],
                 "panel_threshold": -1,
                 "panel_strobe": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_strobe": 255,
                 "bar_threshold": 0.2,
                 "bar_colors": [0, 100],
@@ -157,12 +157,12 @@
                     "frequency": 0.2,        
                     "function": "sine",     
                     "min_brightness": 0,    
-                    "max_brightness": 255    
+                    "max_brightness": 75    
                 },
-                "panel_colors": ["purple", "blue", "black"],
+                "panel_colors": ["purple", "black"],
                 "panel_threshold": -1,
                 "panel_strobe": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_strobe": 255,
                 "bar_threshold": 0.2,
                 "bar_colors": [0, 100],
@@ -179,12 +179,12 @@
                     "frequency": 0.2,        
                     "function": "sine",     
                     "min_brightness": 0,    
-                    "max_brightness": 255    
+                    "max_brightness": 75    
                 },
-                "panel_colors": ["purple", "blue", "black"],
+                "panel_colors": ["purple", "black"],
                 "panel_threshold": -1,
                 "panel_strobe": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_strobe": 255,
                 "bar_threshold": 0.2,
                 "bar_colors": [0, 100],

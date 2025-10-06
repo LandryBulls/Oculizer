@@ -66,7 +66,15 @@
             "max_brightness": 20
         },
         {
-            "name": "orb",
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 10],
+            "power_range": [0, 0.5],
+            "brightness_range": [0, 40]
+        },
+        {
+            "name": "orb2",
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 10],
@@ -149,13 +157,13 @@
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mfft_range": [110, 127],
                 "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 255
+                "bar_strobe": 200
             }
         },
         {
@@ -174,13 +182,13 @@
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mfft_range": [110, 127],
                 "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 255
+                "bar_strobe": 200
             }
         },
         {
@@ -199,13 +207,13 @@
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mfft_range": [110, 127],
                 "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 255
+                "bar_strobe": 200
             }
         },
         {
@@ -224,13 +232,13 @@
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 255,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mfft_range": [110, 127],
                 "bar_threshold": 0.05,
                 "bar_colors": [0, 255],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 255
+                "bar_strobe": 200
             }
         }
     ]

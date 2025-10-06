@@ -82,92 +82,68 @@
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["white", "black"],
-                "combo_mode": "mix",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.01,
-                "panel_strobe": 255,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "mfft_range": [0, 20],
+                "threshold": 0.1,
+                "colors": [0, 255],
+                "mode": 0,
+                "sustain": 0.1,
+                "strobe": 255
             }
         },
         {
             "name": "rockville2",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["white", "black"],
-                "combo_mode": "mix",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.01,
-                "panel_strobe": 255,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "mfft_range": [0, 20],
+                "threshold": 0.1,
+                "colors": [0, 255],
+                "mode": 0,
+                "sustain": 0.1,
+                "strobe": 255
             }
         },
         {
             "name": "rockville3",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["white", "black"],
-                "combo_mode": "mix",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.01,
-                "panel_strobe": 255,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "mfft_range": [0, 20],
+                "threshold": 0.1,
+                "colors": [0, 255],
+                "mode": 0,
+                "sustain": 0.1,
+                "strobe": 255
             }
         },
         {
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "mfft",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["white", "black"],
-                "combo_mode": "mix",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
-                "panel_threshold": 0.01,
-                "panel_strobe": 255,
+            "panel": {
+                "affect_panel": false
+            },
+            "bar": {
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
-                "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
-                "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "mfft_range": [0, 20],
+                "threshold": 0.1,
+                "colors": [0, 255],
+                "mode": 0,
+                "sustain": 0.1,
+                "strobe": 255
             }
         }
     ]
