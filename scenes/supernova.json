@@ -65,20 +65,10 @@
             "strobe": 0
         },
         {
-            "name": "rgb5",
+            "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "blue",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "color": "purple",
+            "color": "white",
             "mfft_range": [1, 15],
             "power_range": [0.5, 3.5],
             "brightness_range": [0, 255],
@@ -95,10 +85,20 @@
             "strobe": 0
         },
         {
-            "name": "rgb8",
+            "name": "rgb6",
             "type": "rgb",
             "modulator": "mfft",
-            "color": "white",
+            "color": "purple",
+            "mfft_range": [1, 15],
+            "power_range": [0.5, 3.5],
+            "brightness_range": [0, 255],
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "color": "blue",
             "mfft_range": [1, 15],
             "power_range": [0.5, 3.5],
             "brightness_range": [0, 255],

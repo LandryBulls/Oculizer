@@ -9,49 +9,49 @@
             "name": "rgb1",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb2",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb3",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb4",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb5",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb6",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "strobe",
@@ -66,17 +66,17 @@
             "name": "rgb7",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rgb8",
             "type": "rgb",
             "modulator": "bool",
-            "brightness": 0,
+            "brightness": 255,
             "color": "white",
-            "strobe": 0
+            "strobe": "random"
         },
         {
             "name": "rockville1",
