@@ -79,7 +79,7 @@ def setup_colors():
 
 class AudioOculizerController:
     def __init__(self, stdscr, profile='garage', input_device='scarlett', 
-                 dual_stream=True, prediction_device=None):
+                 dual_stream=True, prediction_device=None, predictor_version='v1'):
         self.stdscr = stdscr
         curses.curs_set(0)
         self.stdscr.nodelay(1)
@@ -94,10 +94,12 @@ class AudioOculizerController:
             scene_manager=self.scene_manager,
             input_device=input_device,
             scene_prediction_enabled=True,
-            scene_prediction_device=prediction_device if dual_stream else None
+            scene_prediction_device=prediction_device if dual_stream else None,
+            predictor_version=predictor_version
         )
         
         self.dual_stream = dual_stream
+        self.predictor_version = predictor_version
         self.error_message = ""
         self.info_message = ""
         
@@ -238,6 +240,10 @@ class AudioOculizerController:
             profile_info = f"Profile: {self.oculizer.profile_name}"
             self.stdscr.addstr(3, 0, profile_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
+            # Display predictor version
+            predictor_info = f"Predictor: {self.predictor_version}"
+            self.stdscr.addstr(4, 0, predictor_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+
             # Display current scene (top left)
             scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
             self.stdscr.addstr(5, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
@@ -317,18 +323,22 @@ Single-stream mode (--single-stream):
                       help='Device index for scene prediction in dual-stream mode (default: 1)')
     parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
                       help=f'Use single audio stream for both FFT and prediction (default on macOS: {default_single_stream})')
+    parser.add_argument('--predictor-version', '--predictor', type=str, default='v1',
+                      choices=['v1', 'v3'],
+                      help='Scene predictor version to use (default: v1)')
     parser.add_argument('--list-devices', action='store_true',
                       help='List available audio devices and exit')
     return parser.parse_args()
 
-def main(stdscr, profile, input_device, dual_stream, prediction_device):
+def main(stdscr, profile, input_device, dual_stream, prediction_device, predictor_version):
     setup_colors()
     controller = AudioOculizerController(
         stdscr, 
         profile=profile,
         input_device=input_device,
         dual_stream=dual_stream,
-        prediction_device=prediction_device
+        prediction_device=prediction_device,
+        predictor_version=predictor_version
     )
     
     try:
@@ -361,5 +371,6 @@ if __name__ == "__main__":
             args.profile, 
             args.input_device,
             dual_stream,
-            args.prediction_device if dual_stream else None
+            args.prediction_device if dual_stream else None,
+            args.predictor_version
         ))

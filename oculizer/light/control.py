@@ -36,7 +36,7 @@ n_channels = {
 
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager, input_device='cable', 
-                 scene_prediction_enabled=False, scene_prediction_device=None):
+                 scene_prediction_enabled=False, scene_prediction_device=None, predictor_version='v1'):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -59,6 +59,7 @@ class Oculizer(threading.Thread):
         # Scene prediction setup
         self.scene_prediction_enabled = scene_prediction_enabled
         self.scene_prediction_device = scene_prediction_device
+        self.predictor_version = predictor_version
         self.scene_predictor = None
         self.prediction_stream = None
         self.prediction_audio_queue = queue.Queue()
@@ -98,9 +99,12 @@ class Oculizer(threading.Thread):
 
     def _init_scene_prediction(self):
         """Initialize scene prediction components."""
-        from oculizer.scene_predictors.v1.predictor import ScenePredictor
+        from oculizer.scene_predictors import get_predictor
         from collections import deque
         import librosa
+        
+        # Get the ScenePredictor class for the specified version
+        ScenePredictor = get_predictor(self.predictor_version)
         
         # Initialize scene predictor (32kHz for EfficientAT model)
         self.scene_predictor = ScenePredictor(sr=32000)
@@ -113,7 +117,7 @@ class Oculizer(threading.Thread):
         
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"Scene prediction initialized (device: {self.scene_prediction_device})")
+        logger.info(f"Scene prediction initialized with {self.predictor_version} predictor (device: {self.scene_prediction_device})")
 
     def prediction_audio_callback(self, indata, frames, time_info, status):
         """Callback for scene prediction audio stream."""
