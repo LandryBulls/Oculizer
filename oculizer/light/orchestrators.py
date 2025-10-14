@@ -34,7 +34,12 @@ class HopperOrchestrator(Orchestrator):
         mfft_range = trigger_config['mfft_range']
         power = np.mean(mfft_data[mfft_range[0]:mfft_range[1]])
         
-        modifications = {light: {'active': False, 'modifiers': {}} for light in lights}
+        # Only modify target lights, leave others unaffected
+        modifications = {}
+        
+        # Set all target lights as inactive by default
+        for light in target_lights:
+            modifications[light] = {'active': False, 'modifiers': {}}
         
         if power >= trigger_config['threshold']:
             if current_time - self.state['last_trigger_time'] > transition_config.get('duration', 0.1):
@@ -78,7 +83,12 @@ class RacerOrchestrator(Orchestrator):
         time_since_switch = current_time - self.state['last_switch_time']
         switch_interval = 1.0 / frequency
         
-        modifications = {light: {'active': False, 'modifiers': {}} for light in lights}
+        # Only modify target lights, leave others unaffected
+        modifications = {}
+        
+        # Set all target lights as inactive by default
+        for light in target_lights:
+            modifications[light] = {'active': False, 'modifiers': {}}
         
         # Check if it's time to switch lights
         if time_since_switch >= switch_interval:
