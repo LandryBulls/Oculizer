@@ -1,0 +1,14 @@
+{
+    "name": "lamp",
+    "description": "Just the lamp at 100 brightness",
+    "key_command": "l",
+    "midi": 76,
+    "lights": [
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": 100
+        }
+    ]
+}

@@ -1,0 +1,32 @@
+{
+    "name": "flicker",
+    "description": "Orbs and bulb flickering randomly between 0 and 100 brightness",
+    "key_command": "f",
+    "midi": 70,
+    "lights": [
+        {
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 100
+        },
+        {
+            "name": "orb2",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 100
+        },
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 100
+        }
+    ]
+}

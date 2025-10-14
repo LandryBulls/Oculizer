@@ -1,0 +1,125 @@
+{
+    "name": "orb_cycle",
+    "description": "Orbs and bulb hopping based on bass frequencies with random flickering",
+    "key_command": "o",
+    "midi": 79,
+    "orchestrator": {
+        "type": "hopper",
+        "config": {
+            "target_lights": ["orb1", "orb2", "bulb"],
+            "trigger": {
+                "mfft_range": [0, 20],
+                "threshold": 2.0
+            },
+            "transition": {
+                "duration": 0.2
+            }
+        }
+    },
+    "lights": [
+        {
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [50, 255]
+        },
+        {
+            "name": "orb2",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
+            "brightness_range": [50, 255]
+        },
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.2, 2],
+            "brightness_range": [50, 255]
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 5,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        }
+    ]
+}

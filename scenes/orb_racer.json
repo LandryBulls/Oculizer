@@ -1,0 +1,40 @@
+{
+    "name": "orb_racer",
+    "description": "Racing orbs and bulb",
+    "key_command": "r",
+    "midi": 82,
+    "lights": [
+        {
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255]
+        },
+        {
+            "name": "orb2",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255]
+        },
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255]
+        }
+    ],
+    "orchestrator": {
+        "type": "racer",
+        "config": {
+            "target_lights": ["orb1", "orb2", "bulb"],
+            "frequency": 20,
+            "order": "forward"
+        }
+    }
+}

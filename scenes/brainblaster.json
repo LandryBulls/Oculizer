@@ -101,7 +101,7 @@
                 "bar_strobe": 0,
                 "bar_colors": [0, 255],  
                 "affect_panel": true,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mode": 0
             }
         },
@@ -121,7 +121,7 @@
                 "bar_strobe": 0,
                 "bar_colors": [0, 255],
                 "affect_panel": true,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mode": 0
             }
         },
@@ -141,7 +141,7 @@
                 "bar_strobe": 0,
                 "bar_colors": [0, 255],
                 "affect_panel": true,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mode": 0
             }
         },
@@ -162,7 +162,7 @@
                 "bar_strobe": 0,
                 "bar_colors": [0, 255],
                 "affect_panel": true,
-                "affect_bar": true,
+                "affect_bar": false,
                 "bar_mode": 0
             }
         }

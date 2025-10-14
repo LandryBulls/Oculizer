@@ -1,0 +1,35 @@
+{
+    "name": "orb_sine",
+    "description": "Orbs and bulb with 0.5Hz sine wave",
+    "key_command": "s",
+    "midi": 83,
+    "lights": [
+        {
+            "name": "orb1",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": "reverse_sawtooth",
+            "frequency": 1.0,
+            "min_brightness": 0,
+            "max_brightness": 255
+        },
+        {
+            "name": "orb2",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": "reverse_sawtooth",
+            "frequency": 1.0,
+            "min_brightness": 0,
+            "max_brightness": 255
+        },
+        {
+            "name": "bulb",
+            "type": "dimmer",
+            "modulator": "time",
+            "function": "reverse_sawtooth",
+            "frequency": 1.0,
+            "min_brightness": 0,
+            "max_brightness": 255
+        }
+    ]
+}
