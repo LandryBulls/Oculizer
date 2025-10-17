@@ -62,7 +62,7 @@ class Oculizer(threading.Thread):
         self.predictor_version = predictor_version
         self.scene_predictor = None
         self.prediction_stream = None
-        self.prediction_audio_queue = queue.Queue()
+        self.prediction_audio_queue = queue.Queue(maxsize=100)  # Limit queue size
         self.prediction_audio_cache = None  # Will be initialized if needed
         self.scene_cache = None
         self.current_predicted_scene = None
@@ -71,6 +71,8 @@ class Oculizer(threading.Thread):
         self.last_prediction_time = 0
         self.prediction_interval = 0.1
         self.prediction_count = 0
+        self.prediction_thread = None  # Separate thread for prediction processing
+        self.prediction_lock = threading.Lock()  # Lock for thread-safe access
         
         if scene_prediction_enabled:
             self._init_scene_prediction()
@@ -142,81 +144,103 @@ class Oculizer(threading.Thread):
         except queue.Full:
             pass  # Drop frame if queue is full to avoid blocking
 
+    def prediction_processing_thread(self):
+        """Separate thread for processing scene predictions (heavy CPU work)."""
+        import librosa
+        import logging
+        from statistics import mode
+        from collections import Counter
+        
+        logger = logging.getLogger(__name__)
+        logger.info("Prediction processing thread started")
+        
+        while self.running.is_set():
+            try:
+                # Process any queued audio data (with timeout to check running flag)
+                try:
+                    audio_chunk = self.prediction_audio_queue.get(timeout=0.5)
+                    with self.prediction_lock:
+                        self.prediction_audio_cache.extend(audio_chunk)
+                except queue.Empty:
+                    continue
+                
+                # Check if we have enough cached audio (4 seconds at 32kHz)
+                with self.prediction_lock:
+                    cache_length = len(self.prediction_audio_cache)
+                
+                if cache_length < 32000 * 4:
+                    continue
+                
+                # Check if it's time for prediction
+                current_time = time.time()
+                if current_time - self.last_prediction_time < self.prediction_interval:
+                    continue
+                
+                # Copy audio data for processing (release lock quickly)
+                with self.prediction_lock:
+                    audio_data = np.array(self.prediction_audio_cache)
+                
+                # Resample if needed (prediction cache is at system sample rate, need 32kHz)
+                # Note: In dual-stream mode, prediction device might have different sample rate
+                prediction_sample_rate = 48000  # Typical for CABLE Output
+                if prediction_sample_rate != 32000:
+                    audio_data = librosa.resample(
+                        audio_data,
+                        orig_sr=prediction_sample_rate,
+                        target_sr=32000
+                    )
+                
+                # Make prediction (heavy CPU work happens here)
+                scene, cluster = self.scene_predictor.predict(audio_data, return_cluster=True)
+                
+                # Update state with lock
+                with self.prediction_lock:
+                    self.latest_prediction = scene  # Store the raw prediction
+                    self.scene_cache.append(scene)
+                    
+                    # Update current scene using mode of recent predictions
+                    if self.scene_cache:
+                        try:
+                            self.current_predicted_scene = mode(self.scene_cache)
+                        except:
+                            # If no unique mode (tie), use the most recent
+                            self.current_predicted_scene = self.scene_cache[-1]
+                    
+                    self.current_cluster = cluster
+                    self.last_prediction_time = current_time
+                    self.prediction_count += 1
+                    
+                    # Log prediction periodically with cache info
+                    if self.prediction_count % 10 == 0:
+                        # Get distribution of scenes in cache for debugging
+                        scene_counts = Counter(self.scene_cache)
+                        cache_info = f"Cache({len(self.scene_cache)}): {dict(scene_counts)}"
+                        
+                        logger.info(
+                            f"[{self.prediction_count:04d}] Prediction: {scene}, "
+                            f"Mode: {self.current_predicted_scene}, Cluster: {cluster} | {cache_info}"
+                        )
+                    
+            except Exception as e:
+                logger.error(f"Error in prediction processing thread: {e}")
+                import traceback
+                traceback.print_exc()
+                time.sleep(0.5)  # Avoid tight loop on repeated errors
+        
+        logger.info("Prediction processing thread stopped")
+    
     def update_scene_prediction(self):
-        """Process scene prediction from audio cache."""
+        """Lightweight method called from main thread - just checks thread health."""
         if not self.scene_prediction_enabled:
             return
         
-        current_time = time.time()
-        
-        # Check if it's time for prediction
-        if current_time - self.last_prediction_time < self.prediction_interval:
-            return
-        
-        # Process any queued audio data
-        while not self.prediction_audio_queue.empty():
-            try:
-                audio_chunk = self.prediction_audio_queue.get_nowait()
-                self.prediction_audio_cache.extend(audio_chunk)
-            except queue.Empty:
-                break
-        
-        # Check if we have enough cached audio (4 seconds at 32kHz)
-        if len(self.prediction_audio_cache) < 32000 * 4:
-            return
-        
-        try:
-            # Convert cache to numpy array
-            audio_data = np.array(self.prediction_audio_cache)
-            
-            # Resample if needed (prediction cache is at system sample rate, need 32kHz)
-            # Note: In dual-stream mode, prediction device might have different sample rate
-            prediction_sample_rate = 48000  # Typical for CABLE Output
-            if prediction_sample_rate != 32000:
-                import librosa
-                audio_data = librosa.resample(
-                    audio_data,
-                    orig_sr=prediction_sample_rate,
-                    target_sr=32000
-                )
-            
-            # Make prediction
-            scene, cluster = self.scene_predictor.predict(audio_data, return_cluster=True)
-            self.latest_prediction = scene  # Store the raw prediction
-            self.scene_cache.append(scene)
-            
-            # Update current scene using mode of recent predictions
-            if self.scene_cache:
-                try:
-                    from statistics import mode
-                    self.current_predicted_scene = mode(self.scene_cache)
-                except:
-                    # If no unique mode (tie), use the most recent
-                    self.current_predicted_scene = self.scene_cache[-1]
-            
-            self.current_cluster = cluster
-            self.last_prediction_time = current_time
-            self.prediction_count += 1
-            
-            # Log prediction periodically with cache info
-            if self.prediction_count % 10 == 0:
-                import logging
-                from collections import Counter
-                logger = logging.getLogger(__name__)
-                
-                # Get distribution of scenes in cache for debugging
-                scene_counts = Counter(self.scene_cache)
-                cache_info = f"Cache({len(self.scene_cache)}): {dict(scene_counts)}"
-                
-                logger.info(
-                    f"[{self.prediction_count:04d}] Prediction: {scene}, "
-                    f"Mode: {self.current_predicted_scene}, Cluster: {cluster} | {cache_info}"
-                )
-                
-        except Exception as e:
+        # Check if prediction thread is still alive
+        if self.prediction_thread and not self.prediction_thread.is_alive():
             import logging
             logger = logging.getLogger(__name__)
-            logger.error(f"Error in scene prediction: {e}")
+            logger.warning("Prediction thread died, attempting to restart...")
+            self.prediction_thread = threading.Thread(target=self.prediction_processing_thread, daemon=True)
+            self.prediction_thread.start()
 
     def _create_dimmer_fixture(self, name, start_channel, channels, controller):
         """Create a dimmer fixture for EnttecProController."""
@@ -425,12 +449,23 @@ class Oculizer(threading.Thread):
             print(f"Audio callback error: {status}")
             return
         
+        # Check if still running to avoid operations after stop
+        if not self.running.is_set():
+            return
+        
         # Handle stereo input - average channels 1 and 2 for Scarlett loopback
         if len(indata.shape) > 1 and indata.shape[1] >= 2:
             # Average the first two channels (0 and 1, which are channels 1 and 2)
             audio_data = np.mean(indata[:, :2], axis=1)
         else:
             audio_data = indata.copy().flatten()
+        
+        # In single-stream mode, also feed prediction queue
+        if self.scene_prediction_enabled and self.scene_prediction_device is None:
+            try:
+                self.prediction_audio_queue.put_nowait(audio_data.copy())
+            except queue.Full:
+                pass  # Drop frame if queue is full to avoid blocking
         
         mfft_data = np.mean(melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
         mfft_data = scale_mfft(mfft_data)
@@ -474,9 +509,22 @@ class Oculizer(threading.Thread):
                     )
                     self.prediction_stream.start()
                     
+                    # Start prediction processing thread
+                    self.prediction_thread = threading.Thread(target=self.prediction_processing_thread, daemon=True)
+                    self.prediction_thread.start()
+                    
                     import logging
                     logger = logging.getLogger(__name__)
                     logger.info(f"Started prediction stream on device {self.scene_prediction_device}")
+                
+                # Start prediction thread for single-stream mode if enabled
+                if self.scene_prediction_enabled and self.scene_prediction_device is None:
+                    self.prediction_thread = threading.Thread(target=self.prediction_processing_thread, daemon=True)
+                    self.prediction_thread.start()
+                    
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info("Started prediction thread in single-stream mode")
                 
                 # Main processing loop
                 while self.running.is_set():
@@ -580,17 +628,25 @@ class Oculizer(threading.Thread):
         time.sleep(0.1)  # Small delay to ensure DMX signals are processed
 
     def stop(self):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         self.running.clear()
         
-        # Stop and close prediction stream first
+        # Stop prediction thread if running
+        if self.prediction_thread and self.prediction_thread.is_alive():
+            logger.info("Waiting for prediction thread to stop...")
+            self.prediction_thread.join(timeout=2.0)
+            if self.prediction_thread.is_alive():
+                logger.warning("Prediction thread did not stop within timeout")
+        
+        # Stop and close prediction stream
         if self.prediction_stream:
             try:
                 self.prediction_stream.stop()
                 self.prediction_stream.close()
                 self.prediction_stream = None
             except Exception as e:
-                import logging
-                logger = logging.getLogger(__name__)
                 logger.error(f"Error stopping prediction stream: {e}")
         
         # Close DMX controller connection
