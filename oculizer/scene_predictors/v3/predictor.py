@@ -17,7 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set random seeds for reproducibility
-def set_deterministic_seeds(seed=42):
+def set_deterministic_seeds(seed=0):
     """Set all random seeds for deterministic behavior."""
     random.seed(seed)
     np.random.seed(seed)
