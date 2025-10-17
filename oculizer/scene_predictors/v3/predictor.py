@@ -49,9 +49,9 @@ class ScenePredictor:
         
         # Load preprocessing models
         try:
-            self.pca = joblib.load(self.model_dir / 'pca_150.pkl')  # replace with whatever youll call it
+            self.pca = joblib.load(self.model_dir / 'pca_300.pkl')
             self.scaler = joblib.load(self.model_dir / 'scaler.pkl')
-            self.knn = joblib.load(self.model_dir / 'kmeans_100.pkl')  # replace with whatever youll call it
+            self.knn = joblib.load(self.model_dir / 'kmeans_120.pkl')
             
             with open(self.model_dir / 'scene_mapping.json', 'r') as f:
                 self.scene_map = json.load(f)
