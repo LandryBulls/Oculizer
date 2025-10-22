@@ -36,7 +36,8 @@ n_channels = {
 
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager, input_device='cable', 
-                 scene_prediction_enabled=False, scene_prediction_device=None, predictor_version='v1'):
+                 scene_prediction_enabled=False, scene_prediction_device=None, predictor_version='v1',
+                 average_dual_channels=False):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -44,6 +45,7 @@ class Oculizer(threading.Thread):
         self.block_size = audio_parameters['BLOCKSIZE']
         self.hop_length = audio_parameters['HOP_LENGTH']
         self.channels = 1
+        self.average_dual_channels = average_dual_channels
         self.mfft_queue = queue.Queue(maxsize=1)
         self.device_idx = self._get_audio_device_idx()
         self.running = threading.Event()
@@ -82,7 +84,7 @@ class Oculizer(threading.Thread):
         for i, device in enumerate(devices):
             if self.input_device == 'blackhole' and 'BlackHole' in device['name']:
                 return i
-            elif self.input_device == 'scarlett' and 'Scarlett' in device['name'] and device['max_input_channels'] > 0:
+            elif self.input_device == 'scarlett' and ('Scarlett' in device['name'] or 'Focusrite' in device['name']) and device['max_input_channels'] > 0:
                 return i
             elif self.input_device == 'cable' and 'CABLE' in device['name'] and device['max_input_channels'] > 0:
                 return i
@@ -108,18 +110,25 @@ class Oculizer(threading.Thread):
         # Get the ScenePredictor class for the specified version
         ScenePredictor = get_predictor(self.predictor_version)
         
-        # Initialize scene predictor (32kHz for EfficientAT model)
-        self.scene_predictor = ScenePredictor(sr=32000)
+        # Different predictor versions use different sample rates
+        # v1, v3: 32kHz | v4, v5: 48kHz (trained at these rates, must match!)
+        if self.predictor_version in ['v4', 'v5']:
+            self.prediction_sr = 48000
+        else:
+            self.prediction_sr = 32000
         
-        # Initialize audio cache for 4 seconds at 32kHz
-        self.prediction_audio_cache = deque(maxlen=32000 * 4)
+        # Initialize scene predictor with correct sample rate
+        self.scene_predictor = ScenePredictor(sr=self.prediction_sr)
+        
+        # Initialize audio cache for 4 seconds at predictor sample rate
+        self.prediction_audio_cache = deque(maxlen=self.prediction_sr * 4)
         
         # Initialize scene cache for mode calculation (50 predictions ~5 seconds)
         self.scene_cache = deque(maxlen=50)
         
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"Scene prediction initialized with {self.predictor_version} predictor (device: {self.scene_prediction_device})")
+        logger.info(f"Scene prediction initialized with {self.predictor_version} predictor at {self.prediction_sr}Hz (device: {self.scene_prediction_device})")
 
     def prediction_audio_callback(self, indata, frames, time_info, status):
         """Callback for scene prediction audio stream."""
@@ -164,11 +173,11 @@ class Oculizer(threading.Thread):
                 except queue.Empty:
                     continue
                 
-                # Check if we have enough cached audio (4 seconds at 32kHz)
+                # Check if we have enough cached audio (4 seconds at predictor sample rate)
                 with self.prediction_lock:
                     cache_length = len(self.prediction_audio_cache)
                 
-                if cache_length < 32000 * 4:
+                if cache_length < self.prediction_sr * 4:
                     continue
                 
                 # Check if it's time for prediction
@@ -180,14 +189,14 @@ class Oculizer(threading.Thread):
                 with self.prediction_lock:
                     audio_data = np.array(self.prediction_audio_cache)
                 
-                # Resample if needed (prediction cache is at system sample rate, need 32kHz)
+                # Resample if needed (audio stream is at 48kHz, predictor expects self.prediction_sr)
                 # Note: In dual-stream mode, prediction device might have different sample rate
-                prediction_sample_rate = 48000  # Typical for CABLE Output
-                if prediction_sample_rate != 32000:
+                audio_stream_sample_rate = 48000  # From InputStream configuration
+                if audio_stream_sample_rate != self.prediction_sr:
                     audio_data = librosa.resample(
                         audio_data,
-                        orig_sr=prediction_sample_rate,
-                        target_sr=32000
+                        orig_sr=audio_stream_sample_rate,
+                        target_sr=self.prediction_sr
                     )
                 
                 # Make prediction (heavy CPU work happens here)
@@ -256,10 +265,15 @@ class Oculizer(threading.Thread):
                 self.controller.set_channel(self.start_channel, value)
             
             def set_channels(self, values):
-                """Set channel values."""
+                """Set channel values (batched update to avoid multiple DMX sends)."""
+                # Update all channels in controller's buffer without sending
                 for i, value in enumerate(values):
                     if i < self.n_channels:
-                        self.controller.set_channel(self.start_channel + i, value)
+                        channel = self.start_channel + i
+                        if 1 <= channel <= 512:
+                            self.controller.dmx_data[channel] = max(0, min(255, int(value)))
+                # Send all updates at once
+                self.controller._send_dmx_packet()
         
         return DimmerFixture(name, start_channel, channels, controller)
 
@@ -273,10 +287,15 @@ class Oculizer(threading.Thread):
                 self.controller = controller
             
             def set_channels(self, values):
-                """Set RGB channel values."""
+                """Set RGB channel values (batched update to avoid multiple DMX sends)."""
+                # Update all channels in controller's buffer without sending
                 for i, value in enumerate(values):
                     if i < self.n_channels:
-                        self.controller.set_channel(self.start_channel + i, value)
+                        channel = self.start_channel + i
+                        if 1 <= channel <= 512:
+                            self.controller.dmx_data[channel] = max(0, min(255, int(value)))
+                # Send all updates at once
+                self.controller._send_dmx_packet()
         
         return RGBFixture(name, start_channel, channels, controller)
 
@@ -290,10 +309,15 @@ class Oculizer(threading.Thread):
                 self.controller = controller
             
             def set_channels(self, values):
-                """Set strobe channel values."""
+                """Set strobe channel values (batched update to avoid multiple DMX sends)."""
+                # Update all channels in controller's buffer without sending
                 for i, value in enumerate(values):
                     if i < self.n_channels:
-                        self.controller.set_channel(self.start_channel + i, value)
+                        channel = self.start_channel + i
+                        if 1 <= channel <= 512:
+                            self.controller.dmx_data[channel] = max(0, min(255, int(value)))
+                # Send all updates at once
+                self.controller._send_dmx_packet()
         
         return StrobeFixture(name, start_channel, channels, controller)
 
@@ -307,10 +331,15 @@ class Oculizer(threading.Thread):
                 self.controller = controller
             
             def set_channels(self, values):
-                """Set laser channel values."""
+                """Set laser channel values (batched update to avoid multiple DMX sends)."""
+                # Update all channels in controller's buffer without sending
                 for i, value in enumerate(values):
                     if i < self.n_channels:
-                        self.controller.set_channel(self.start_channel + i, value)
+                        channel = self.start_channel + i
+                        if 1 <= channel <= 512:
+                            self.controller.dmx_data[channel] = max(0, min(255, int(value)))
+                # Send all updates at once
+                self.controller._send_dmx_packet()
         
         return LaserFixture(name, start_channel, channels, controller)
 
@@ -324,10 +353,15 @@ class Oculizer(threading.Thread):
                 self.controller = controller
             
             def set_channels(self, values):
-                """Set Rockville channel values."""
+                """Set Rockville channel values (batched update to avoid multiple DMX sends)."""
+                # Update all channels in controller's buffer without sending
                 for i, value in enumerate(values):
                     if i < self.n_channels:
-                        self.controller.set_channel(self.start_channel + i, value)
+                        channel = self.start_channel + i
+                        if 1 <= channel <= 512:
+                            self.controller.dmx_data[channel] = max(0, min(255, int(value)))
+                # Send all updates at once
+                self.controller._send_dmx_packet()
         
         return RockvilleFixture(name, start_channel, channels, controller)
 
@@ -453,8 +487,8 @@ class Oculizer(threading.Thread):
         if not self.running.is_set():
             return
         
-        # Handle stereo input - average channels 1 and 2 for Scarlett loopback
-        if len(indata.shape) > 1 and indata.shape[1] >= 2:
+        # Handle stereo input - average channels 1 and 2 if dual channel mode is enabled
+        if self.average_dual_channels and len(indata.shape) > 1 and indata.shape[1] >= 2:
             # Average the first two channels (0 and 1, which are channels 1 and 2)
             audio_data = np.mean(indata[:, :2], axis=1)
         else:
@@ -481,9 +515,9 @@ class Oculizer(threading.Thread):
         self.running.set()
         
         # Determine channels for main FFT stream
-        # Use 2 channels for Scarlett to capture loopback on channels 1&2
+        # Use 2 channels if average_dual_channels is enabled, otherwise use default
         device_info = sd.query_devices(self.device_idx)
-        main_channels = 2 if 'Scarlett' in device_info['name'] else self.channels
+        main_channels = 2 if self.average_dual_channels else self.channels
         
         try:
             # Start main audio stream for FFT/DMX control
@@ -551,8 +585,10 @@ class Oculizer(threading.Thread):
                     print(f"Error closing prediction stream in finally: {e}")    
 
     def process_audio_and_lights(self):
+        scene_just_changed = False
         if self.scene_changed.is_set():
             self.scene_changed.clear()
+            scene_just_changed = True
             self.turn_off_all_lights()
             # Initialize orchestrator if configured in new scene
             if 'orchestrator' in self.scene_manager.current_scene:
@@ -561,14 +597,19 @@ class Oculizer(threading.Thread):
                 if orch_type in ORCHESTRATORS:
                     self.current_orchestrator = ORCHESTRATORS[orch_type](orch_config['config'])
                 else:
-                    print(f"Orchestrator type {orch_type} not found")
-            else:
-                print("No orchestrator configured in scene")
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.warning(f"Orchestrator type {orch_type} not found")
 
         try:
             mfft_data = self.mfft_queue.get(block=False)
         except queue.Empty:
-            return
+            # If scene just changed, use zeros to initialize lights
+            # Otherwise return and wait for audio data
+            if scene_just_changed:
+                mfft_data = np.zeros(128)  # Default MFFT size
+            else:
+                return
 
         current_time = time.time()
 
@@ -581,37 +622,49 @@ class Oculizer(threading.Thread):
                 current_time
             )
 
-        for light in self.scene_manager.current_scene['lights']:
-            if light['name'] not in self.light_names:
-                # Skip lights that aren't in the profile
+        # Track which lights are in the current scene
+        scene_light_names = {light['name'] for light in self.scene_manager.current_scene['lights']}
+        
+        # Process all lights in profile
+        for light_name in self.light_names:
+            # Find the light config in the scene (if it exists)
+            light_config = None
+            for light in self.scene_manager.current_scene['lights']:
+                if light['name'] == light_name:
+                    light_config = light
+                    break
+            
+            # If light is not in the scene, turn it off and continue
+            if light_config is None:
+                self.controller_dict[light_name].set_channels([0] * self.controller_dict[light_name].n_channels)
                 continue
 
             try:
                 # Check if light is active according to orchestrator
-                light_mods = modifications.get(light['name'], {'active': True, 'modifiers': {}})
+                light_mods = modifications.get(light_name, {'active': True, 'modifiers': {}})
                 
                 if not light_mods['active']:
                     # Light is disabled by orchestrator - turn it off
-                    self.controller_dict[light['name']].set_channels([0] * self.controller_dict[light['name']].n_channels)
+                    self.controller_dict[light_name].set_channels([0] * self.controller_dict[light_name].n_channels)
                     continue
 
                 # Process light based on configuration
-                dmx_values = process_light(light, mfft_data, current_time, modifiers=light_mods['modifiers'])
+                dmx_values = process_light(light_config, mfft_data, current_time, modifiers=light_mods['modifiers'])
                 if dmx_values is not None:
-                    self.controller_dict[light['name']].set_channels(dmx_values)
+                    self.controller_dict[light_name].set_channels(dmx_values)
 
             except Exception as e:
-                print(f"Error processing light {light['name']}: {str(e)} (Error type: {type(e).__name__})")
+                print(f"Error processing light {light_name}: {str(e)} (Error type: {type(e).__name__})")
 
     def change_scene(self, scene_name):
-        self.turn_off_all_lights()
         # Reset all effect states before changing scene
         reset_effect_states()
         self.scene_manager.set_scene(scene_name)
         # Reset orchestrator when changing scenes
         self.current_orchestrator = None
+        # Set flag for main loop to handle the transition
         self.scene_changed.set()
-        self.process_audio_and_lights()  # Apply the new scene immediately
+        # Main loop will turn off lights and apply new scene
 
     def get_light_type(self, light_name):
         """Helper function to get light type from profile."""
@@ -621,11 +674,17 @@ class Oculizer(threading.Thread):
         return None
 
     def turn_off_all_lights(self):
+        # Batch all light updates together to send a single DMX packet
         for light_name, light_fixture in self.controller_dict.items():
-            # All fixture types now use set_channels method
-            light_fixture.set_channels([0] * light_fixture.n_channels)
+            # Update channels in DMX buffer without sending
+            for i in range(light_fixture.n_channels):
+                channel = light_fixture.start_channel + i
+                if 1 <= channel <= 512:
+                    self.dmx_controller.dmx_data[channel] = 0
         
-        time.sleep(0.1)  # Small delay to ensure DMX signals are processed
+        # Send all updates at once
+        self.dmx_controller._send_dmx_packet()
+        time.sleep(0.05)  # Small delay to ensure DMX signal is processed
 
     def stop(self):
         import logging

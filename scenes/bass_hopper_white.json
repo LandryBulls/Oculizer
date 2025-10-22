@@ -1,8 +1,8 @@
 {
-    "name": "bass_hopper_rainbow",
-    "description": "Cycles through multiple lights based on bass frequencies, creating a hopping effect with rainbow colors",
-    "key_command": "h",
-    "midi": 72,
+    "name": "bass_hopper_white",
+    "description": "Cycles through multiple lights based on bass frequencies, creating a hopping effect with white strobe",
+    "key_command": "w",
+    "midi": 73,
     "orchestrator": {
         "type": "hopper",
         "config": {
@@ -20,73 +20,81 @@
         {
             "name": "rgb1",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb2",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb3",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb4",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb8",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb7",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb6",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3.5],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         },
         {
             "name": "rgb5",
             "type": "rgb",
-            "modulator": "time",
-            "function": "rainbow",
-            "frequency": 0.5,
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [0.5, 3],
             "brightness_range": [0, 255],
+            "color": "white",
             "strobe": 255
         }
     ]

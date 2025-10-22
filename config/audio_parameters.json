@@ -1,5 +1,5 @@
 {
     "SAMPLERATE": 16000,
-    "BLOCKSIZE": 1024,
+    "BLOCKSIZE": 512,
     "NMFFT": 128
 }

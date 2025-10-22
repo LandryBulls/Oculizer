@@ -1,87 +1,88 @@
 {
-    "name": "rainbow_pulse",
-    "description": "All RGBs pulsing with random colors, reactive to low frequencies",
-    "key_command": "r",
-    "midi": 45,
+    "name": "chill_green",
+    "description": "All RGB lights set to green, subtly reactive to music",
+    "type": "effect",
+    "midi": 38,
+    "key_command": "q",
     "lights": [
         {
             "name": "rgb1",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
-            "name": "rgb2", 
+            "name": "rgb2",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb3",
-            "type": "rgb", 
+            "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb4",
             "type": "rgb",
-            "modulator": "mfft", 
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "modulator": "mfft",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb5",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb6",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb7",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
-            "color": "random",
+            "color": "green",
+            "mfft_range": [0, 128],
+            "power_range": [0, 0.5],
+            "brightness_range": [30, 175],
             "strobe": 0
         },
         {
@@ -91,15 +92,15 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 255],
-                "color": "random",
+                "brightness_range": [10, 75],
+                "color": "green",
                 "mode": 0,
-                "strobe": 255
+                "strobe": 0
             },
             "bar": {
                 "affect_bar": false
             }   
-        },
+        },   
         {
             "name": "rockville2",
             "type": "rockville864",
@@ -107,15 +108,15 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 255],
-                "color": "random",
+                "brightness_range": [10, 75],
+                "color": "green",
                 "mode": 0,
-                "strobe": 255
+                "strobe": 0
             },
             "bar": {
                 "affect_bar": false
             }   
-        },
+        },   
         {
             "name": "rockville3",
             "type": "rockville864",
@@ -123,15 +124,15 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 255],
-                "color": "random",
+                "brightness_range": [10, 75],
+                "color": "green",
                 "mode": 0,
-                "strobe": 255
+                "strobe": 0
             },
             "bar": {
                 "affect_bar": false
             }   
-        },
+        },   
         {
             "name": "rockville4",
             "type": "rockville864",
@@ -139,15 +140,14 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [0, 255],
-                "color": "random",
+                "brightness_range": [10, 75],
+                "color": "green",
                 "mode": 0,
-                "strobe": 255
+                "strobe": 0
             },
             "bar": {
                 "affect_bar": false
             }   
-        }       
+        }   
     ]
 }
-

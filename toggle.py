@@ -14,13 +14,15 @@ from oculizer.scenes import SceneManager
 def parse_args():
     # Detect OS and set defaults
     is_macos = platform.system() == 'Darwin'
-    default_input = 'blackhole' if is_macos else 'cable'
+    default_input = 'blackhole' if is_macos else 'scarlett'
     
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
     parser.add_argument('-p', '--profile', type=str, default='bbgv',
                       help='Profile to use (default: bbgv)')
     parser.add_argument('-i', '--input', type=str, default=default_input,
                       help=f'Audio input device to use (default: {default_input}, options: cable, blackhole, scarlett)')
+    parser.add_argument('--average-dual-channels', action='store_true',
+                      help='Average first two input channels together for FFT (useful for Scarlett 18i20)')
     return parser.parse_args()
 
 def sort_scenes_alphabetically(scenes):
@@ -77,11 +79,12 @@ def get_index_from_position(row, col, num_columns, total_scenes):
     index = row * num_columns + col
     return min(index, total_scenes - 1)
 
-def main(stdscr, profile, input_device):
+def main(stdscr, profile, input_device, average_dual_channels):
     # Initialize scene manager and light controller
     scene_manager = SceneManager('scenes')
     scene_manager.set_scene('party')  # Set an initial scene
-    light_controller = Oculizer(profile, scene_manager, input_device)
+    light_controller = Oculizer(profile, scene_manager, input_device, 
+                               average_dual_channels=average_dual_channels)
     light_controller.start()
 
     # Sort scenes alphabetically
@@ -238,4 +241,4 @@ def main(stdscr, profile, input_device):
 
 if __name__ == '__main__':
     args = parse_args()
-    curses.wrapper(lambda stdscr: main(stdscr, args.profile, args.input.lower())) 
+    curses.wrapper(lambda stdscr: main(stdscr, args.profile, args.input.lower(), args.average_dual_channels)) 

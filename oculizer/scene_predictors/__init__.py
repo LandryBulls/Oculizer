@@ -5,7 +5,7 @@ from pathlib import Path
 logger = logging.getLogger(__name__)
 
 # Available predictor versions
-AVAILABLE_VERSIONS = ['v1', 'v3']  # v2 doesn't have a predictor.py file
+AVAILABLE_VERSIONS = ['v1', 'v3', 'v4', 'v5']  # v2 doesn't have a predictor.py file
 
 def get_predictor(version='v1'):
     """

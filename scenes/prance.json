@@ -88,7 +88,7 @@
             "name": "orb1",
             "type": "dimmer",
             "modulator": "mfft",
-            "brightness_range": [0, 255],
+            "brightness_range": [0, 100],
             "mfft_range": [100, 127],
             "power_range": [0, 0.05]
         },
@@ -96,7 +96,7 @@
             "name": "orb2",
             "type": "dimmer",
             "modulator": "mfft",
-            "brightness_range": [0, 255],
+            "brightness_range": [0, 100],
             "mfft_range": [100, 127],
             "power_range": [0, 0.05]
         }

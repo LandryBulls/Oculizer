@@ -91,7 +91,7 @@
             "threshold": 0.05,
             "brightness": 255,
             "mfft_range": [115, 127],
-            "power_range": [1, 4],
+            "power_range": [3, 5],
             "speed": 1
         },
         {

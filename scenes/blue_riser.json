@@ -10,7 +10,7 @@
             "type": "rgb",
             "modulator": "time",
             "function": "sawtooth_forward",
-            "frequency": 0.5,
+            "frequency": 0.2,
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "blue",
@@ -87,7 +87,7 @@
             "type": "rgb",
             "modulator": "time",
             "function": "sawtooth_forward",
-            "frequency": 0.2,
+            "frequency": 0.5,
             "min_brightness": 0,
             "max_brightness": 255,
             "color": "blue",
@@ -95,78 +95,78 @@
         },
         {
             "name": "rockville1",
-            "type": "rockville864",
+            "type": "rockville864", 
             "modulator": "time",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["blue"],
-                "combo_mode": "pure",
-                "color_order": "next",
-                "direction": "left_to_right",
-                "sequence_duration": 0.5,
-                "panel_threshold": 0.2,
-                "panel_strobe": 255,
-                "affect_bar": true,
-                "bar_sustain": 0.25,
-                "bar_colors": [0, 255],
-                "bar_mode": 0
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 200,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville2",
-            "type": "rockville864",
+            "type": "rockville864", 
             "modulator": "time",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["blue"],
-                "combo_mode": "pure",
-                "color_order": "next",
-                "direction": "right_to_left",
-                "sequence_duration": 0.5,
-                "panel_threshold": 0.2,
-                "panel_strobe": 255,
-                "affect_bar": true,
-                "bar_sustain": 0.25,
-                "bar_colors": [0, 255],
-                "bar_mode": 0
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 200,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville3",
-            "type": "rockville864",
+            "type": "rockville864", 
             "modulator": "time",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["blue"],
-                "combo_mode": "pure",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.5,
-                "panel_threshold": 0.2,
-                "panel_strobe": 255,
-                "affect_bar": true,
-                "bar_sustain": 0.25,
-                "bar_colors": [0, 255],
-                "bar_mode": 0
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 200,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville4",
-            "type": "rockville864",
+            "type": "rockville864", 
             "modulator": "time",
-            "effect": {
-                "name": "rockville_sequential_panels",
-                "colors": ["blue"],
-                "combo_mode": "pure",
-                "color_order": "next",
-                "direction": "alternating",
-                "sequence_duration": 0.5,
-                "panel_threshold": 0.2,
-                "panel_strobe": 255,
-                "affect_bar": true,
-                "bar_sustain": 0.25,
-                "bar_colors": [0, 255],
-                "bar_mode": 0
+            "frequency": 0.5,
+            "function": "sawtooth_forward",
+            "min_brightness": 0,
+            "max_brightness": 255,
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 200,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         }
     ]

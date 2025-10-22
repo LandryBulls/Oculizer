@@ -1,0 +1,157 @@
+{
+    "name": "blue_flicker",
+    "description": "Blue lights with random flickering brightness",
+    "type": "effect",
+    "midi": 70,
+    "key_command": "z",
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 10,
+            "max_brightness": 80,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 10,
+                "max_brightness": 80
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 10,
+                "max_brightness": 80
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 10,
+                "max_brightness": 80
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 10,
+                "max_brightness": 80
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        }
+    ]
+}

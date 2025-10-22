@@ -115,12 +115,12 @@
                 "strobe": 100
             },
             "bar": {
-                "affect_bar": true,
+                "affect_bar": false,
                 "mfft_range": [115, 127],
-                "power_range": [0.3, 1.0],
-                "brightness_range": [0, 150],
+                "power_range": [0.05, 0.3],
+                "brightness_range": [0, 50],
                 "mode": 0,
-                "strobe": 150
+                "strobe": 0
             }   
         },
         {
@@ -136,12 +136,12 @@
                 "strobe": 100
             },
             "bar": {
-                "affect_bar": true,
+                "affect_bar": false,
                 "mfft_range": [115, 127],
-                "power_range": [0.3, 1.0],
-                "brightness_range": [0, 150],
+                "power_range": [0.05, 0.3],
+                "brightness_range": [0, 50],
                 "mode": 0,
-                "strobe": 150
+                "strobe": 0
             }   
         },
         {
@@ -157,12 +157,12 @@
                 "strobe": 100
             },
             "bar": {
-                "affect_bar": true,
+                "affect_bar": false,
                 "mfft_range": [115, 127],
-                "power_range": [0.3, 1.0],
-                "brightness_range": [0, 150],
+                "power_range": [0.05, 0.3],
+                "brightness_range": [0, 50],
                 "mode": 0,
-                "strobe": 150
+                "strobe": 0
             }   
         },
         {
@@ -178,14 +178,13 @@
                 "strobe": 100
             },
             "bar": {
-                "affect_bar": true,
+                "affect_bar": false,
                 "mfft_range": [115, 127],
-                "power_range": [0.3, 1.0],
-                "brightness_range": [0, 150],
+                "power_range": [0.05, 0.3],
+                "brightness_range": [0, 50],
                 "mode": 0,
-                "strobe": 150
+                "strobe": 0
             }   
         }
     ]
 }
-
