@@ -10,7 +10,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -20,7 +20,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -30,7 +30,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -40,7 +40,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -50,7 +50,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -60,7 +60,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -70,7 +70,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },
@@ -80,7 +80,7 @@
             "modulator": "mfft",
             "mfft_range": [0, 20],
             "power_range": [0.5, 3.5],
-            "brightness_range": [20, 255],
+            "brightness_range": [20, 100],
             "color": "blue",
             "strobe": 0
         },

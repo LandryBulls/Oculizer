@@ -124,7 +124,7 @@ class Oculizer(threading.Thread):
         self.prediction_audio_cache = deque(maxlen=self.prediction_sr * 4)
         
         # Initialize scene cache for mode calculation (50 predictions ~5 seconds)
-        self.scene_cache = deque(maxlen=50)
+        self.scene_cache = deque(maxlen=10)
         
         import logging
         logger = logging.getLogger(__name__)

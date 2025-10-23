@@ -123,7 +123,7 @@
                     "frequency": 0.09,
                     "function": "sine",
                     "min_brightness": 0,
-                    "max_brightness": 100
+                    "max_brightness": 20
                 }
             }
         },
@@ -141,7 +141,7 @@
                     "frequency": 0.2,
                     "function": "sine",
                     "min_brightness": 0,
-                    "max_brightness": 100
+                    "max_brightness": 20
                 }
             }
         },
@@ -159,7 +159,7 @@
                     "frequency": 0.1,
                     "function": "sine",
                     "min_brightness": 0,
-                    "max_brightness": 100
+                    "max_brightness": 20
                 }
             }
         },
@@ -177,7 +177,7 @@
                     "frequency": 0.3,
                     "function": "sine",
                     "min_brightness": 0,
-                    "max_brightness": 100
+                    "max_brightness": 20
                 }
             }
         }
