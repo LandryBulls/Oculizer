@@ -67,41 +67,116 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Dual-Stream Mode (Recommended)
+Oculizer provides two main scripts for controlling your light show:
 
-For optimal performance, use dual-stream mode with:
-- **Scarlett 2i2**: Delayed audio from Ableton for FFT-based DMX control
-- **CABLE Output**: Real-time audio for responsive scene prediction
+### 1. `oculize.py` - Automatic Scene Prediction
+
+The main script that uses machine learning to automatically predict and switch between scenes based on audio content.
+
+#### Dual-Stream Mode (Recommended for Windows)
+
+For optimal performance, use dual-stream mode with separate audio sources:
+- **FFT Stream**: Delayed audio from your audio interface (e.g., Scarlett) for DMX modulation
+- **Prediction Stream**: Real-time audio (e.g., CABLE Output/VB Cable) for scene prediction
 
 ```bash
-# Dual-stream setup (default)
-python oculize.py --profile garage --input-device scarlett --prediction-device 1
+# Dual-stream with predictor version 4 (default)
+python oculize.py --profile garage2025 --input-device scarlett --prediction-device cable_output
 
-# List devices to find correct indices
+# Using predictor v5 (latest)
+python oculize.py --profile garage2025 --predictor-version v5
+
+# List available audio devices
 python oculize.py --list-devices
 ```
 
-### Single-Stream Mode
+#### Single-Stream Mode (Default for macOS)
 
-Use the same audio source for both FFT and predictions:
+Use the same audio source for both FFT and predictions (better for simpler setups):
 
 ```bash
-# Single-stream mode
-python oculize.py --profile garage --input-device scarlett --single-stream
+# Single-stream mode (recommended for macOS with BlackHole)
+python oculize.py --profile garage2025 --input-device blackhole --single-stream
 ```
 
-### Command Line Options
+#### Dual-Channel Averaging
 
-- `-p, --profile`: Lighting profile to use (default: garage)
-- `-i, --input-device`: Audio device for FFT/DMX (default: scarlett)
-- `--prediction-device`: Device index for scene prediction (default: 1)
-- `--single-stream`: Use single audio stream for both FFT and prediction
+If you have a multi-input audio interface (e.g., Scarlett 18i20) and want to average channels 1 and 2 for FFT:
+
+```bash
+# Average first two input channels for FFT
+python oculize.py --profile garage2025 --input-device scarlett --average-dual-channels
+
+# Can combine with dual-stream for predictions
+python oculize.py --profile garage2025 --input-device scarlett --average-dual-channels --prediction-device cable_output
+```
+
+#### Command Line Options
+
+- `-p, --profile`: Lighting profile to use (default: `garage2025`)
+- `-i, --input-device`: Audio device for FFT/DMX modulation. Can be device name (`scarlett`, `blackhole`, `cable_output`) or device index number (default: `scarlett` on Windows, `blackhole` on macOS)
+- `--prediction-device`: Device for scene prediction in dual-stream mode. Can be device name or index (default: `cable_output`)
+- `--single-stream`: Use single audio stream for both FFT and prediction (default on macOS)
+- `--predictor-version`, `--predictor`: Scene predictor version (`v1`, `v3`, `v4`, `v5`) (default: `v4`)
+- `--average-dual-channels`: Average first two input channels together for FFT (useful for Scarlett 18i20)
 - `--list-devices`: List available audio devices and exit
 
-### Key Commands (while running)
+#### Interactive Controls
 
-- `q`: Quit
-- `r`: Reload scenes
+While running `oculize.py`:
+- **q**: Quit the application
+- **r**: Reload all scenes from disk
+
+#### Display Information
+
+The interface shows:
+- Current audio devices for FFT and prediction
+- Active lighting profile
+- Predictor version in use
+- Current scene name
+- Latest scene prediction
+- Prediction cluster ID
+- Real-time log messages
+
+### 2. `toggle.py` - Manual Scene Control
+
+An interactive grid-based scene browser for manual control and testing.
+
+```bash
+# Launch with default profile
+python toggle.py --profile bbgv --input scarlett
+
+# With dual-channel averaging
+python toggle.py --profile garage2025 --input scarlett --average-dual-channels
+```
+
+#### Command Line Options
+
+- `-p, --profile`: Lighting profile to use (default: `bbgv`)
+- `-i, --input`: Audio device for FFT/DMX. Can be device name (`scarlett`, `blackhole`, `cable`) or device index (default: `scarlett` on Windows, `blackhole` on macOS)
+- `--average-dual-channels`: Average first two input channels together for FFT
+
+#### Interactive Controls
+
+- **Arrow Keys**: Navigate between scenes in the grid
+- **Enter**: Activate the selected scene
+- **Mouse Click**: Click on a scene to select and activate it
+- **Type to Search**: Start typing a scene name to jump to it (e.g., type "par" to jump to "party")
+- **Backspace**: Delete last character in search
+- **ESC**: Clear search
+- **Ctrl+R**: Reload all scenes from disk
+- **Ctrl+Q**: Quit the application
+
+#### Display Features
+
+- **Grid Layout**: Scenes displayed in a multi-column grid that adapts to terminal size
+- **Color Coding**:
+  - **Green**: Currently active scene
+  - **Yellow**: Selected scene (keyboard navigation)
+  - **Blue**: Hovered scene (mouse)
+  - **White**: Inactive scenes
+- **Live Search**: Type-to-find functionality with visual feedback
+- **Alphabetical Sorting**: Scenes are automatically sorted alphabetically
 
 ### Dual-Stream Setup
 
