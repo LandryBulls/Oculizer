@@ -12,7 +12,7 @@
             "frequency": 0.8,
             "min_brightness": 100,
             "max_brightness": 255,
-            "color": "white",
+            "color": "pink",
             "strobe": 0
         },
         {

@@ -1,6 +1,6 @@
 {
     "name": "flicker",
-    "description": "Orbs and bulb flickering randomly between 0 and 100 brightness",
+    "description": "All lights flickering randomly",
     "key_command": "f",
     "midi": 70,
     "lights": [
@@ -27,6 +27,154 @@
             "brightness": "random",
             "min_brightness": 0,
             "max_brightness": 100
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "modulator": "bool",
+            "brightness": "random",
+            "min_brightness": 0,
+            "max_brightness": 15,
+            "color": "blue",
+            "strobe": 0
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 15
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 15
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 15
+            },
+            "bar": {
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "bool",
+            "panel": {
+                "target": "brightness",
+                "mode": 0,
+                "color": "blue",
+                "strobe": 0,
+                "brightness": "random",
+                "min_brightness": 0,
+                "max_brightness": 15
+            },
+            "bar": {
+                "affect_bar": false
+            }
         }
     ]
 }

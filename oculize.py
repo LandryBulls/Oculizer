@@ -319,28 +319,34 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Dual-stream mode (default):
-  - FFT stream: Scarlett interface loopback (delayed through Ableton) for DMX modulation
-  - Prediction stream: CABLE Output (real-time) for scene prediction
+  - FFT stream: Scarlett 2i2 interface loopback (delayed through Ableton) for DMX modulation
+  - Prediction stream: VB Cable Output (real-time, auto-detected by name) for scene prediction
+  - Predictor: v4 (default)
   
 Single-stream mode (--single-stream):
   - Uses the same audio source for both FFT and scene prediction
 
 Dual-channel averaging (--average-dual-channels):
   - Averages first two input channels of your audio interface (useful for Scarlett 18i20)
-  - Can be combined with dual-stream mode to use CABLE Output for predictions
+  - Can be combined with dual-stream mode to use VB Cable Output for predictions
+
+Device Selection:
+  - Devices are auto-detected by name (e.g., 'cable_output', 'scarlett')
+  - This is more reliable than device indices which can change between sessions
+  - You can still use device indices if needed (e.g., --prediction-device 84)
         """
     )
-    parser.add_argument('-p', '--profile', type=str, default='garage',
-                      help='Lighting profile to use (default: garage)')
+    parser.add_argument('-p', '--profile', type=str, default='garage2025',
+                      help='Lighting profile to use (default: garage2025)')
     parser.add_argument('-i', '--input-device', type=str, default=default_input_device,
                       help=f'Audio input device for FFT/DMX (default: {default_input_device})')
-    parser.add_argument('--prediction-device', type=int, default=1,
-                      help='Device index for scene prediction in dual-stream mode (default: 1)')
+    parser.add_argument('--prediction-device', type=str, default='cable_output',
+                      help='Device for scene prediction in dual-stream mode (default: cable_output). Can be a device name (cable_output, scarlett, etc.) or device index number.')
     parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
                       help=f'Use single audio stream for both FFT and prediction (default on macOS: {default_single_stream})')
-    parser.add_argument('--predictor-version', '--predictor', type=str, default='v1',
+    parser.add_argument('--predictor-version', '--predictor', type=str, default='v4',
                       choices=['v1', 'v3', 'v4', 'v5'],
-                      help='Scene predictor version to use (default: v1)')
+                      help='Scene predictor version to use (default: v4)')
     parser.add_argument('--average-dual-channels', action='store_true',
                       help='Average first two input channels together for FFT (useful for Scarlett 18i20)')
     parser.add_argument('--list-devices', action='store_true',
@@ -384,12 +390,21 @@ if __name__ == "__main__":
                 print(f"{i}: {device['name']} ({device['max_input_channels']} channels)")
     else:
         dual_stream = not args.single_stream
+        # Convert prediction_device to int if it's a numeric string
+        prediction_device = args.prediction_device
+        if dual_stream and prediction_device is not None:
+            try:
+                prediction_device = int(prediction_device)
+            except (ValueError, TypeError):
+                # Keep as string if not numeric
+                pass
+        
         wrapper(lambda stdscr: main(
             stdscr, 
             args.profile, 
             args.input_device,
             dual_stream,
-            args.prediction_device if dual_stream else None,
+            prediction_device if dual_stream else None,
             args.predictor_version,
             args.average_dual_channels
         ))

@@ -95,11 +95,10 @@
         {
             "name": "pinspot",
             "type": "pinspot",
-            "modulator": "time",
-            "function": "cosine",
-            "frequency": 0.2,
-            "min_brightness": 30,
-            "max_brightness": 255,
+            "modulator": "mfft",
+            "mfft_range": [1, 15],
+            "power_range": [0.3, 1.0],
+            "brightness_range": [30, 100],
             "color": "white",
             "strobe": 0
         },

@@ -10,7 +10,7 @@
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 128],
-            "brightness_range": [70, 150],
+            "brightness_range": [70, 100],
             "power_range": [0, 1.0]
         },
         {
@@ -18,7 +18,7 @@
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 128],
-            "brightness_range": [70, 150],
+            "brightness_range": [70, 100],
             "power_range": [0, 1.0]
         },
         {
@@ -26,7 +26,7 @@
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 128],
-            "brightness_range": [70, 150],
+            "brightness_range": [70, 100],
             "power_range": [0, 1.0]
         },
         {
@@ -34,7 +34,7 @@
             "type": "dimmer",
             "modulator": "mfft",
             "mfft_range": [0, 128],
-            "brightness_range": [70, 150],
+            "brightness_range": [70, 100],
             "power_range": [0, 1.0]
         }
     ]

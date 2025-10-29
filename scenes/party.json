@@ -84,9 +84,12 @@
         {
             "name": "pinspot",
             "type": "pinspot",
-            "modulator": "bool",
-            "brightness": 255,
-            "color": "white",
+            "modulator": "time",
+            "function": "sine",
+            "frequency": 0.5,
+            "min_brightness": 150,
+            "max_brightness": 255,
+            "color": "purple",
             "strobe": 0
         },
         {
@@ -123,17 +126,17 @@
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [30, 175],
+            "brightness_range": [0, 20],
             "mfft_range": [0, 128],
             "power_range": [0, 0.5],
-            "color": "white",
-            "strobe": 0
+            "color": "blue",
+            "strobe": 255
         },
         {
             "name": "lasers",
             "type": "dimmer",
             "modulator": "bool",
-            "brightness": "random"
+            "brightness": "0"
         },
         {
             "name": "laser", 

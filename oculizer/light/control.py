@@ -60,7 +60,8 @@ class Oculizer(threading.Thread):
         
         # Scene prediction setup
         self.scene_prediction_enabled = scene_prediction_enabled
-        self.scene_prediction_device = scene_prediction_device
+        # Resolve prediction device (can be string name or integer index)
+        self.scene_prediction_device = self._get_prediction_device_idx(scene_prediction_device) if scene_prediction_enabled else None
         self.predictor_version = predictor_version
         self.scene_predictor = None
         self.prediction_stream = None
@@ -101,6 +102,47 @@ class Oculizer(threading.Thread):
         
         raise ValueError(f"Audio input device '{self.input_device}' not found. Please check available devices above.")
 
+    def _get_prediction_device_idx(self, device_spec):
+        """Get device index for prediction, handling both string names and integer indices."""
+        if device_spec is None:
+            return None
+        
+        # If it's already an integer, try to use it directly but validate
+        if isinstance(device_spec, int):
+            devices = sd.query_devices()
+            if 0 <= device_spec < len(devices):
+                return device_spec
+            else:
+                print(f"\nWarning: Device index {device_spec} is out of range.")
+                # Fall back to searching for cable_output
+                device_spec = 'cable_output'
+        
+        # If it's a string, search for matching device
+        if isinstance(device_spec, str):
+            device_name = device_spec.lower()
+            devices = sd.query_devices()
+            for i, device in enumerate(devices):
+                if device_name == 'blackhole' and 'BlackHole' in device['name'] and device['max_input_channels'] > 0:
+                    return i
+                elif device_name == 'scarlett' and ('Scarlett' in device['name'] or 'Focusrite' in device['name']) and device['max_input_channels'] > 0:
+                    return i
+                elif device_name == 'cable' and 'CABLE' in device['name'] and device['max_input_channels'] > 0:
+                    return i
+                elif device_name == 'cable_input' and 'CABLE Input' in device['name'] and device['max_input_channels'] > 0:
+                    return i
+                elif device_name == 'cable_output' and 'CABLE Output' in device['name'] and device['max_input_channels'] > 0:
+                    return i
+            
+            # If device not found, print available devices and raise error
+            print("\nAvailable audio input devices:")
+            for i, device in enumerate(devices):
+                if device['max_input_channels'] > 0:
+                    print(f"{i}: {device['name']}")
+            
+            raise ValueError(f"Prediction audio device '{device_spec}' not found. Please check available devices above.")
+        
+        return device_spec
+
     def _init_scene_prediction(self):
         """Initialize scene prediction components."""
         from oculizer.scene_predictors import get_predictor
@@ -124,7 +166,7 @@ class Oculizer(threading.Thread):
         self.prediction_audio_cache = deque(maxlen=self.prediction_sr * 4)
         
         # Initialize scene cache for mode calculation (50 predictions ~5 seconds)
-        self.scene_cache = deque(maxlen=10)
+        self.scene_cache = deque(maxlen=25)
         
         import logging
         logger = logging.getLogger(__name__)

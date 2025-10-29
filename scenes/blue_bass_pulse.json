@@ -88,10 +88,10 @@
             "name": "strobe",
             "type": "strobe",
             "modulator": "mfft",
-            "threshold": 0.05,
+            "threshold": 0.2,
             "brightness": 255,
             "mfft_range": [115, 127],
-            "power_range": [0.1, 4],
+            "power_range": [0.6, 1.0],
             "speed": 1
         },
         {
