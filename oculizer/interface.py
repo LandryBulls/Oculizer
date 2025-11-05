@@ -1,7 +1,7 @@
 """
 interface.py
 
-Description: This script provides a command line interface for toggling light mappings and controlling the Spotify API.
+Description: This script provides a command line interface for toggling light mappings.
 
 Author: Landry Bulls
 Date: 8/20/24
