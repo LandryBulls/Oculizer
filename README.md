@@ -212,11 +212,15 @@ Scenes are defined in JSON files with the following structure:
 Oculizer uses a machine learning pipeline to predict appropriate lighting scenes in real-time:
 
 1. **Audio Capture**: Captures system audio via a virtual audio cable
-2. **Feature Extraction**: Uses EfficientAT (a neural network trained on AudioSet) to extract audio embeddings
+2. **Feature Extraction**: Uses **[EfficientAT](https://github.com/fschmid56/EfficientAT)** - a state-of-the-art audio tagging neural network developed by Florian Schmid, Khaled Koutini, and Gerhard Widmer at Johannes Kepler University Linz. EfficientAT is trained on AudioSet and provides high-quality audio embeddings that capture semantic content of music.
 3. **Dimensionality Reduction**: Applies PCA to reduce feature dimensions
 4. **Clustering**: Uses k-means clustering to classify audio into scene clusters
 5. **Scene Mapping**: Maps clusters to predefined lighting scenes
 6. **Light Control**: Updates DMX fixtures based on the current scene and audio features
+
+### Audio Scene Prediction
+
+The scene prediction system leverages **EfficientAT** neural network embeddings combined with spectral audio features (MFCCs, spectral centroid, RMS energy, etc.) to understand both the semantic content and acoustic properties of music. This allows Oculizer to intelligently match musical moments to appropriate lighting scenes.
 
 ## Development Status
 
@@ -241,10 +245,33 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Acknowledgments
 
-- [EfficientAT](https://github.com/fschmid56/EfficientAT) for audio tagging model
+### EfficientAT - Audio Tagging Neural Network
+
+This project relies heavily on **[EfficientAT](https://github.com/fschmid56/EfficientAT)**, a state-of-the-art audio tagging model developed by:
+- **Florian Schmid** ([@fschmid56](https://github.com/fschmid56))
+- **Khaled Koutini**
+- **Gerhard Widmer**
+
+From the LIT AI Lab and Institute of Computational Perception at Johannes Kepler University Linz, Austria.
+
+**Citation:**
+```
+@inproceedings{Schmid2023efficient,
+  title={Efficient Large-Scale Audio Tagging Via Transformer-To-CNN Knowledge Distillation},
+  author={Schmid, Florian and Koutini, Khaled and Widmer, Gerhard},
+  booktitle={IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  year={2023}
+}
+```
+
+EfficientAT provides the foundational audio understanding capabilities that make Oculizer's intelligent scene prediction possible.
+
+### Other Dependencies
+
 - [PyDMXControl](https://github.com/MattIPv4/PyDMXControl) for DMX control
-- Python audio processing libraries (librosa, sounddevice, soundfile)
-- scikit-learn for machine learning components
+- [librosa](https://librosa.org/) for audio feature extraction
+- [sounddevice](https://python-sounddevice.readthedocs.io/) for real-time audio capture
+- [scikit-learn](https://scikit-learn.org/) for machine learning components (PCA, k-means clustering)
 
 ## Disclaimer
 
