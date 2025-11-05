@@ -1,3 +1,17 @@
+```
+      ___           ___           ___           ___                   ___           ___           ___     
+     /\  \         /\  \         /\__\         /\__\      ___        /\  \         /\  \         /\  \    
+    /::\  \       /::\  \       /:/  /        /:/  /     /\  \       \:\  \       /::\  \       /::\  \   
+   /:/\:\  \     /:/\:\  \     /:/  /        /:/  /      \:\  \       \:\  \     /:/\:\  \     /:/\:\  \  
+  /:/  \:\  \   /:/  \:\  \   /:/  /  ___   /:/  /       /::\__\       \:\  \   /::\~\:\  \   /::\~\:\  \ 
+ /:/__/ \:\__\ /:/__/ \:\__\ /:/__/  /\__\ /:/__/     __/:/\/__/ _______\:\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ 
+ \:\  \ /:/  / \:\  \  \/__/ \:\  \ /:/  / \:\  \    /\/:/  /    \::::::::/__/ \:\~\:\ \/__/ \/_|::\/:/  /
+  \:\  /:/  /   \:\  \        \:\  /:/  /   \:\  \   \::/__/      \:\~~\~~      \:\ \:\__\      |:|::/  / 
+   \:\/:/  /     \:\  \        \:\/:/  /     \:\  \   \:\__\       \:\  \        \:\ \/__/      |:|\/__/  
+    \::/  /       \:\__\        \::/  /       \:\__\   \/__/        \:\__\        \:\__\        |:|  |    
+     \/__/         \/__/         \/__/         \/__/                 \/__/         \/__/         \|__|    
+```
+
 # Oculizer 🎵 💡
 
 Oculizer is an advanced DMX lighting automation system that creates real-time, music-reactive light shows using machine learning-based scene prediction and live audio analysis. It uses mel-scaled FFT to analyze audio and maps frequency components to DMX values through configurable scenes.
