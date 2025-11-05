@@ -20,7 +20,7 @@ Oculizer is an advanced DMX lighting automation system that creates real-time, m
 
 ## Features
 
-- **Real-time audio scene prediction** using EfficientAT neural network and k-means clustering
+- **Real-time audio scene prediction** using [EfficientAT](https://github.com/fschmid56/EfficientAT) neural network and k-means clustering
 - Real-time audio reactivity using mel-scaled FFT analysis
 - Automatic scene transitions based on audio characteristics
 - Configurable scene system with JSON-based mapping rules 
@@ -191,10 +191,6 @@ python toggle.py --profile garage2025 --input scarlett --average-dual-channels
   - **White**: Inactive scenes
 - **Live Search**: Type-to-find functionality with visual feedback
 - **Alphabetical Sorting**: Scenes are automatically sorted alphabetically
-
-### Dual-Stream Setup
-
-See [DUAL_STREAM_ARCHITECTURE.md](DUAL_STREAM_ARCHITECTURE.md) for detailed information about the dual-stream audio system.
 
 ## Scene Configuration
 
