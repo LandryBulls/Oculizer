@@ -1,0 +1,88 @@
+{
+    "name": "sequence_blue",
+    "description": "Sequential activation with blue tones, panels only without strobe bar",
+    "key_command": "5",
+    "midi": 65,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "teal", "cyan"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "teal", "cyan"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "teal", "cyan"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": false
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft", 
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_sequential_panels",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 2.0,
+                "colors": ["blue", "teal", "cyan"],
+                "combo_mode": "pure",
+                "color_order": "next",
+                "sequence_duration": 0.15,
+                "direction": "left_to_right",
+                "wait": true,
+                "panel_strobe": 0,
+                "mode_speed": 255,
+                "affect_bar": false
+            }   
+        }
+    ]
+}

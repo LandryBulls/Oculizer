@@ -14,11 +14,19 @@ from oculizer.scenes import SceneManager
 def parse_args():
     # Detect OS and set defaults
     is_macos = platform.system() == 'Darwin'
-    default_input = 'blackhole' if is_macos else 'scarlett'
+    
+    # macOS defaults (match oculize.py defaults)
+    if is_macos:
+        default_input = 'scarlett'
+        default_profile = 'mobile'
+    else:
+        # Windows/Linux defaults
+        default_input = 'scarlett'
+        default_profile = 'bbgv'
     
     parser = argparse.ArgumentParser(description='Interactive scene toggler for Oculizer')
-    parser.add_argument('-p', '--profile', type=str, default='bbgv',
-                      help='Profile to use (default: bbgv)')
+    parser.add_argument('-p', '--profile', type=str, default=default_profile,
+                      help=f'Profile to use (default: {default_profile})')
     parser.add_argument('-i', '--input', type=str, default=default_input,
                       help=f'Audio input device to use (default: {default_input}, options: cable, blackhole, scarlett)')
     parser.add_argument('--average-dual-channels', action='store_true',

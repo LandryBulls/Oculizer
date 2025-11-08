@@ -394,7 +394,7 @@ def parse_args():
         default_single_stream = False  # Use dual-stream on Mac
         default_scene_cache_size = 1  # Instant response
         default_prediction_channels = '1'  # BlackHole channel 1
-        default_profile = 'garage2025'
+        default_profile = 'mobile'  # Mobile profile for Mac
     else:
         # Windows/Linux defaults
         default_input_device = 'scarlett'
