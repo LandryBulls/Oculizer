@@ -80,7 +80,7 @@ def setup_colors():
 class AudioOculizerController:
     def __init__(self, stdscr, profile='garage', input_device='scarlett', 
                  dual_stream=True, prediction_device=None, predictor_version='v1',
-                 average_dual_channels=False):
+                 average_dual_channels=False, scene_cache_size=25, prediction_channels=None):
         self.stdscr = stdscr
         curses.curs_set(0)
         self.stdscr.nodelay(1)
@@ -98,7 +98,9 @@ class AudioOculizerController:
             scene_prediction_enabled=True,
             scene_prediction_device=prediction_device if dual_stream else None,
             predictor_version=predictor_version,
-            average_dual_channels=average_dual_channels
+            average_dual_channels=average_dual_channels,
+            scene_cache_size=scene_cache_size,
+            prediction_channels=prediction_channels
         )
         
         self.dual_stream = dual_stream
@@ -227,16 +229,33 @@ class AudioOculizerController:
                     self.stdscr.addstr(start_row + i, ascii_start - skull_width - 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
                     self.stdscr.addstr(start_row + i, ascii_start + ascii_width + 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
 
-            # Display audio device info (top left)
+            # Display audio device info with channel details (top left)
             fft_device_info = sd.query_devices(self.oculizer.device_idx)
             fft_device_name = fft_device_info['name']
             
             if self.dual_stream and self.oculizer.scene_prediction_device:
                 pred_device_info = sd.query_devices(self.oculizer.scene_prediction_device)
                 pred_device_name = pred_device_info['name']
-                audio_info = f"FFT: {fft_device_name[:30]} | Prediction: {pred_device_name[:30]}"
+                
+                # FFT channel info
+                if self.average_dual_channels:
+                    fft_ch = " ch1-2"
+                else:
+                    fft_ch = " ch1"
+                
+                # Prediction channel info
+                if self.oculizer.prediction_channel_indices:
+                    pred_ch = f" ch{[i+1 for i in self.oculizer.prediction_channel_indices]}"
+                else:
+                    pred_ch = " all"
+                
+                audio_info = f"FFT: {fft_device_name[:20]}{fft_ch} | Pred: {pred_device_name[:20]}{pred_ch}"
             else:
-                audio_info = f"Audio: {fft_device_name}"
+                if self.average_dual_channels:
+                    fft_ch = " ch1-2"
+                else:
+                    fft_ch = " ch1"
+                audio_info = f"Audio: {fft_device_name}{fft_ch}"
             
             self.stdscr.addstr(2, 0, audio_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
             
@@ -247,19 +266,28 @@ class AudioOculizerController:
             # Display predictor version
             predictor_info = f"Predictor: {self.predictor_version}"
             self.stdscr.addstr(4, 0, predictor_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            # Display stream mode
+            if self.dual_stream:
+                stream_mode = "Stream Mode: DUAL (separate devices for FFT and prediction)"
+            else:
+                stream_mode = "Stream Mode: SINGLE (shared device for FFT and prediction)"
+            self.stdscr.addstr(5, 0, stream_mode[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
             # Display channel mode
+            row_offset = 6
             if self.average_dual_channels:
                 channel_info = "FFT Mode: Dual Channel (Averaged)"
-                self.stdscr.addstr(5, 0, channel_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+                self.stdscr.addstr(row_offset, 0, channel_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+                row_offset += 1
 
             # Display current scene (top left)
             scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
-            scene_row = 6 if self.average_dual_channels else 5
+            scene_row = row_offset
             self.stdscr.addstr(scene_row, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
             
             # Display prediction info
-            pred_row = 7 if self.average_dual_channels else 6
+            pred_row = scene_row + 1
             if self.oculizer.latest_prediction is not None:
                 pred_info = f"Latest prediction: {self.oculizer.latest_prediction}"
                 self.stdscr.addstr(pred_row, 0, pred_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
@@ -311,8 +339,23 @@ class AudioOculizerController:
 def parse_args():
     # Detect OS and set defaults
     is_macos = platform.system() == 'Darwin'
-    default_input_device = 'blackhole' if is_macos else 'scarlett'
-    default_single_stream = is_macos
+    
+    # macOS defaults (optimized for Mac setup with Scarlett + BlackHole)
+    if is_macos:
+        default_input_device = 'scarlett'
+        default_prediction_device = 'blackhole'
+        default_single_stream = False  # Use dual-stream on Mac
+        default_scene_cache_size = 1  # Instant response
+        default_prediction_channels = '1'  # BlackHole channel 1
+        default_profile = 'garage2025'
+    else:
+        # Windows/Linux defaults
+        default_input_device = 'scarlett'
+        default_prediction_device = 'cable_output'
+        default_single_stream = False
+        default_scene_cache_size = 25  # Heavy smoothing
+        default_prediction_channels = None  # Auto-detect
+        default_profile = 'garage2025'
     
     parser = argparse.ArgumentParser(
         description='Real-time audio-based Oculizer controller with dual-stream support',
@@ -334,26 +377,36 @@ Device Selection:
   - Devices are auto-detected by name (e.g., 'cable_output', 'scarlett')
   - This is more reliable than device indices which can change between sessions
   - You can still use device indices if needed (e.g., --prediction-device 84)
+
+Scene Cache Size:
+  - Controls smoothing of scene predictions (default: 1 on macOS, 25 on others)
+  - 1: Instant response, may flicker between scenes
+  - 3-5: Minimal smoothing (~0.3-0.5s)
+  - 25: Heavy smoothing (2.5s lag) - tested behavior on Windows
         """
     )
-    parser.add_argument('-p', '--profile', type=str, default='garage2025',
-                      help='Lighting profile to use (default: garage2025)')
+    parser.add_argument('-p', '--profile', type=str, default=default_profile,
+                      help=f'Lighting profile to use (default: {default_profile})')
     parser.add_argument('-i', '--input-device', type=str, default=default_input_device,
                       help=f'Audio input device for FFT/DMX (default: {default_input_device})')
-    parser.add_argument('--prediction-device', type=str, default='cable_output',
-                      help='Device for scene prediction in dual-stream mode (default: cable_output). Can be a device name (cable_output, scarlett, etc.) or device index number.')
+    parser.add_argument('--prediction-device', type=str, default=default_prediction_device,
+                      help=f'Device for scene prediction in dual-stream mode (default: {default_prediction_device}). Can be a device name (cable_output, scarlett, etc.) or device index number.')
     parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
-                      help=f'Use single audio stream for both FFT and prediction (default on macOS: {default_single_stream})')
+                      help=f'Use single audio stream for both FFT and prediction (default: {not default_single_stream})')
     parser.add_argument('--predictor-version', '--predictor', type=str, default='v4',
                       choices=['v1', 'v3', 'v4', 'v5'],
                       help='Scene predictor version to use (default: v4)')
     parser.add_argument('--average-dual-channels', action='store_true',
                       help='Average first two input channels together for FFT (useful for Scarlett 18i20)')
+    parser.add_argument('--scene-cache-size', type=int, default=default_scene_cache_size,
+                      help=f'Number of recent predictions to cache for smoothing (default: {default_scene_cache_size}). 1=instant, 25=heavy smoothing')
+    parser.add_argument('--prediction-channels', type=str, default=default_prediction_channels,
+                      help=f'Channels to use from prediction device (e.g., "1" for channel 1, "1,2" for channels 1-2 averaged, "1-16" for all 16 channels averaged). Default: {default_prediction_channels if default_prediction_channels else "auto-detect"}')
     parser.add_argument('--list-devices', action='store_true',
                       help='List available audio devices and exit')
     return parser.parse_args()
 
-def main(stdscr, profile, input_device, dual_stream, prediction_device, predictor_version, average_dual_channels):
+def main(stdscr, profile, input_device, dual_stream, prediction_device, predictor_version, average_dual_channels, scene_cache_size, prediction_channels):
     setup_colors()
     controller = AudioOculizerController(
         stdscr, 
@@ -362,7 +415,9 @@ def main(stdscr, profile, input_device, dual_stream, prediction_device, predicto
         dual_stream=dual_stream,
         prediction_device=prediction_device,
         predictor_version=predictor_version,
-        average_dual_channels=average_dual_channels
+        average_dual_channels=average_dual_channels,
+        scene_cache_size=scene_cache_size,
+        prediction_channels=prediction_channels
     )
     
     try:
@@ -389,15 +444,37 @@ if __name__ == "__main__":
             if isinstance(device, dict) and device.get('max_input_channels', 0) > 0:
                 print(f"{i}: {device['name']} ({device['max_input_channels']} channels)")
     else:
+        # Determine if dual-stream mode should be used
+        # If user explicitly specifies a prediction device, use dual-stream mode
+        # Otherwise, use the OS default (single-stream on macOS)
         dual_stream = not args.single_stream
+        
         # Convert prediction_device to int if it's a numeric string
         prediction_device = args.prediction_device
+        
+        # Override single-stream default if user explicitly specifies a prediction device
+        # that differs from the input device
+        if not dual_stream and prediction_device and prediction_device != args.input_device:
+            dual_stream = True
+            logging.info(f"Enabling dual-stream mode (prediction device '{prediction_device}' differs from input device '{args.input_device}')")
+        
         if dual_stream and prediction_device is not None:
             try:
                 prediction_device = int(prediction_device)
             except (ValueError, TypeError):
                 # Keep as string if not numeric
                 pass
+        
+        # Log the final configuration
+        if dual_stream:
+            logging.info(f"Starting in DUAL-STREAM mode:")
+            logging.info(f"  FFT/Reactivity device: {args.input_device}")
+            logging.info(f"  Prediction device: {prediction_device}")
+            if args.prediction_channels:
+                logging.info(f"  Prediction channels: {args.prediction_channels}")
+        else:
+            logging.info(f"Starting in SINGLE-STREAM mode:")
+            logging.info(f"  Device: {args.input_device} (used for both FFT and prediction)")
         
         wrapper(lambda stdscr: main(
             stdscr, 
@@ -406,5 +483,7 @@ if __name__ == "__main__":
             dual_stream,
             prediction_device if dual_stream else None,
             args.predictor_version,
-            args.average_dual_channels
+            args.average_dual_channels,
+            args.scene_cache_size,
+            args.prediction_channels
         ))

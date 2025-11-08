@@ -2,8 +2,19 @@
 DMXKing ultraDMX MAX Configuration
 
 This file contains configuration settings for the DMXKing ultraDMX MAX interface.
-The system now automatically detects the correct DMX port, but you can still manually
-specify a port if needed.
+The system automatically detects the correct DMX port and caches it for instant
+startup on subsequent runs.
+
+Port Detection (Smart Caching):
+- First run: Scans all ports to find DMX device (takes 2-5 seconds)
+- Subsequent runs: Uses cached port for INSTANT connection (< 0.1 seconds)
+- Cache location: config/dmx_port_cache.txt
+- Auto-recovery: If cached port fails, automatically rescans all ports
+- Manual override: You can manually set DMX_CONFIG['port'] below to skip auto-detection
+
+To clear the cache and force a rescan:
+  >>> from oculizer.light.dmx_config import clear_cached_port
+  >>> clear_cached_port()
 
 Common port assignments:
 - Linux: '/dev/ttyUSB0', '/dev/ttyUSB1', etc.
@@ -15,6 +26,8 @@ To find your device port manually:
 - Windows: Check Device Manager under "Ports (COM & LPT)"
 - macOS: ls /dev/cu.*
 """
+
+import os
 
 # DMX Controller Configuration
 DMX_CONFIG = {
@@ -57,9 +70,12 @@ ALTERNATIVE_PORTS = {
     ]
 }
 
-def get_dmx_config():
+def get_dmx_config(skip_cache=False):
     """
     Get DMX configuration settings with automatic port detection.
+    
+    Args:
+        skip_cache: If True, ignore cached port and scan all ports
     
     Returns:
         DMX configuration dictionary with detected port
@@ -68,10 +84,11 @@ def get_dmx_config():
     
     # If port is None, try to auto-detect
     if config['port'] is None:
-        detected_port = detect_dmx_port()
+        detected_port = detect_dmx_port(skip_cache=skip_cache)
         if detected_port:
             config['port'] = detected_port
-            print(f"Using auto-detected DMX port: {detected_port}")
+            if not skip_cache:
+                print(f"Using auto-detected DMX port: {detected_port}")
         else:
             # Fallback to manual configuration
             print("Auto-detection failed. Please manually configure the DMX port in dmx_config.py")
@@ -193,14 +210,83 @@ def test_dmx_port(port, baudrate=57600, timeout=1.0):
         return False
 
 
-def detect_dmx_port():
+def get_cached_port_path():
+    """Get the path to the cached DMX port file."""
+    cache_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'config')
+    os.makedirs(cache_dir, exist_ok=True)
+    return os.path.join(cache_dir, 'dmx_port_cache.txt')
+
+
+def load_cached_port():
+    """
+    Load the last known working DMX port from cache.
+    
+    Returns:
+        Cached port path if exists, None otherwise
+    """
+    try:
+        cache_file = get_cached_port_path()
+        if os.path.exists(cache_file):
+            with open(cache_file, 'r') as f:
+                cached_port = f.read().strip()
+                if cached_port:
+                    return cached_port
+    except Exception as e:
+        print(f"Warning: Could not read DMX port cache: {e}")
+    return None
+
+
+def save_cached_port(port):
+    """
+    Save the working DMX port to cache for faster startup next time.
+    
+    Args:
+        port: The port path to cache
+    """
+    try:
+        cache_file = get_cached_port_path()
+        with open(cache_file, 'w') as f:
+            f.write(port)
+        print(f"💾 Saved DMX port to cache: {port}")
+    except Exception as e:
+        print(f"Warning: Could not save DMX port cache: {e}")
+
+
+def clear_cached_port():
+    """
+    Clear the cached DMX port. Use this if you need to force a full port scan.
+    """
+    try:
+        cache_file = get_cached_port_path()
+        if os.path.exists(cache_file):
+            os.remove(cache_file)
+            print("🗑️  Cleared DMX port cache")
+            return True
+    except Exception as e:
+        print(f"Warning: Could not clear DMX port cache: {e}")
+    return False
+
+
+def detect_dmx_port(skip_cache=False):
     """
     Automatically detect the DMX interface port.
+    Uses cached port for instant connection, or scans all ports if needed.
+    
+    Args:
+        skip_cache: If True, ignore cache and scan all ports
     
     Returns:
         Port path if found, None if not found
     """
-    print("Scanning for DMX interface...")
+    # Try cached port first (unless explicitly skipped)
+    if not skip_cache:
+        cached_port = load_cached_port()
+        if cached_port:
+            print(f"⚡ Using cached DMX port: {cached_port} (instant connect!)")
+            return cached_port
+    
+    # No cache or cache skipped - do full scan
+    print("🔎 Scanning for DMX interface...")
     
     # Get all available ports
     available_ports = scan_available_ports()
@@ -216,6 +302,8 @@ def detect_dmx_port():
         print(f"Testing port {port}...")
         if test_dmx_port(port):
             print(f"✓ DMX interface found on {port}")
+            # Save this port to cache for next time
+            save_cached_port(port)
             return port
         else:
             print(f"✗ {port} is not a DMX interface")

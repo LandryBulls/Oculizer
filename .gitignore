@@ -79,3 +79,4 @@ Thumbs.db
 
 # Project specific
 oculizer.log
+config/dmx_port_cache.txt
