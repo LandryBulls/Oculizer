@@ -85,7 +85,13 @@ class AudioOculizerController:
         curses.curs_set(0)
         self.stdscr.nodelay(1)
         
-        self.scene_manager = SceneManager('scenes')
+        # Load profile first to get available fixtures for SceneManager
+        profile_fixtures = self._load_profile_fixtures(profile)
+        
+        # Initialize SceneManager with profile awareness for scene fallbacks
+        self.scene_manager = SceneManager('scenes', 
+                                         profile_name=profile, 
+                                         available_fixtures=profile_fixtures)
         
         # Initialize Oculizer with scene prediction support
         # dual_stream=True: Use separate device for scene prediction (default)
@@ -106,6 +112,7 @@ class AudioOculizerController:
         self.dual_stream = dual_stream
         self.predictor_version = predictor_version
         self.average_dual_channels = average_dual_channels
+        self.profile_name = profile
         self.error_message = ""
         self.info_message = ""
         
@@ -113,6 +120,37 @@ class AudioOculizerController:
         self.log_messages = deque(maxlen=9)
         self.log_handler = self.LogHandler(self.log_messages)
         logging.getLogger().addHandler(self.log_handler)
+    
+    def _load_profile_fixtures(self, profile_name):
+        """Load profile and extract available fixture names."""
+        try:
+            import json
+            from pathlib import Path
+            
+            # Construct path to profile
+            current_dir = Path(__file__).resolve().parent
+            profile_path = current_dir / 'profiles' / f'{profile_name}.json'
+            
+            if not profile_path.exists():
+                logging.warning(f"Profile '{profile_name}' not found at {profile_path}")
+                return set()
+            
+            with open(profile_path, 'r') as f:
+                profile = json.load(f)
+            
+            # Extract fixture names
+            fixtures = set()
+            if 'lights' in profile:
+                for light in profile['lights']:
+                    if 'name' in light:
+                        fixtures.add(light['name'])
+            
+            logging.info(f"Loaded profile '{profile_name}' with {len(fixtures)} fixtures: {', '.join(sorted(fixtures))}")
+            return fixtures
+            
+        except Exception as e:
+            logging.error(f"Error loading profile fixtures: {e}")
+            return set()
 
     class LogHandler(logging.Handler):
         def __init__(self, log_messages):
@@ -282,9 +320,18 @@ class AudioOculizerController:
                 row_offset += 1
 
             # Display current scene (top left)
-            scene_info = f"Current scene: {self.scene_manager.current_scene['name']}"
+            current_scene_name = self.scene_manager.current_scene['name']
+            scene_info = f"Current scene: {current_scene_name}"
             scene_row = row_offset
             self.stdscr.addstr(scene_row, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+            
+            # Display scene compatibility info if using fallback
+            if hasattr(self.scene_manager, 'scene_compatibility'):
+                is_compatible = self.scene_manager.scene_compatibility.get(current_scene_name, True)
+                if not is_compatible:
+                    fallback_info = f"  ⚠️  Incompatible scene (using fallback)"
+                    self.stdscr.addstr(scene_row + 1, 0, fallback_info[:width-1], curses.color_pair(COLOR_PAIRS['warning']))
+                    scene_row += 1
             
             # Display prediction info
             pred_row = scene_row + 1

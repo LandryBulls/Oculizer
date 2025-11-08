@@ -80,8 +80,21 @@ def get_index_from_position(row, col, num_columns, total_scenes):
     return min(index, total_scenes - 1)
 
 def main(stdscr, profile, input_device, average_dual_channels):
-    # Initialize scene manager and light controller
-    scene_manager = SceneManager('scenes')
+    # Load profile fixtures for scene manager
+    from pathlib import Path
+    profile_fixtures = set()
+    try:
+        profile_path = Path(__file__).resolve().parent / 'profiles' / f'{profile}.json'
+        if profile_path.exists():
+            with open(profile_path, 'r') as f:
+                profile_data = json.load(f)
+                if 'lights' in profile_data:
+                    profile_fixtures = {light['name'] for light in profile_data['lights'] if 'name' in light}
+    except Exception as e:
+        pass  # Fall back to no profile awareness
+    
+    # Initialize scene manager with profile awareness
+    scene_manager = SceneManager('scenes', profile_name=profile, available_fixtures=profile_fixtures)
     scene_manager.set_scene('party')  # Set an initial scene
     light_controller = Oculizer(profile, scene_manager, input_device, 
                                average_dual_channels=average_dual_channels)

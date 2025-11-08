@@ -1,0 +1,33 @@
+{
+  "_comment": "Scene fallback mappings for profiles with limited fixture support",
+  "_usage": "When a scene uses fixtures not available in the current profile, map to the fallback scene",
+  "mobile": {
+    "bass_hopper": "bass_racer",
+    "bass_hopper_blue": "blue_bass_pulse",
+    "bass_hopper_green": "green_bass_pulse",
+    "bass_hopper_orange": "white_bass_pulse",
+    "bass_hopper_pink": "pink_bass_pulse",
+    "bass_hopper_rainbow": "supernova",
+    "bass_hopper_white": "white_bass_pulse",
+    "blue_speedracer": "bass_racer",
+    "build1": "whispers",
+    "bulb_flicker": "flicker",
+    "discobrain": "discodream",
+    "discolaser": "chill_white",
+    "green_speedracer": "green_pulse",
+    "lamp": "sequence_ice",
+    "laser_strobe": "pink_strobe_pulse",
+    "lasers": "rightround",
+    "off": "chill_white",
+    "orb_cycle": "bass_racer",
+    "orb_racer": "bass_racer",
+    "orb_sine": "sequence_ice",
+    "pink_speedracer": "pink_pulse",
+    "prance": "blue_pulse",
+    "ps": "ambient2",
+    "red_speedracer": "red_pulse",
+    "snap": "blue_bass_pulse",
+    "vintage": "sequence_ice",
+    "white_speedracer": "white_pulse"
+  }
+}
