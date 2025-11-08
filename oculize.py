@@ -325,23 +325,30 @@ class AudioOculizerController:
             scene_row = row_offset
             self.stdscr.addstr(scene_row, 0, scene_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
             
-            # Display scene compatibility info if using fallback
-            if hasattr(self.scene_manager, 'scene_compatibility'):
-                is_compatible = self.scene_manager.scene_compatibility.get(current_scene_name, True)
-                if not is_compatible:
-                    fallback_info = f"  ⚠️  Incompatible scene (using fallback)"
-                    self.stdscr.addstr(scene_row + 1, 0, fallback_info[:width-1], curses.color_pair(COLOR_PAIRS['warning']))
-                    scene_row += 1
-            
-            # Display prediction info
+            # Display prediction and fallback info
             pred_row = scene_row + 1
+            if self.oculizer.current_predicted_scene is not None:
+                predicted_scene = self.oculizer.current_predicted_scene
+                
+                # Check if fallback was applied
+                fallback_scene = None
+                if hasattr(self.scene_manager, 'fallback_mappings') and predicted_scene in self.scene_manager.fallback_mappings:
+                    fallback_scene = self.scene_manager.fallback_mappings[predicted_scene]
+                
+                if fallback_scene and fallback_scene == current_scene_name:
+                    # Fallback was applied
+                    pred_info = f"Predicted: {predicted_scene} → {fallback_scene} (fallback)"
+                    self.stdscr.addstr(pred_row, 0, pred_info[:width-1], curses.color_pair(COLOR_PAIRS['warning']))
+                    pred_row += 1
+                else:
+                    # No fallback, show normal prediction
+                    pred_info = f"Predicted: {predicted_scene}"
+                    self.stdscr.addstr(pred_row, 0, pred_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+                    pred_row += 1
+            
             if self.oculizer.latest_prediction is not None:
                 pred_info = f"Latest prediction: {self.oculizer.latest_prediction}"
                 self.stdscr.addstr(pred_row, 0, pred_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
-            
-            if self.oculizer.current_predicted_scene is not None:
-                mode_info = f"Prediction mode: {self.oculizer.current_predicted_scene}"
-                self.stdscr.addstr(pred_row + 1, 0, mode_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
             
             if self.oculizer.current_cluster is not None:
                 cluster_info = f"Cluster: {self.oculizer.current_cluster}"
