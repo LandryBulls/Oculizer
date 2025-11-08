@@ -1,0 +1,72 @@
+{
+    "name": "mobile",
+    "description": "Mobile Setup - 4 Rockvilles",
+    "lights": [
+        {
+            "name": "placeholder1",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "placeholder2",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "placeholder3",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "placeholder4",
+            "type": "rgb",
+            "n_channels": 6
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "placeholder5",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "placeholder6",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "placeholder7",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "placeholder8",
+            "type": "dimmer",
+            "n_channels": 1
+        },
+        {
+            "name": "placeholder9",
+            "type": "pinspot",
+            "n_channels": 6
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "n_channels": 39
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "n_channels": 39
+        }
+    ]
+}
+
