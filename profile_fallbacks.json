@@ -28,6 +28,7 @@
     "red_speedracer": "sequence_red",
     "snap": "RGB",
     "vintage": "chill_halogen",
-    "white_speedracer": "electric"
+    "white_speedracer": "electric",
+    "blue_bass_pulse": "sequence_blue"
   }
 }

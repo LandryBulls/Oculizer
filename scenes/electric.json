@@ -16,7 +16,7 @@
         },
         {
             "name": "rgb2",
-            "type": "rgb", 
+            "type": "rgb",
             "modulator": "bool",
             "brightness": "random",
             "color": "white",
@@ -25,7 +25,7 @@
         {
             "name": "rgb3",
             "type": "rgb",
-            "modulator": "bool", 
+            "modulator": "bool",
             "brightness": "random",
             "color": "white",
             "strobe": "random"
@@ -35,7 +35,7 @@
             "type": "rgb",
             "modulator": "bool",
             "brightness": "random",
-            "color": "white", 
+            "color": "white",
             "strobe": "random"
         },
         {
@@ -83,21 +83,33 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_sequential_panels",
-                "colors": ["white"],
+                "colors": [
+                    "white"
+                ],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "direction": "left_to_right",
                 "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.01,
                 "panel_strobe": 200,
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
+                "bar_mfft_range": [
+                    0,
+                    20
+                ],
                 "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "bar_strobe": 255,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -106,21 +118,33 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_sequential_panels",
-                "colors": ["white"],
+                "colors": [
+                    "white"
+                ],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "direction": "left_to_right",
                 "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.01,
                 "panel_strobe": 200,
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
+                "bar_mfft_range": [
+                    0,
+                    20
+                ],
                 "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "bar_strobe": 255,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -129,21 +153,33 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_sequential_panels",
-                "colors": ["white"],
+                "colors": [
+                    "white"
+                ],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "direction": "left_to_right",
                 "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.01,
                 "panel_strobe": 200,
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
+                "bar_mfft_range": [
+                    0,
+                    20
+                ],
                 "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "bar_strobe": 255,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -152,21 +188,33 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_sequential_panels",
-                "colors": ["white"],
+                "colors": [
+                    "white"
+                ],
                 "combo_mode": "pure",
                 "color_order": "next",
                 "direction": "left_to_right",
                 "sequence_duration": 0.2,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.01,
                 "panel_strobe": 200,
                 "affect_bar": true,
-                "bar_mfft_range": [0, 20],
+                "bar_mfft_range": [
+                    0,
+                    20
+                ],
                 "bar_threshold": 0.1,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.1,
-                "bar_strobe": 255
+                "bar_strobe": 255,
+                "bar_min_brightness": 20
             }
         }
     ]

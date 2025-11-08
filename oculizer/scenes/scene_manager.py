@@ -155,23 +155,28 @@ class SceneManager:
     
     def set_scene(self, scene_name: str, apply_fallback: bool = True):
         """
-        Set the current scene, applying fallback if needed.
+        Set the current scene, applying fallback if defined.
         
         Args:
             scene_name: Name of the scene to activate
-            apply_fallback: If True, apply fallback mapping for incompatible scenes
+            apply_fallback: If True, apply fallback mapping if one exists
         """
         if scene_name not in self.scenes:
             raise ValueError(f"Scene '{scene_name}' not found")
         
-        # Check compatibility and apply fallback if needed
+        # Apply fallback if one exists in the mapping (regardless of compatibility)
         target_scene = scene_name
-        if apply_fallback and not self.scene_compatibility.get(scene_name, True):
+        if apply_fallback:
             fallback = self.get_fallback_scene(scene_name)
             if fallback:
-                logging.info(f"Scene '{scene_name}' incompatible with profile '{self.profile_name}', using fallback '{fallback}'")
+                is_compatible = self.scene_compatibility.get(scene_name, True)
+                if is_compatible:
+                    logging.info(f"Scene '{scene_name}' replaced with '{fallback}' (forced by profile '{self.profile_name}' fallback mapping)")
+                else:
+                    logging.info(f"Scene '{scene_name}' incompatible with profile '{self.profile_name}', using fallback '{fallback}'")
                 target_scene = fallback
-            else:
+            elif not self.scene_compatibility.get(scene_name, True):
+                # No fallback defined but scene is incompatible
                 logging.warning(f"Scene '{scene_name}' incompatible with profile '{self.profile_name}' and no fallback found - using anyway")
         
         self.current_scene = self.scenes[target_scene]

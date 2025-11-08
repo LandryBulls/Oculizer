@@ -9,9 +9,18 @@
             "name": "rgb1",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [0, 20],
-            "mfft_range": [0, 20],
-            "power_range": [0, 50],
+            "brightness_range": [
+                0,
+                20
+            ],
+            "mfft_range": [
+                0,
+                20
+            ],
+            "power_range": [
+                0,
+                50
+            ],
             "color": "purple",
             "strobe": 0
         },
@@ -19,9 +28,18 @@
             "name": "rgb2",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 20],
-            "mfft_range": [50, 75],
-            "power_range": [0, 1],
+            "brightness_range": [
+                1,
+                20
+            ],
+            "mfft_range": [
+                50,
+                75
+            ],
+            "power_range": [
+                0,
+                1
+            ],
             "color": "pink",
             "strobe": 0
         },
@@ -32,27 +50,54 @@
             "brightness": 100,
             "color": "pink",
             "strobe": 255,
-            "mfft_range": [110, 127],
-            "power_range": [0.001, 0.1],
-            "brightness_range": [1, 25]
+            "mfft_range": [
+                110,
+                127
+            ],
+            "power_range": [
+                0.001,
+                0.1
+            ],
+            "brightness_range": [
+                1,
+                25
+            ]
         },
         {
             "name": "rgb4",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [50, 90],
+            "mfft_range": [
+                50,
+                90
+            ],
             "color": "blue",
-            "power_range": [0.5, 1.0],
-            "brightness_range": [0, 20],
+            "power_range": [
+                0.5,
+                1.0
+            ],
+            "brightness_range": [
+                0,
+                20
+            ],
             "strobe": 255
         },
         {
             "name": "rgb5",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 20],
-            "mfft_range": [1, 3],
-            "power_range": [0, 1],
+            "brightness_range": [
+                1,
+                20
+            ],
+            "mfft_range": [
+                1,
+                3
+            ],
+            "power_range": [
+                0,
+                1
+            ],
             "color": "purple",
             "strobe": 255
         },
@@ -69,17 +114,35 @@
             "name": "orb1",
             "type": "dimmer",
             "modulator": "mfft",
-            "mfft_range": [0, 10],
-            "power_range": [0, 0.5],
-            "brightness_range": [0, 40]
+            "mfft_range": [
+                0,
+                10
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                0,
+                40
+            ]
         },
         {
             "name": "orb2",
             "type": "dimmer",
             "modulator": "mfft",
-            "mfft_range": [0, 10],
-            "power_range": [0, 0.5],
-            "brightness_range": [0, 40]
+            "mfft_range": [
+                0,
+                10
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                0,
+                40
+            ]
         },
         {
             "name": "pinspot",
@@ -98,17 +161,32 @@
             "modulator": "mfft",
             "threshold": 0.2,
             "brightness": 255,
-            "mfft_range": [115, 127],
-            "power_range": [0.6, 1.0],
+            "mfft_range": [
+                115,
+                127
+            ],
+            "power_range": [
+                0.6,
+                1.0
+            ],
             "speed": 1
         },
         {
             "name": "rgb6",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 50],
-            "mfft_range": [1, 3],
-            "power_range": [0, 5],
+            "brightness_range": [
+                1,
+                50
+            ],
+            "mfft_range": [
+                1,
+                3
+            ],
+            "power_range": [
+                0,
+                5
+            ],
             "color": "pink",
             "strobe": 240
         },
@@ -116,9 +194,18 @@
             "name": "rgb7",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [1, 20],
-            "mfft_range": [15, 30],
-            "power_range": [5, 100],
+            "brightness_range": [
+                1,
+                20
+            ],
+            "mfft_range": [
+                15,
+                30
+            ],
+            "power_range": [
+                5,
+                100
+            ],
             "color": "green",
             "strobe": 0
         },
@@ -126,9 +213,18 @@
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "brightness_range": [0, 20],
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
+            "brightness_range": [
+                0,
+                20
+            ],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
             "color": "blue",
             "strobe": 255
         },
@@ -139,10 +235,13 @@
             "brightness": "0"
         },
         {
-            "name": "laser", 
+            "name": "laser",
             "type": "laser",
             "modulator": "mfft",
-            "power_range": [0.3, 0.5]
+            "power_range": [
+                0.3,
+                0.5
+            ]
         },
         {
             "name": "rockville1",
@@ -150,23 +249,36 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": ["blue", "purple"],
+                "colors": [
+                    "blue",
+                    "purple"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.5,
                 "panel_strobe": 200,
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 75,
                 "affect_bar": false,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.05,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 200
+                "bar_strobe": 200,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -175,23 +287,37 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": ["pink", "blue", "purple"],
+                "colors": [
+                    "pink",
+                    "blue",
+                    "purple"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.5,
                 "panel_strobe": 200,
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 75,
                 "affect_bar": false,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.05,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 200
+                "bar_strobe": 200,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -200,23 +326,37 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": ["pink", "blue", "purple"],
+                "colors": [
+                    "pink",
+                    "blue",
+                    "purple"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.5,
                 "panel_strobe": 200,
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 75,
                 "affect_bar": false,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.05,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 200
+                "bar_strobe": 200,
+                "bar_min_brightness": 20
             }
         },
         {
@@ -225,23 +365,37 @@
             "modulator": "mfft",
             "effect": {
                 "name": "rockville_panel_fade",
-                "colors": ["pink", "blue", "purple"],
+                "colors": [
+                    "pink",
+                    "blue",
+                    "purple"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.7,
-                "panel_mfft_range": [0, 20],
+                "panel_mfft_range": [
+                    0,
+                    20
+                ],
                 "panel_threshold": 0.5,
                 "panel_strobe": 200,
                 "fade_duration": 0.4,
                 "min_brightness": 0,
                 "max_brightness": 75,
                 "affect_bar": false,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.05,
-                "bar_colors": [0, 255],
+                "bar_colors": [
+                    0,
+                    255
+                ],
                 "bar_mode": 156,
                 "bar_sustain": 0.25,
-                "bar_strobe": 200
+                "bar_strobe": 200,
+                "bar_min_brightness": 20
             }
         }
     ]
