@@ -9,11 +9,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -28,11 +28,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -47,11 +47,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -66,11 +66,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -85,11 +85,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -104,11 +104,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -123,11 +123,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
@@ -142,11 +142,11 @@
             "type": "rgb",
             "modulator": "mfft",
             "mfft_range": [
-                1,
+                0,
                 20
             ],
             "power_range": [
-                0.5,
+                0.1,
                 4
             ],
             "brightness_range": [
