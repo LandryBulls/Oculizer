@@ -7,8 +7,9 @@ import platform
 from curses import wrapper
 from oculizer import Oculizer, SceneManager
 import logging
-from collections import deque
+from collections import deque, OrderedDict
 import sounddevice as sd
+import math
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
@@ -49,6 +50,13 @@ COLOR_PAIRS = {
     'log': (curses.COLOR_GREEN, curses.COLOR_BLACK),
     'controls': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
     'skull': (curses.COLOR_GREEN, curses.COLOR_BLACK),
+    # Toggle mode colors
+    'toggle_active': (curses.COLOR_WHITE, curses.COLOR_GREEN),  # Active scene (when not overridden)
+    'toggle_selected': (curses.COLOR_BLACK, curses.COLOR_YELLOW),  # Selected for navigation
+    'toggle_hover': (curses.COLOR_WHITE, curses.COLOR_BLUE),  # Mouse hover
+    'toggle_normal': (curses.COLOR_WHITE, curses.COLOR_BLACK),  # Default
+    'toggle_predicted': (curses.COLOR_CYAN, curses.COLOR_BLACK),  # Predicted by AI (not active)
+    'toggle_override': (curses.COLOR_BLACK, curses.COLOR_MAGENTA),  # Manually overridden scene (active)
 }
 
 def setup_logging():
@@ -77,13 +85,52 @@ def setup_colors():
         curses.init_pair(i, fg, bg)
         COLOR_PAIRS[name] = i
 
+# Toggle mode helper functions (from toggle.py)
+def sort_scenes_alphabetically(scenes):
+    return OrderedDict(sorted(scenes.items()))
+
+def find_scene_by_prefix(scenes, prefix):
+    if not prefix:
+        return -1
+    prefix = prefix.lower()
+    for i, (scene, _) in enumerate(scenes):
+        if scene.lower().startswith(prefix):
+            return i
+    return -1
+
+def calculate_grid_dimensions(scene_list, max_x, max_y):
+    # Find the longest scene name to determine column width
+    max_name_length = max(len(scene[0]) for scene in scene_list) + 2  # Add 2 for padding
+    
+    # Calculate number of columns that can fit
+    num_columns = max(1, min(len(scene_list), max_x // max_name_length))
+    
+    # Calculate number of rows needed
+    num_rows = math.ceil(len(scene_list) / num_columns)
+    
+    # Adjust column width to be uniform
+    column_width = max_x // num_columns
+    
+    return num_rows, num_columns, column_width
+
+def get_grid_position(index, num_columns):
+    row = index // num_columns
+    col = index % num_columns
+    return row, col
+
+def get_index_from_position(row, col, num_columns, total_scenes):
+    index = row * num_columns + col
+    return min(index, total_scenes - 1)
+
 class AudioOculizerController:
     def __init__(self, stdscr, profile='garage', input_device='scarlett', 
                  dual_stream=True, prediction_device=None, predictor_version='v1',
-                 average_dual_channels=False, scene_cache_size=25, prediction_channels=None):
+                 average_dual_channels=False, scene_cache_size=25, prediction_channels=None,
+                 test_mode=False):
         self.stdscr = stdscr
         curses.curs_set(0)
         self.stdscr.nodelay(1)
+        self.test_mode = test_mode
         
         # Load profile first to get available fixtures for SceneManager
         profile_fixtures = self._load_profile_fixtures(profile)
@@ -106,7 +153,8 @@ class AudioOculizerController:
             predictor_version=predictor_version,
             average_dual_channels=average_dual_channels,
             scene_cache_size=scene_cache_size,
-            prediction_channels=prediction_channels
+            prediction_channels=prediction_channels,
+            test_mode=test_mode
         )
         
         self.dual_stream = dual_stream
@@ -205,6 +253,10 @@ class AudioOculizerController:
             time.sleep(0.1)
 
     def turn_off_all_lights(self):
+        # Skip in test mode
+        if self.test_mode:
+            return
+            
         try:
             for light_name, light_fixture in self.oculizer.controller_dict.items():
                 # Get the light type from the profile
@@ -224,12 +276,288 @@ class AudioOculizerController:
         except Exception as e:
             logging.error(f"Error turning off lights: {str(e)}")
 
+    def run_toggle_mode(self):
+        """
+        Run interactive toggle mode with live prediction visualization.
+        
+        Features:
+        - Shows predicted scenes in CYAN (not active)
+        - Shows active scene in GREEN (when following predictions)
+        - Press Ctrl+O to override with manual selection (MAGENTA when active)
+        - Press Ctrl+O again to resume following predictions
+        """
+        # Sort scenes alphabetically
+        original_scenes = self.scene_manager.scenes.copy()
+        self.scene_manager.scenes = sort_scenes_alphabetically(self.scene_manager.scenes)
+        
+        # Enable mouse events
+        curses.mousemask(curses.ALL_MOUSE_EVENTS | curses.REPORT_MOUSE_POSITION)
+        print('\033[?1003h')  # Enable mouse movement tracking
+        self.stdscr.keypad(1)
+        
+        # Initialize variables
+        selected_index = 0
+        current_scene_name = self.scene_manager.current_scene['name']
+        search_string = ""
+        last_search_time = time.time()
+        hover_pos = (-1, -1)
+        
+        # Override state
+        override_active = False
+        override_scene = None
+        last_prediction = None
+        
+        try:
+            while True:
+                self.stdscr.clear()
+                max_y, max_x = self.stdscr.getmaxyx()
+                scene_list = list(self.scene_manager.scenes.items())
+                total_scenes = len(scene_list)
+                
+                # Get current prediction
+                predicted_scene = self.oculizer.current_predicted_scene
+                
+                # Update current scene name based on override state
+                if not override_active and predicted_scene and predicted_scene != last_prediction:
+                    # Prediction changed and we're following predictions
+                    if predicted_scene in self.scene_manager.scenes:
+                        current_scene_name = predicted_scene
+                        last_prediction = predicted_scene
+                
+                # Calculate grid layout
+                num_rows, num_columns, column_width = calculate_grid_dimensions(scene_list, max_x, max_y - 6)
+                
+                # Display header with override status
+                if override_active:
+                    mode_status = f"OVERRIDE ACTIVE (Manual: {override_scene})"
+                    status_color = COLOR_PAIRS['warning']
+                else:
+                    mode_status = f"FOLLOWING PREDICTIONS (Auto: {current_scene_name})"
+                    status_color = COLOR_PAIRS['info']
+                
+                header_text = f"TOGGLE MODE - {mode_status}"
+                commands_text = "[Ctrl+O] Toggle Override  [Ctrl+T] Exit  [Ctrl+Q] Quit  [Ctrl+R] Reload"
+                if search_string:
+                    header_text += f" [Search: {search_string}]"
+                
+                try:
+                    self.stdscr.addstr(0, 0, header_text[:max_x-1], curses.color_pair(status_color) | curses.A_BOLD)
+                    self.stdscr.addstr(1, 0, commands_text[:max_x-1], curses.color_pair(COLOR_PAIRS['controls']))
+                    
+                    # Show prediction info
+                    if predicted_scene:
+                        pred_info = f"Current Prediction: {predicted_scene}"
+                        self.stdscr.addstr(2, 0, pred_info[:max_x-1], curses.color_pair(COLOR_PAIRS['toggle_predicted']))
+                    
+                    self.stdscr.addstr(3, 0, "Available scenes:", curses.color_pair(COLOR_PAIRS['info']))
+                except curses.error:
+                    pass
+                
+                # Display scenes in grid
+                for i, (scene, _) in enumerate(scene_list):
+                    row, col = get_grid_position(i, num_columns)
+                    if row >= num_rows or row >= max_y - 6:
+                        break
+                    
+                    display_y = row + 5  # Start after header (now 5 to account for extra line)
+                    display_x = col * column_width
+                    
+                    scene_str = scene
+                    if len(scene_str) > column_width - 2:
+                        scene_str = scene_str[:column_width - 5] + "..."
+                    
+                    # Determine scene display style with new override logic
+                    if override_active and scene == override_scene:
+                        # Manually overridden scene (active)
+                        color = curses.color_pair(COLOR_PAIRS['toggle_override'])
+                    elif not override_active and scene == current_scene_name:
+                        # Active scene when following predictions
+                        color = curses.color_pair(COLOR_PAIRS['toggle_active'])
+                    elif predicted_scene and scene == predicted_scene and override_active:
+                        # Predicted scene when override is active (show but not active)
+                        color = curses.color_pair(COLOR_PAIRS['toggle_predicted'])
+                    elif i == selected_index:
+                        # Selected for navigation
+                        color = curses.color_pair(COLOR_PAIRS['toggle_selected'])
+                    elif (row, col) == hover_pos:
+                        # Mouse hover
+                        color = curses.color_pair(COLOR_PAIRS['toggle_hover'])
+                    else:
+                        # Normal scene
+                        color = curses.color_pair(COLOR_PAIRS['toggle_normal'])
+                    
+                    # Pad scene name to column width
+                    scene_str = scene_str.ljust(column_width - 1)
+                    try:
+                        self.stdscr.addstr(display_y, display_x, scene_str[:max_x-display_x-1], color)
+                    except curses.error:
+                        pass
+                
+                # Display instructions with color legend
+                legend = "🟢=Active 🟣=Override ⚫=Available"
+                if override_active:
+                    legend += " 🔵=Predicted"
+                instructions = f"{legend} | Ctrl+O: Toggle Override | ESC: Return to Predictions | Enter: Select | Type: Search"
+                try:
+                    self.stdscr.addstr(max_y-1, 0, instructions[:max_x-1], curses.color_pair(COLOR_PAIRS['controls']))
+                except curses.error:
+                    pass
+                
+                self.stdscr.refresh()
+                
+                try:
+                    event = self.stdscr.getch()
+                    current_time = time.time()
+                    
+                    if search_string and current_time - last_search_time > 1.0:
+                        search_string = ""
+                    
+                    if event == 17:  # Ctrl+Q
+                        print('\033[?1003l')  # Disable mouse tracking
+                        curses.mousemask(0)
+                        self.stop()
+                        exit()
+                    elif event == 20:  # Ctrl+T
+                        # Return to oculizer mode
+                        break
+                    elif event == 15:  # Ctrl+O - Toggle override
+                        if override_active:
+                            # Disable override, resume following predictions
+                            override_active = False
+                            override_scene = None
+                            # Switch back to predicted scene if available
+                            if predicted_scene and predicted_scene in self.scene_manager.scenes:
+                                self.oculizer.change_scene(predicted_scene)
+                                current_scene_name = predicted_scene
+                            self.info_message = "Override disabled - following predictions"
+                            logging.info("Toggle mode: Override disabled, resuming predictions")
+                        else:
+                            # Enable override mode
+                            override_active = True
+                            # Keep current scene as the override
+                            override_scene = current_scene_name
+                            self.info_message = f"Override enabled - manual control active: {override_scene}"
+                            logging.info(f"Toggle mode: Override enabled with scene: {override_scene}")
+                    elif event == 18:  # Ctrl+R
+                        try:
+                            self.scene_manager.reload_scenes()
+                            self.scene_manager.scenes = sort_scenes_alphabetically(self.scene_manager.scenes)
+                            if override_active:
+                                self.oculizer.change_scene(override_scene)
+                            else:
+                                self.oculizer.change_scene(current_scene_name)
+                            scene_list = list(self.scene_manager.scenes.items())
+                            total_scenes = len(scene_list)
+                            self.info_message = "Scenes reloaded"
+                            logging.info("Scenes reloaded")
+                        except Exception as e:
+                            self.error_message = f"Error reloading: {str(e)}"
+                            logging.error(f"Error reloading scenes: {str(e)}")
+                        time.sleep(1)
+                    elif event == ord('t'):  # Also allow lowercase t to return
+                        break
+                    elif event in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
+                        row, col = get_grid_position(selected_index, num_columns)
+                        
+                        if event == curses.KEY_UP and row > 0:
+                            row -= 1
+                        elif event == curses.KEY_DOWN and row < num_rows - 1:
+                            row += 1
+                        elif event == curses.KEY_LEFT and col > 0:
+                            col -= 1
+                        elif event == curses.KEY_RIGHT and col < num_columns - 1:
+                            col += 1
+                        
+                        new_index = get_index_from_position(row, col, num_columns, total_scenes)
+                        if 0 <= new_index < total_scenes:
+                            selected_index = new_index
+                            search_string = ""
+                    elif event == curses.KEY_MOUSE:
+                        _, mx, my, _, bstate = curses.getmouse()
+                        if my >= 5 and my < min(5 + num_rows, max_y - 1):  # Adjusted for new header line
+                            row = my - 5
+                            col = mx // column_width
+                            hover_pos = (row, col)
+                            
+                            if bstate & curses.BUTTON1_CLICKED:
+                                new_index = get_index_from_position(row, col, num_columns, total_scenes)
+                                if 0 <= new_index < total_scenes:
+                                    new_scene = scene_list[new_index][0]
+                                    self.oculizer.change_scene(new_scene)
+                                    current_scene_name = new_scene
+                                    selected_index = new_index
+                                    search_string = ""
+                                    
+                                    # Automatically enable override when clicking a scene
+                                    override_active = True
+                                    override_scene = new_scene
+                                    
+                                    self.info_message = f"Override: {new_scene} (Ctrl+O to resume predictions)"
+                                    logging.info(f"Mouse selection: {new_scene} - override enabled")
+                    elif event in [curses.KEY_ENTER, 10, 13]:  # Enter key
+                        if 0 <= selected_index < total_scenes:
+                            new_scene = scene_list[selected_index][0]
+                            self.oculizer.change_scene(new_scene)
+                            current_scene_name = new_scene
+                            search_string = ""
+                            
+                            # Automatically enable override when manually selecting a scene
+                            override_active = True
+                            override_scene = new_scene
+                            
+                            self.info_message = f"Override: {new_scene} (Ctrl+O to resume predictions)"
+                            logging.info(f"Manual scene selection: {new_scene} - override enabled")
+                    elif event == 27:  # ESC key
+                        search_string = ""
+                        # ESC also disables override mode and returns to prediction mode
+                        if override_active:
+                            override_active = False
+                            override_scene = None
+                            # Switch back to predicted scene if available
+                            if predicted_scene and predicted_scene in self.scene_manager.scenes:
+                                self.oculizer.change_scene(predicted_scene)
+                                current_scene_name = predicted_scene
+                            self.info_message = "Override disabled - following predictions (ESC pressed)"
+                            logging.info("Toggle mode: Override disabled via ESC, resuming predictions")
+                    elif event in [curses.KEY_BACKSPACE, 127, 8]:  # Backspace
+                        search_string = search_string[:-1]
+                        last_search_time = current_time
+                        new_index = find_scene_by_prefix(scene_list, search_string)
+                        if new_index != -1:
+                            selected_index = new_index
+                    elif 32 <= event <= 126 and event != ord('t'):  # Printable characters (except 't')
+                        search_string += chr(event)
+                        last_search_time = current_time
+                        new_index = find_scene_by_prefix(scene_list, search_string)
+                        if new_index != -1:
+                            selected_index = new_index
+                
+                except curses.error:
+                    pass
+                
+                time.sleep(0.01)
+        
+        finally:
+            # Clean up mouse tracking
+            print('\033[?1003l')
+            curses.mousemask(0)
+            # Restore original scene order if needed
+            # self.scene_manager.scenes = original_scenes
+
     def handle_user_input(self):
         try:
             key = self.stdscr.getch()
             if key == ord('q'):
                 self.stop()
                 exit()
+            elif key == ord('t'):
+                # Enter toggle mode
+                logging.info("Entering toggle mode")
+                self.info_message = "Entering toggle mode..."
+                self.run_toggle_mode()
+                # Returned from toggle mode
+                logging.info("Returned to oculizer mode")
+                self.info_message = "Returned to oculizer mode"
             elif key == ord('r'):
                 self.scene_manager.reload_scenes()
                 self.info_message = "Scenes reloaded"
@@ -268,10 +596,21 @@ class AudioOculizerController:
                     self.stdscr.addstr(start_row + i, ascii_start + ascii_width + 2, skull_lines[i], curses.color_pair(COLOR_PAIRS['skull']))
 
             # Display audio device info with channel details (top left)
-            fft_device_info = sd.query_devices(self.oculizer.device_idx)
-            fft_device_name = fft_device_info['name']
-            
-            if self.dual_stream and self.oculizer.scene_prediction_device:
+            if self.test_mode:
+                # In test mode, only show prediction device
+                pred_device_info = sd.query_devices(self.oculizer.scene_prediction_device)
+                pred_device_name = pred_device_info['name']
+                
+                # Prediction channel info
+                if self.oculizer.prediction_channel_indices:
+                    pred_ch = f" ch{[i+1 for i in self.oculizer.prediction_channel_indices]}"
+                else:
+                    pred_ch = " all"
+                
+                audio_info = f"Prediction: {pred_device_name[:30]}{pred_ch}"
+            elif self.dual_stream and self.oculizer.scene_prediction_device:
+                fft_device_info = sd.query_devices(self.oculizer.device_idx)
+                fft_device_name = fft_device_info['name']
                 pred_device_info = sd.query_devices(self.oculizer.scene_prediction_device)
                 pred_device_name = pred_device_info['name']
                 
@@ -289,6 +628,8 @@ class AudioOculizerController:
                 
                 audio_info = f"FFT: {fft_device_name[:20]}{fft_ch} | Pred: {pred_device_name[:20]}{pred_ch}"
             else:
+                fft_device_info = sd.query_devices(self.oculizer.device_idx)
+                fft_device_name = fft_device_info['name']
                 if self.average_dual_channels:
                     fft_ch = " ch1-2"
                 else:
@@ -306,7 +647,9 @@ class AudioOculizerController:
             self.stdscr.addstr(4, 0, predictor_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
             
             # Display stream mode
-            if self.dual_stream:
+            if self.test_mode:
+                stream_mode = "Stream Mode: TEST (prediction only, no FFT/DMX)"
+            elif self.dual_stream:
                 stream_mode = "Stream Mode: DUAL (separate devices for FFT and prediction)"
             else:
                 stream_mode = "Stream Mode: SINGLE (shared device for FFT and prediction)"
@@ -369,7 +712,7 @@ class AudioOculizerController:
                 self.stdscr.addstr(height-2, 0, self.error_message[:width-1], curses.color_pair(COLOR_PAIRS['error']))
 
             # Display controls (bottom)
-            controls = "Press 'q' to quit, 'r' to reload scenes"
+            controls = "Press 'q' to quit, 't' for toggle mode, 'r' to reload scenes"
             self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
 
             self.stdscr.refresh()
@@ -456,11 +799,13 @@ Scene Cache Size:
                       help=f'Number of recent predictions to cache for smoothing (default: {default_scene_cache_size}). 1=instant, 25=heavy smoothing')
     parser.add_argument('--prediction-channels', type=str, default=default_prediction_channels,
                       help=f'Channels to use from prediction device (e.g., "1" for channel 1, "1,2" for channels 1-2 averaged, "1-16" for all 16 channels averaged). Default: {default_prediction_channels if default_prediction_channels else "auto-detect"}')
+    parser.add_argument('--test', action='store_true',
+                      help='Test mode: Enable scene predictions only, disable FFT reactivity and DMX output. Uses virtual cable (BlackHole on macOS, Cable Output on Windows) for predictions.')
     parser.add_argument('--list-devices', action='store_true',
                       help='List available audio devices and exit')
     return parser.parse_args()
 
-def main(stdscr, profile, input_device, dual_stream, prediction_device, predictor_version, average_dual_channels, scene_cache_size, prediction_channels):
+def main(stdscr, profile, input_device, dual_stream, prediction_device, predictor_version, average_dual_channels, scene_cache_size, prediction_channels, test_mode):
     setup_colors()
     controller = AudioOculizerController(
         stdscr, 
@@ -471,7 +816,8 @@ def main(stdscr, profile, input_device, dual_stream, prediction_device, predicto
         predictor_version=predictor_version,
         average_dual_channels=average_dual_channels,
         scene_cache_size=scene_cache_size,
-        prediction_channels=prediction_channels
+        prediction_channels=prediction_channels,
+        test_mode=test_mode
     )
     
     try:
@@ -498,10 +844,30 @@ if __name__ == "__main__":
             if isinstance(device, dict) and device.get('max_input_channels', 0) > 0:
                 print(f"{i}: {device['name']} ({device['max_input_channels']} channels)")
     else:
-        # Determine if dual-stream mode should be used
-        # If user explicitly specifies a prediction device, use dual-stream mode
-        # Otherwise, use the OS default (single-stream on macOS)
-        dual_stream = not args.single_stream
+        # Handle test mode
+        if args.test:
+            # In test mode, set up prediction-only with virtual cable
+            is_macos = platform.system() == 'Darwin'
+            if is_macos:
+                args.prediction_device = 'blackhole'
+                args.prediction_channels = '1'
+                args.scene_cache_size = 1
+            else:
+                args.prediction_device = 'cable_output'
+                args.prediction_channels = None
+                args.scene_cache_size = 25
+            
+            # Disable FFT stream by using a dummy device that won't be used
+            args.input_device = args.prediction_device
+            dual_stream = True  # Use dual-stream setup (prediction device will be used)
+            
+            logging.info("TEST MODE enabled: Scene predictions only, no FFT/DMX")
+            logging.info(f"  Using {args.prediction_device} for predictions")
+        else:
+            # Determine if dual-stream mode should be used
+            # If user explicitly specifies a prediction device, use dual-stream mode
+            # Otherwise, use the OS default (single-stream on macOS)
+            dual_stream = not args.single_stream
         
         # Convert prediction_device to int if it's a numeric string
         prediction_device = args.prediction_device
@@ -539,5 +905,6 @@ if __name__ == "__main__":
             args.predictor_version,
             args.average_dual_channels,
             args.scene_cache_size,
-            args.prediction_channels
+            args.prediction_channels,
+            args.test
         ))

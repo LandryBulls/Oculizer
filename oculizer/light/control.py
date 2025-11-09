@@ -37,7 +37,8 @@ n_channels = {
 class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager, input_device='cable', 
                  scene_prediction_enabled=False, scene_prediction_device=None, predictor_version='v1',
-                 average_dual_channels=False, scene_cache_size=25, prediction_channels=None):
+                 average_dual_channels=False, scene_cache_size=25, prediction_channels=None,
+                 test_mode=False):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -46,13 +47,21 @@ class Oculizer(threading.Thread):
         self.hop_length = audio_parameters['HOP_LENGTH']
         self.channels = 1
         self.average_dual_channels = average_dual_channels
+        self.test_mode = test_mode
         self.mfft_queue = queue.Queue(maxsize=1)
-        self.device_idx = self._get_audio_device_idx()
+        self.device_idx = self._get_audio_device_idx() if not test_mode else None
         self.running = threading.Event()
         self.scene_manager = scene_manager
         self.profile = self._load_profile()
         self.light_names = [i['name'] for i in self.profile['lights']]
-        self.dmx_controller, self.controller_dict = self._load_controller()
+        # Skip DMX controller initialization in test mode
+        if test_mode:
+            self.dmx_controller, self.controller_dict = None, {}
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.info("Test mode: Skipping DMX controller initialization")
+        else:
+            self.dmx_controller, self.controller_dict = self._load_controller()
         self.scene_changed = threading.Event()
         self.current_orchestrator = None
         # Set scene_changed event to trigger initial orchestrator setup
@@ -719,14 +728,86 @@ class Oculizer(threading.Thread):
     def run(self):
         self.running.set()
         
-        # Determine channels for main FFT stream
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # In test mode, skip FFT stream entirely and only run predictions
+        if self.test_mode:
+            logger.info("Test mode: Skipping FFT/reactivity audio stream")
+            try:
+                # Only start prediction stream in test mode
+                if self.scene_prediction_enabled and self.scene_prediction_device is not None:
+                    pred_device_info = sd.query_devices(self.scene_prediction_device)
+                    max_input_channels = pred_device_info['max_input_channels']
+                    
+                    # Parse channel specification
+                    if self.prediction_channels_spec:
+                        self.prediction_channel_indices = self._parse_channel_spec(
+                            self.prediction_channels_spec, max_input_channels
+                        )
+                        pred_channels = max(self.prediction_channel_indices) + 1  # Open enough channels
+                    else:
+                        # Auto-detect: for multi-channel devices, open all channels
+                        if 'BlackHole' in pred_device_info['name'] and max_input_channels > 2:
+                            pred_channels = max_input_channels  # Open all channels
+                            self.prediction_channel_indices = None  # Average all
+                        elif 'Scarlett' in pred_device_info['name'] or 'CABLE' in pred_device_info['name']:
+                            pred_channels = 2
+                            self.prediction_channel_indices = None  # Average all
+                        else:
+                            pred_channels = 1
+                            self.prediction_channel_indices = None
+                    
+                    self.prediction_stream = sd.InputStream(
+                        device=self.scene_prediction_device,
+                        channels=pred_channels,
+                        samplerate=48000,  # Typical for CABLE Output
+                        blocksize=1024,
+                        callback=self.prediction_audio_callback
+                    )
+                    self.prediction_stream.start()
+                    
+                    # Start prediction processing thread
+                    self.prediction_thread = threading.Thread(target=self.prediction_processing_thread, daemon=True)
+                    self.prediction_thread.start()
+                    
+                    pred_device_name = pred_device_info['name']
+                    if self.prediction_channel_indices:
+                        channels_desc = f"channels {[i+1 for i in self.prediction_channel_indices]} (averaged)"
+                    else:
+                        channels_desc = f"all {pred_channels} channels (averaged)"
+                    logger.info(f"🎵 Scene Prediction: '{pred_device_name}' - using {channels_desc} at 48000Hz")
+                    
+                    # In test mode, main loop only handles predictions
+                    while self.running.is_set():
+                        if self.scene_prediction_enabled:
+                            self.update_scene_prediction()
+                        time.sleep(0.1)
+                else:
+                    logger.error("Test mode requires scene_prediction_enabled and scene_prediction_device")
+                    return
+                    
+            except Exception as e:
+                logger.error(f"Error in test mode: {str(e)}")
+                import traceback
+                traceback.print_exc()
+            finally:
+                # Clean up prediction stream
+                if self.prediction_stream:
+                    try:
+                        self.prediction_stream.stop()
+                        self.prediction_stream.close()
+                        self.prediction_stream = None
+                    except Exception as e:
+                        logger.error(f"Error closing prediction stream: {e}")
+            return
+        
+        # Normal mode: Determine channels for main FFT stream
         # Use 2 channels if average_dual_channels is enabled, otherwise use default
         device_info = sd.query_devices(self.device_idx)
         main_channels = 2 if self.average_dual_channels else self.channels
         
         # Log FFT/reactivity stream configuration
-        import logging
-        logger = logging.getLogger(__name__)
         fft_device_name = device_info['name']
         if self.average_dual_channels:
             logger.info(f"🎚️  FFT/Reactivity: '{fft_device_name}' - averaging channels 1-2 at {self.sample_rate}Hz")
@@ -821,6 +902,10 @@ class Oculizer(threading.Thread):
                     print(f"Error closing prediction stream in finally: {e}")    
 
     def process_audio_and_lights(self):
+        # Skip processing in test mode
+        if self.test_mode:
+            return
+            
         scene_just_changed = False
         if self.scene_changed.is_set():
             self.scene_changed.clear()
@@ -910,6 +995,10 @@ class Oculizer(threading.Thread):
         return None
 
     def turn_off_all_lights(self):
+        # Skip in test mode
+        if self.test_mode or not self.dmx_controller:
+            return
+            
         # Batch all light updates together to send a single DMX packet
         for light_name, light_fixture in self.controller_dict.items():
             # Update channels in DMX buffer without sending
@@ -944,8 +1033,8 @@ class Oculizer(threading.Thread):
             except Exception as e:
                 logger.error(f"Error stopping prediction stream: {e}")
         
-        # Close DMX controller connection
-        if hasattr(self, 'dmx_controller') and self.dmx_controller:
+        # Close DMX controller connection (skip in test mode)
+        if hasattr(self, 'dmx_controller') and self.dmx_controller and not self.test_mode:
             self.dmx_controller.close()
 
 def main():
