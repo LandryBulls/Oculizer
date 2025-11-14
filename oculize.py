@@ -786,8 +786,8 @@ Scene Cache Size:
                       help=f'Lighting profile to use (default: {default_profile})')
     parser.add_argument('-i', '--input-device', type=str, default=default_input_device,
                       help=f'Audio input device for FFT/DMX (default: {default_input_device})')
-    parser.add_argument('--prediction-device', type=str, default=default_prediction_device,
-                      help=f'Device for scene prediction in dual-stream mode (default: {default_prediction_device}). Can be a device name (cable_output, scarlett, etc.) or device index number.')
+    parser.add_argument('--prediction-device', type=str, default=None,
+                      help=f'Device for scene prediction in dual-stream mode (default: {default_prediction_device} if dual-stream, otherwise None). Can be a device name (cable_output, scarlett, etc.) or device index number.')
     parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
                       help=f'Use single audio stream for both FFT and prediction (default: {not default_single_stream})')
     parser.add_argument('--predictor-version', '--predictor', type=str, default='v4',
@@ -865,18 +865,23 @@ if __name__ == "__main__":
             logging.info(f"  Using {args.prediction_device} for predictions")
         else:
             # Determine if dual-stream mode should be used
-            # If user explicitly specifies a prediction device, use dual-stream mode
-            # Otherwise, use the OS default (single-stream on macOS)
+            # If user explicitly specifies --single-stream, respect it
+            # Otherwise, use the OS default
             dual_stream = not args.single_stream
+            
+            # If user explicitly provided a prediction device, enable dual-stream
+            # (unless they explicitly requested single-stream)
+            if args.prediction_device is not None and not args.single_stream:
+                dual_stream = True
+                logging.info(f"Enabling dual-stream mode (prediction device explicitly specified: '{args.prediction_device}')")
         
         # Convert prediction_device to int if it's a numeric string
-        prediction_device = args.prediction_device
-        
-        # Override single-stream default if user explicitly specifies a prediction device
-        # that differs from the input device
-        if not dual_stream and prediction_device and prediction_device != args.input_device:
-            dual_stream = True
-            logging.info(f"Enabling dual-stream mode (prediction device '{prediction_device}' differs from input device '{args.input_device}')")
+        # Apply default prediction device if dual-stream is enabled and no device was specified
+        if dual_stream and args.prediction_device is None:
+            prediction_device = default_prediction_device
+            logging.info(f"Using default prediction device for dual-stream mode: {prediction_device}")
+        else:
+            prediction_device = args.prediction_device
         
         if dual_stream and prediction_device is not None:
             try:

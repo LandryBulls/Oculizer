@@ -1,0 +1,96 @@
+{
+    "name": "red_black_fade",
+    "description": "All four Rockvilles pulsing with random red and black patterns, with fade effect triggered by bass frequencies",
+    "key_command": null,
+    "midi": null,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 1.5,
+                "colors": ["red", "black"],
+                "coverage": 0.6,
+                "combo_mode": "mix",
+                "color_order": "random",
+                "fade_duration": 0.6,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 200,
+                "affect_bar": false,
+                "mode_speed": 255
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864", 
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 1.5,
+                "colors": ["red", "black"],
+                "coverage": 0.6,
+                "combo_mode": "mix",
+                "color_order": "random",
+                "fade_duration": 0.6,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 200,
+                "affect_bar": false,
+                "mode_speed": 255
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 1.5,
+                "colors": ["red", "black"],
+                "coverage": 0.6,
+                "combo_mode": "mix",
+                "color_order": "random",
+                "fade_duration": 0.6,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 200,
+                "affect_bar": false,
+                "mode_speed": 255
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel_mfft_range": [0, 20],
+            "effect": {
+                "name": "rockville_panel_fade",
+                "panel_mfft_range": [0, 20],
+                "panel_threshold": 1.5,
+                "colors": ["red", "black"],
+                "coverage": 0.6,
+                "combo_mode": "mix",
+                "color_order": "random",
+                "fade_duration": 0.6,
+                "wait": false,
+                "min_brightness": 0,
+                "max_brightness": 255,
+                "panel_strobe": 200,
+                "affect_bar": false,
+                "mode_speed": 255
+            }
+        }
+    ]
+}

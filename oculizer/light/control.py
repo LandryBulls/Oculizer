@@ -323,6 +323,29 @@ class Oculizer(threading.Thread):
             self.prediction_audio_queue.put_nowait(mono_data.copy())
         except queue.Full:
             pass  # Drop frame if queue is full to avoid blocking
+        
+        # In test mode, also compute FFT for visualization
+        if self.test_mode:
+            try:
+                mfft_data = np.mean(librosa.feature.melspectrogram(
+                    y=mono_data, 
+                    sr=48000,  # Using prediction stream sample rate
+                    n_fft=1024,  # Using prediction stream block size
+                    hop_length=512
+                ), axis=1)
+                mfft_data = scale_mfft(mfft_data)
+                
+                # Update mfft_queue for visualizer
+                if self.mfft_queue.full():
+                    try:
+                        self.mfft_queue.get_nowait()
+                    except queue.Empty:
+                        pass
+                self.mfft_queue.put(mfft_data)
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error computing FFT in test mode: {e}")
 
     def prediction_processing_thread(self):
         """Separate thread for processing scene predictions (heavy CPU work)."""
