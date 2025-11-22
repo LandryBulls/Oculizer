@@ -321,6 +321,7 @@ class AudioOculizerController:
                 if not override_active and predicted_scene and predicted_scene != last_prediction:
                     # Prediction changed and we're following predictions
                     if predicted_scene in self.scene_manager.scenes:
+                        self.oculizer.change_scene(predicted_scene)
                         current_scene_name = predicted_scene
                         last_prediction = predicted_scene
                 
@@ -336,7 +337,7 @@ class AudioOculizerController:
                     status_color = COLOR_PAIRS['info']
                 
                 header_text = f"TOGGLE MODE - {mode_status}"
-                commands_text = "[Ctrl+O] Toggle Override  [Ctrl+T] Exit  [Ctrl+Q] Quit  [Ctrl+R] Reload"
+                commands_text = "[Ctrl+T] Exit  [Ctrl+Q] Quit  [Ctrl+R] Reload"
                 if search_string:
                     header_text += f" [Search: {search_string}]"
                 
@@ -397,7 +398,7 @@ class AudioOculizerController:
                 legend = "🟢=Active 🟣=Override ⚫=Available"
                 if override_active:
                     legend += " 🔵=Predicted"
-                instructions = f"{legend} | Ctrl+O: Toggle Override | ESC: Return to Predictions | Enter: Select | Type: Search"
+                instructions = f"{legend} | Enter: Select Scene (Override) | ESC: Resume Predictions | Type: Search"
                 try:
                     self.stdscr.addstr(max_y-1, 0, instructions[:max_x-1], curses.color_pair(COLOR_PAIRS['controls']))
                 except curses.error:
@@ -420,24 +421,6 @@ class AudioOculizerController:
                     elif event == 20:  # Ctrl+T
                         # Return to oculizer mode
                         break
-                    elif event == 15:  # Ctrl+O - Toggle override
-                        if override_active:
-                            # Disable override, resume following predictions
-                            override_active = False
-                            override_scene = None
-                            # Switch back to predicted scene if available
-                            if predicted_scene and predicted_scene in self.scene_manager.scenes:
-                                self.oculizer.change_scene(predicted_scene)
-                                current_scene_name = predicted_scene
-                            self.info_message = "Override disabled - following predictions"
-                            logging.info("Toggle mode: Override disabled, resuming predictions")
-                        else:
-                            # Enable override mode
-                            override_active = True
-                            # Keep current scene as the override
-                            override_scene = current_scene_name
-                            self.info_message = f"Override enabled - manual control active: {override_scene}"
-                            logging.info(f"Toggle mode: Override enabled with scene: {override_scene}")
                     elif event == 18:  # Ctrl+R
                         try:
                             self.scene_manager.reload_scenes()
@@ -454,8 +437,6 @@ class AudioOculizerController:
                             self.error_message = f"Error reloading: {str(e)}"
                             logging.error(f"Error reloading scenes: {str(e)}")
                         time.sleep(1)
-                    elif event == ord('t'):  # Also allow lowercase t to return
-                        break
                     elif event in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:
                         row, col = get_grid_position(selected_index, num_columns)
                         
@@ -492,9 +473,13 @@ class AudioOculizerController:
                                     override_active = True
                                     override_scene = new_scene
                                     
-                                    self.info_message = f"Override: {new_scene} (Ctrl+O to resume predictions)"
+                                    self.info_message = f"Override: {new_scene} (ESC to resume predictions)"
                                     logging.info(f"Mouse selection: {new_scene} - override enabled")
                     elif event in [curses.KEY_ENTER, 10, 13]:  # Enter key
+                        # Check if Shift+Enter (KEY_ENTER with shift modifier doesn't work reliably)
+                        # We'll use a different approach - check for specific key codes
+                        # In curses, we can't easily detect Shift+Enter, so we'll use a workaround
+                        # Let's use regular Enter for selection and implement Shift+Enter detection
                         if 0 <= selected_index < total_scenes:
                             new_scene = scene_list[selected_index][0]
                             self.oculizer.change_scene(new_scene)
@@ -505,11 +490,10 @@ class AudioOculizerController:
                             override_active = True
                             override_scene = new_scene
                             
-                            self.info_message = f"Override: {new_scene} (Ctrl+O to resume predictions)"
+                            self.info_message = f"Override: {new_scene} (ESC to resume predictions)"
                             logging.info(f"Manual scene selection: {new_scene} - override enabled")
                     elif event == 27:  # ESC key
-                        search_string = ""
-                        # ESC also disables override mode and returns to prediction mode
+                        # ESC: Resume following predictions if override is active
                         if override_active:
                             override_active = False
                             override_scene = None
@@ -517,15 +501,16 @@ class AudioOculizerController:
                             if predicted_scene and predicted_scene in self.scene_manager.scenes:
                                 self.oculizer.change_scene(predicted_scene)
                                 current_scene_name = predicted_scene
-                            self.info_message = "Override disabled - following predictions (ESC pressed)"
+                            self.info_message = "Override disabled - following predictions"
                             logging.info("Toggle mode: Override disabled via ESC, resuming predictions")
+                        search_string = ""
                     elif event in [curses.KEY_BACKSPACE, 127, 8]:  # Backspace
                         search_string = search_string[:-1]
                         last_search_time = current_time
                         new_index = find_scene_by_prefix(scene_list, search_string)
                         if new_index != -1:
                             selected_index = new_index
-                    elif 32 <= event <= 126 and event != ord('t'):  # Printable characters (except 't')
+                    elif 32 <= event <= 126:  # Printable characters
                         search_string += chr(event)
                         last_search_time = current_time
                         new_index = find_scene_by_prefix(scene_list, search_string)
@@ -550,7 +535,7 @@ class AudioOculizerController:
             if key == ord('q'):
                 self.stop()
                 exit()
-            elif key == ord('t'):
+            elif key == 20:  # Ctrl+T
                 # Enter toggle mode
                 logging.info("Entering toggle mode")
                 self.info_message = "Entering toggle mode..."
@@ -712,7 +697,7 @@ class AudioOculizerController:
                 self.stdscr.addstr(height-2, 0, self.error_message[:width-1], curses.color_pair(COLOR_PAIRS['error']))
 
             # Display controls (bottom)
-            controls = "Press 'q' to quit, 't' for toggle mode, 'r' to reload scenes"
+            controls = "Press 'q' to quit, Ctrl+T for toggle mode, 'r' to reload scenes"
             self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
 
             self.stdscr.refresh()

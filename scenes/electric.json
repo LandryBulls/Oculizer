@@ -101,15 +101,15 @@
                     0,
                     20
                 ],
-                "bar_threshold": 0.1,
+                "bar_threshold": 2.5,
                 "bar_colors": [
                     0,
                     255
                 ],
                 "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255,
-                "bar_min_brightness": 20
+                "bar_sustain": 0.05,
+                "bar_strobe": 200,
+                "bar_min_brightness": 50
             }
         },
         {
@@ -136,15 +136,15 @@
                     0,
                     20
                 ],
-                "bar_threshold": 0.1,
+                "bar_threshold": 2.5,
                 "bar_colors": [
                     0,
                     255
                 ],
                 "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255,
-                "bar_min_brightness": 20
+                "bar_sustain": 0.05,
+                "bar_strobe": 200,
+                "bar_min_brightness": 50
             }
         },
         {
@@ -171,15 +171,15 @@
                     0,
                     20
                 ],
-                "bar_threshold": 0.1,
+                "bar_threshold": 2.5,
                 "bar_colors": [
                     0,
                     255
                 ],
                 "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255,
-                "bar_min_brightness": 20
+                "bar_sustain": 0.05,
+                "bar_strobe": 200,
+                "bar_min_brightness": 50
             }
         },
         {
@@ -206,15 +206,15 @@
                     0,
                     20
                 ],
-                "bar_threshold": 0.1,
+                "bar_threshold": 2.5,
                 "bar_colors": [
                     0,
                     255
                 ],
                 "bar_mode": 0,
-                "bar_sustain": 0.1,
-                "bar_strobe": 255,
-                "bar_min_brightness": 20
+                "bar_sustain": 0.05,
+                "bar_strobe": 200,
+                "bar_min_brightness": 50
             }
         }
     ]

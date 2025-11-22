@@ -5,6 +5,28 @@
     "midi": 53,
     "lights": [
         {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "red",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
+        },
+        {
             "name": "rgb1",
             "type": "rgb",
             "modulator": "mfft",
@@ -13,6 +35,28 @@
             "brightness_range": [0, 255],
             "color": "red",
             "strobe": 0
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "red",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
         },
         {
             "name": "rgb2",
@@ -45,34 +89,26 @@
             "strobe": 0
         },
         {
-            "name": "rgb8",
-            "type": "rgb",
+            "name": "rockville3",
+            "type": "rockville864",
             "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [-1, 0],
-            "brightness_range": [0, 255],
-            "color": "red",
-            "strobe": 0
-        },
-        {
-            "name": "rgb7",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [-1, 0],
-            "brightness_range": [0, 255],
-            "color": "red",
-            "strobe": 0
-        },
-        {
-            "name": "rgb6",
-            "type": "rgb",
-            "modulator": "mfft",
-            "mfft_range": [0, 20],
-            "power_range": [-1, 0],
-            "brightness_range": [0, 255],
-            "color": "red",
-            "strobe": 0
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "red",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
         },
         {
             "name": "rgb5",
@@ -83,14 +119,36 @@
             "brightness_range": [0, 255],
             "color": "red",
             "strobe": 0
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "red",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
         }
     ],
     "orchestrator": {
         "type": "racer",
         "config": {
-            "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb8", "rgb7", "rgb6", "rgb5"],
+            "target_lights": ["rockville1", "rgb1", "rockville2", "rgb2", "rgb3", "rgb4", "rockville3", "rgb5", "rockville4"],
             "frequency": 20,
             "order": "forward"
         }
     }
-} 
+}
