@@ -10,6 +10,7 @@ import logging
 from collections import deque, OrderedDict
 import sounddevice as sd
 import math
+import random
 
 # ASCII art for Oculizer
 OCULIZER_ASCII = """
@@ -43,20 +44,24 @@ SKULL_CLOSED = """
 
 COLOR_PAIRS = {
     'title': (curses.COLOR_WHITE, curses.COLOR_BLACK),
-    'info': (curses.COLOR_CYAN, curses.COLOR_BLACK),
-    'error': (curses.COLOR_RED, curses.COLOR_BLACK),
-    'warning': (curses.COLOR_YELLOW, curses.COLOR_BLACK),
-    'ascii_art': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
-    'log': (curses.COLOR_GREEN, curses.COLOR_BLACK),
-    'controls': (curses.COLOR_MAGENTA, curses.COLOR_BLACK),
-    'skull': (curses.COLOR_GREEN, curses.COLOR_BLACK),
+    'info': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'error': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'warning': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'ascii_art': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'log': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'controls': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'skull': (curses.COLOR_WHITE, curses.COLOR_BLACK),
     # Toggle mode colors
     'toggle_active': (curses.COLOR_WHITE, curses.COLOR_GREEN),  # Active scene (when not overridden)
     'toggle_selected': (curses.COLOR_BLACK, curses.COLOR_YELLOW),  # Selected for navigation
     'toggle_hover': (curses.COLOR_WHITE, curses.COLOR_BLUE),  # Mouse hover
     'toggle_normal': (curses.COLOR_WHITE, curses.COLOR_BLACK),  # Default
-    'toggle_predicted': (curses.COLOR_CYAN, curses.COLOR_BLACK),  # Predicted by AI (not active)
+    'toggle_predicted': (curses.COLOR_WHITE, curses.COLOR_BLACK),  # Predicted by AI (not active)
     'toggle_override': (curses.COLOR_BLACK, curses.COLOR_MAGENTA),  # Manually overridden scene (active)
+    # Glitch static colors
+    'glitch_red': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'glitch_green': (curses.COLOR_WHITE, curses.COLOR_BLACK),
+    'glitch_blue': (curses.COLOR_WHITE, curses.COLOR_BLACK),
 }
 
 def setup_logging():
@@ -163,6 +168,11 @@ class AudioOculizerController:
         self.profile_name = profile
         self.error_message = ""
         self.info_message = ""
+        
+        # Glitch effect variables
+        self.glitch_particles = []
+        self.last_glitch_time = time.time()
+        self.flicker_state = 0
         
         # Set up logging for curses display
         self.log_messages = deque(maxlen=9)
@@ -551,10 +561,72 @@ class AudioOculizerController:
             self.error_message = f"Error handling user input: {str(e)}"
             logging.error(f"Error handling user input: {str(e)}")
 
+    def update_glitch_particles(self, height, width):
+        """Update and generate glitch particles for static effect."""
+        current_time = time.time()
+        
+        # Remove expired particles
+        self.glitch_particles = [p for p in self.glitch_particles if current_time - p['time'] < 0.1]
+        
+        # Spawn new particles (more frequent - 8% chance per frame)
+        if random.random() < 0.08:
+            num_particles = random.randint(2, 5)
+            for _ in range(num_particles):
+                y = random.randint(0, height - 1)
+                x = random.randint(0, width - 1)
+                color = 'title'  # All white static
+                char = random.choice([
+                    '█', '▓', '▒', '░', '◆', '◇', '●', '○', '■', '□',
+                    '▀', '▄', '▌', '▐', '░', '▒', '▓', '█',
+                    '╔', '╗', '╚', '╝', '╠', '╣', '╦', '╩', '╬',
+                    '┌', '┐', '└', '┘', '├', '┤', '┬', '┴', '┼',
+                    '⚡', '⚠', '◢', '◣', '◤', '◥', '⬒', '⬓', '⬔', '⬕',
+                    '⌘', '⌥', '⎋', '⏎', '⏏', '⌫', '⌦',
+                    '☰', '☱', '☲', '☳', '☴', '☵', '☶', '☷',
+                    '⊕', '⊗', '⊙', '⊚', '⊛', '⊜', '⊝',
+                    '⟁', '⟂', '⟐', '⟡', '⟢', '⟣',
+                    '▸', '▹', '►', '▻', '◂', '◃', '◄', '◅',
+                    '※', '‡', '⁂', '⁎', '⁕', '⁜', '⁂',
+                    '◉', '◎', '◐', '◑', '◒', '◓', '◔', '◕',
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                ])
+                self.glitch_particles.append({
+                    'y': y,
+                    'x': x,
+                    'color': color,
+                    'char': char,
+                    'time': current_time
+                })
+    
+    def render_glitch_particles(self):
+        """Render static glitch particles on screen."""
+        for particle in self.glitch_particles:
+            try:
+                self.stdscr.addstr(
+                    particle['y'], 
+                    particle['x'], 
+                    particle['char'], 
+                    curses.color_pair(COLOR_PAIRS[particle['color']]) | curses.A_BOLD
+                )
+            except curses.error:
+                pass  # Ignore errors from drawing at screen edges
+    
+    def get_flicker_attribute(self):
+        """Get brightness flicker attribute (fast frequency)."""
+        # Simple every-other-frame flicker
+        self.flicker_state = (self.flicker_state + 1) % 2
+        
+        # curses.A_DIM is too dark, so we'll just return normal
+        # The flicker effect will be provided by the static glitches instead
+        return curses.A_NORMAL
+
     def update_display(self):
         try:
             self.stdscr.clear()
             height, width = self.stdscr.getmaxyx()
+            
+            # Update glitch particles
+            self.update_glitch_particles(height, width)
 
             # Display title
             title = "https://github.com/LandryBulls/Oculizer"
@@ -699,6 +771,9 @@ class AudioOculizerController:
             # Display controls (bottom)
             controls = "Press 'q' to quit, Ctrl+T for toggle mode, 'r' to reload scenes"
             self.stdscr.addstr(height-1, 0, controls[:width-1], curses.color_pair(COLOR_PAIRS['controls']))
+
+            # Render glitch particles on top of everything
+            self.render_glitch_particles()
 
             self.stdscr.refresh()
         except Exception as e:
