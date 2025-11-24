@@ -174,6 +174,14 @@ class AudioOculizerController:
         self.last_glitch_time = time.time()
         self.flicker_state = 0
         
+        # Scanline effect variables
+        self.scanline_position = 0
+        self.scanline_speed = 2.0  # Lines per frame
+        
+        # Toggle mode state
+        self.in_toggle_mode = False
+        self.toggle_override_active = False
+        
         # Set up logging for curses display
         self.log_messages = deque(maxlen=9)
         self.log_handler = self.LogHandler(self.log_messages)
@@ -243,6 +251,11 @@ class AudioOculizerController:
         
         while True:
             try:
+                # Skip automatic scene changes if in toggle mode with override active
+                if self.in_toggle_mode and self.toggle_override_active:
+                    time.sleep(0.1)
+                    continue
+                
                 # Get current scene from oculizer's integrated prediction
                 current_scene = self.oculizer.current_predicted_scene
                 
@@ -296,6 +309,9 @@ class AudioOculizerController:
         - Press Ctrl+O to override with manual selection (MAGENTA when active)
         - Press Ctrl+O again to resume following predictions
         """
+        # Set flag to indicate we're in toggle mode
+        self.in_toggle_mode = True
+        
         # Sort scenes alphabetically
         original_scenes = self.scene_manager.scenes.copy()
         self.scene_manager.scenes = sort_scenes_alphabetically(self.scene_manager.scenes)
@@ -323,6 +339,9 @@ class AudioOculizerController:
                 max_y, max_x = self.stdscr.getmaxyx()
                 scene_list = list(self.scene_manager.scenes.items())
                 total_scenes = len(scene_list)
+                
+                # Sync override state with class-level flag
+                self.toggle_override_active = override_active
                 
                 # Get current prediction
                 predicted_scene = self.oculizer.current_predicted_scene
@@ -538,6 +557,10 @@ class AudioOculizerController:
             curses.mousemask(0)
             # Restore original scene order if needed
             # self.scene_manager.scenes = original_scenes
+            
+            # Reset toggle mode flags
+            self.in_toggle_mode = False
+            self.toggle_override_active = False
 
     def handle_user_input(self):
         try:
@@ -610,6 +633,22 @@ class AudioOculizerController:
                 )
             except curses.error:
                 pass  # Ignore errors from drawing at screen edges
+    
+    def render_scanline(self, height, width):
+        """Render a CRT-style scanline that sweeps down the screen."""
+        # Update scanline position
+        self.scanline_position += self.scanline_speed
+        if self.scanline_position >= height:
+            self.scanline_position = 0
+        
+        # Render the scanline (a bright horizontal line)
+        scanline_y = int(self.scanline_position)
+        try:
+            # Draw a line of underscores or dashes across the screen
+            scanline_char = '─' * (width - 1)
+            self.stdscr.addstr(scanline_y, 0, scanline_char, curses.color_pair(COLOR_PAIRS['title']) | curses.A_DIM)
+        except curses.error:
+            pass  # Ignore errors at screen edges
     
     def get_flicker_attribute(self):
         """Get brightness flicker attribute (fast frequency)."""

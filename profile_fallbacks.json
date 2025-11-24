@@ -33,5 +33,31 @@
     "disco": "brainblaster",
     "temple": "red_echo",
     "sexy": "red_bass_pulse"
+  },
+  "etna": {
+    "bass_hopper": "rainbow",
+    "bass_hopper_blue": "blue_bass_pulse",
+    "bass_hopper_green": "green_bass_pulse",
+    "bass_hopper_orange": "orange_bass_pulse",
+    "bass_hopper_pink": "pink_bass_pulse",
+    "bass_hopper_rainbow": "rainbow",
+    "bass_hopper_white": "white_bass_pulse",
+    "blue_speedracer": "blue_bass_pulse",
+    "green_speedracer": "green_bass_pulse",
+    "pink_speedracer": "pink_bass_pulse",
+    "red_speedracer": "red_bass_pulse",
+    "white_speedracer": "white_bass_pulse",
+    "discobrain": "disco",
+    "discolaser": "disco",
+    "laser_strobe": "strobe",
+    "lasers": "disco",
+    "orb_cycle": "rainbow",
+    "orb_racer": "rainbow",
+    "orb_sine": "rainbow",
+    "lamp": "chill_white",
+    "off": "chill_white",
+    "snap": "RGB",
+    "bulb_flicker": "halogen_flicker",
+    "vintage": "chill_halogen"
   }
 }
