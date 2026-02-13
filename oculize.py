@@ -836,13 +836,13 @@ def parse_args():
     # Detect OS and set defaults
     is_macos = platform.system() == 'Darwin'
     
-    # macOS defaults (optimized for Mac setup with Scarlett + BlackHole)
+    # macOS defaults (optimized for Mac setup with Scarlett)
     if is_macos:
         default_input_device = 'scarlett'
-        default_prediction_device = 'blackhole'
-        default_single_stream = False  # Use dual-stream on Mac
+        default_prediction_device = 'scarlett'
+        default_single_stream = True  # Use single-stream on Mac (both FFT and prediction from scarlett ch1)
         default_scene_cache_size = 1  # Instant response
-        default_prediction_channels = '1'  # BlackHole channel 1
+        default_prediction_channels = '1'  # Scarlett channel 1
         default_profile = 'mobile'  # Mobile profile for Mac
     else:
         # Windows/Linux defaults
@@ -857,13 +857,13 @@ def parse_args():
         description='Real-time audio-based Oculizer controller with dual-stream support',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Dual-stream mode (default):
-  - FFT stream: Scarlett 2i2 interface loopback (delayed through Ableton) for DMX modulation
-  - Prediction stream: VB Cable Output (real-time, auto-detected by name) for scene prediction
+Single-stream mode (default on macOS):
+  - Uses Scarlett channel 1 for both FFT reactivity and scene prediction
   - Predictor: vday (default)
   
-Single-stream mode (--single-stream):
-  - Uses the same audio source for both FFT and scene prediction
+Dual-stream mode (--prediction-device):
+  - FFT stream: Scarlett interface for DMX modulation
+  - Prediction stream: Separate device (e.g., BlackHole, VB Cable) for scene prediction
 
 Dual-channel averaging (--average-dual-channels):
   - Averages first two input channels of your audio interface (useful for Scarlett 18i20)
