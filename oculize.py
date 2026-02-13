@@ -129,7 +129,7 @@ def get_index_from_position(row, col, num_columns, total_scenes):
 
 class AudioOculizerController:
     def __init__(self, stdscr, profile='garage', input_device='scarlett', 
-                 dual_stream=True, prediction_device=None, predictor_version='v1',
+                 dual_stream=True, prediction_device=None, predictor_version='vday',
                  average_dual_channels=False, scene_cache_size=25, prediction_channels=None,
                  test_mode=False):
         self.stdscr = stdscr
@@ -860,7 +860,7 @@ def parse_args():
 Dual-stream mode (default):
   - FFT stream: Scarlett 2i2 interface loopback (delayed through Ableton) for DMX modulation
   - Prediction stream: VB Cable Output (real-time, auto-detected by name) for scene prediction
-  - Predictor: v4 (default)
+  - Predictor: vday (default)
   
 Single-stream mode (--single-stream):
   - Uses the same audio source for both FFT and scene prediction
@@ -889,9 +889,9 @@ Scene Cache Size:
                       help=f'Device for scene prediction in dual-stream mode (default: {default_prediction_device} if dual-stream, otherwise None). Can be a device name (cable_output, scarlett, etc.) or device index number.')
     parser.add_argument('--single-stream', action='store_true', default=default_single_stream,
                       help=f'Use single audio stream for both FFT and prediction (default: {not default_single_stream})')
-    parser.add_argument('--predictor-version', '--predictor', type=str, default='v4',
-                      choices=['v1', 'v3', 'v4', 'v5'],
-                      help='Scene predictor version to use (default: v4)')
+    parser.add_argument('--predictor-version', '--predictor', type=str, default='vday',
+                      choices=['v1', 'v3', 'v4', 'v5', 'vday'],
+                      help='Scene predictor version to use (default: vday)')
     parser.add_argument('--average-dual-channels', action='store_true',
                       help='Average first two input channels together for FFT (useful for Scarlett 18i20)')
     parser.add_argument('--scene-cache-size', type=int, default=default_scene_cache_size,

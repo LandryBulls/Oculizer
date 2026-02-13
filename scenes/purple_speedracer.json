@@ -1,0 +1,154 @@
+{
+    "name": "purple_speedracer",
+    "description": "Racing purple",
+    "key_command": "u",
+    "midi": 55,
+    "lights": [
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
+        },
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "modulator": "mfft",
+            "mfft_range": [0, 20],
+            "power_range": [-1, 0],
+            "brightness_range": [0, 255],
+            "color": "purple",
+            "strobe": 0
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "modulator": "mfft",
+            "panel": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "brightness_range": [0, 255],
+                "color": "purple",
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            },
+            "bar": {
+                "mfft_range": [0, 20],
+                "power_range": [-1, 0],
+                "threshold": 0,
+                "mode": 0,
+                "mode_speed": 255,
+                "strobe": 0
+            }
+        }
+    ],
+    "orchestrator": {
+        "type": "racer",
+        "config": {
+            "target_lights": ["rockville1", "rgb1", "rockville2", "rgb2", "rgb3", "rgb4", "rockville3", "rgb5", "rockville4"],
+            "frequency": 20,
+            "order": "forward"
+        }
+    }
+}
