@@ -17,6 +17,7 @@ from oculizer.scenes import SceneManager
 from oculizer.light.mapping import process_light, scale_mfft
 from oculizer.config import audio_parameters
 from oculizer.utils import load_json
+from oculizer.audio import AdaptiveNormalizer
 import threading
 import queue
 import time
@@ -38,7 +39,7 @@ class Oculizer(threading.Thread):
     def __init__(self, profile_name, scene_manager, input_device='cable', 
                  scene_prediction_enabled=False, scene_prediction_device=None, predictor_version='v1',
                  average_dual_channels=False, scene_cache_size=25, prediction_channels=None,
-                 test_mode=False):
+                 test_mode=False, adaptive_gain=True):
         threading.Thread.__init__(self)
         self.profile_name = profile_name
         self.input_device = input_device.lower()
@@ -95,6 +96,11 @@ class Oculizer(threading.Thread):
         self.last_audio_rms = None
         self.audio_underrun_count = 0
         self.max_queue_depth_seen = 0  # Track maximum queue buildup
+
+        # Adaptive gain normalizer — compensates for differing source levels
+        # (e.g. BlackHole has no hardware gain knob unlike the Scarlett 2i2).
+        self.adaptive_gain_enabled = adaptive_gain
+        self.normalizer = AdaptiveNormalizer() if adaptive_gain else None
         
         if scene_prediction_enabled:
             self._init_scene_prediction()
@@ -740,6 +746,9 @@ class Oculizer(threading.Thread):
         
         mfft_data = np.mean(librosa.feature.melspectrogram(y=audio_data, sr=self.sample_rate, n_fft=self.block_size, hop_length=self.hop_length), axis=1)
         mfft_data = scale_mfft(mfft_data)
+
+        if self.normalizer is not None:
+            mfft_data = self.normalizer.process(mfft_data)
         
         if self.mfft_queue.full():
             try:

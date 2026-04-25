@@ -793,6 +793,15 @@ class AudioOculizerController:
                 cluster_info = f"Cluster: {self.oculizer.current_cluster}"
                 self.stdscr.addstr(pred_row + 2, 0, cluster_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
 
+            # Display adaptive gain normalizer status
+            if self.oculizer.normalizer is not None:
+                n = self.oculizer.normalizer
+                if n.ema_rms is not None:
+                    norm_info = f"AGC: gain={n.current_gain:.2f}x  lvl={n.ema_rms:.4f}"
+                else:
+                    norm_info = "AGC: initialising..."
+                self.stdscr.addstr(pred_row + 3, 0, norm_info[:width-1], curses.color_pair(COLOR_PAIRS['info']))
+
             # Display log messages (bottom)
             log_start = height - len(self.log_messages) - 4
             self.stdscr.addstr(log_start, 0, "Log Messages:", curses.color_pair(COLOR_PAIRS['log']) | curses.A_BOLD)
@@ -843,7 +852,7 @@ def parse_args():
         default_single_stream = True  # Use single-stream on Mac (both FFT and prediction from scarlett ch1)
         default_scene_cache_size = 1  # Instant response
         default_prediction_channels = '1'  # Scarlett channel 1
-        default_profile = 'mobile'  # Mobile profile for Mac
+        default_profile = 'rgb6'  # rgb6 profile 
     else:
         # Windows/Linux defaults
         default_input_device = 'scarlett'

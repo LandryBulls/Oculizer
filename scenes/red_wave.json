@@ -1,6 +1,6 @@
 {
-  "name": "pink_wave",
-  "description": "All pink RGBs with a slow sine wave pattern",
+  "name": "red_wave",
+  "description": "All red RGBs with a slow sine wave pattern",
   "type": "effect",
   "lights": [
     {
@@ -9,9 +9,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -20,9 +20,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -31,9 +31,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -42,9 +42,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -53,9 +53,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -64,9 +64,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -75,9 +75,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -86,9 +86,9 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 5,
-      "max_brightness": 100,
-      "color": "pink",
+      "min_brightness": 25,
+      "max_brightness": 175,
+      "color": "red",
       "strobe": 0
     },
     {
@@ -100,7 +100,7 @@
       "panel": {
         "target": "brightness",
         "mode": 0,
-        "color": "pink",
+        "color": "red",
         "strobe": 0,
         "mode_speed": 255
       },
@@ -117,7 +117,7 @@
       "panel": {
         "target": "brightness",
         "mode": 0,
-        "color": "pink",
+        "color": "red",
         "strobe": 0,
         "mode_speed": 255
       },
@@ -134,7 +134,7 @@
       "panel": {
         "target": "brightness",
         "mode": 0,
-        "color": "pink",
+        "color": "red",
         "strobe": 0,
         "mode_speed": 255
       },
@@ -151,7 +151,7 @@
       "panel": {
         "target": "brightness",
         "mode": 0,
-        "color": "pink",
+        "color": "red",
         "strobe": 0,
         "mode_speed": 255
       },

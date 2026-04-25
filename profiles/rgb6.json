@@ -1,6 +1,6 @@
 {
-    "name": "rgb5",
-    "description": "5 6-channel RGBs in sequence",
+    "name": "rgb6",
+    "description": "6 6-channel RGBs in sequence",
     "lights": [
         {
             "name": "rgb1",
@@ -26,6 +26,11 @@
             "name": "rgb5",
             "type": "rgb",
             "n_channels": 6
-        }
+        },
+	{
+	    "name": "rgb6",
+	    "type": "rgb",
+	    "n_channels": 6
+	}
     ]
 }
