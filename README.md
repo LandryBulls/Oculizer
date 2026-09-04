@@ -36,7 +36,7 @@ Oculizer is an advanced DMX lighting automation system that creates real-time, m
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.8+ (Python 3.8-3.11 recommended for EfficientAT-based scene prediction)
 - USB to DMX adapter (compatible with OpenDMX)
 - DMX-controlled lights
 - Virtual audio cable (VB-Audio Virtual Cable for Windows, BlackHole for macOS)
@@ -60,6 +60,8 @@ cd oculizer
 # Install required packages
 pip install -r requirements.txt
 ```
+
+> Note: `efficientat` is installed directly from https://github.com/LandryBulls/EfficientAT during dependency installation (for Python < 3.12), so `git` must be available in your environment.
 
 ## Configuration Steps
 
