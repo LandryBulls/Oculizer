@@ -19,7 +19,7 @@ setup(
         'scikit-learn>=1.0.0',
         'joblib>=1.1.0',
         'torch>=1.13.0',
-        'efficientat>=0.0.1',
+        'efficientat @ git+https://github.com/LandryBulls/EfficientAT.git ; python_version < "3.12"',
         
         # Lighting control
         'pyserial>=3.5',
