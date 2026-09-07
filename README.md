@@ -234,6 +234,18 @@ Oculizer uses a machine learning pipeline to predict appropriate lighting scenes
 
 The scene prediction system leverages **EfficientAT** neural network embeddings combined with spectral audio features (MFCCs, spectral centroid, RMS energy, etc.) to understand both the semantic content and acoustic properties of music. This allows Oculizer to intelligently match musical moments to appropriate lighting scenes.
 
+## Documentation
+
+Additional guides live in [`docs/`](docs/):
+
+- [Quick Reference](docs/QUICK_REFERENCE.md) - key bindings and command cheat sheet
+- [Scene Fallbacks](docs/SCENE_FALLBACKS.md) - profile-aware fallbacks when a predicted scene needs fixtures your profile lacks
+- [Mode Switching Guide](docs/MODE_SWITCHING_GUIDE.md) - moving between automatic and manual control
+- [Prediction Override Mode](docs/PREDICTION_OVERRIDE_MODE.md) - holding a manual scene against live predictions
+- [Test Mode](docs/TEST_MODE_README.md) - running without DMX hardware or FFT
+- [Light Control Reference](docs/INFO.md) - modulators and scene mapping options
+- [Orchestrators](docs/orchestrators.md)
+
 ## Development Status
 
 This project is actively being developed. Known areas needing attention:
