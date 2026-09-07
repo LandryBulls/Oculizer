@@ -290,6 +290,8 @@ This project relies heavily on **[EfficientAT](https://github.com/fschmid56/Effi
 
 From the LIT AI Lab and Institute of Computational Perception at Johannes Kepler University Linz, Austria.
 
+This project uses my [fork of EfficientAT](https://github.com/LandryBulls/EfficientAT), which includes a few modifications to support real-time audio scene prediction and DMX control. The original EfficientAT model is trained on AudioSet and provides high-quality audio embeddings that capture semantic content of music. 
+
 **Citation:**
 ```
 @inproceedings{Schmid2023efficient,
@@ -308,7 +310,3 @@ EfficientAT provides the foundational audio understanding capabilities that make
 - [librosa](https://librosa.org/) for audio feature extraction
 - [sounddevice](https://python-sounddevice.readthedocs.io/) for real-time audio capture
 - [scikit-learn](https://scikit-learn.org/) for machine learning components (PCA, k-means clustering)
-
-## Disclaimer
-
-This project involves controlling lighting equipment and should be used with appropriate caution. Always follow proper safety guidelines when working with DMX equipment.
