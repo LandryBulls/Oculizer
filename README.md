@@ -253,7 +253,19 @@ Feel free to submit issues and pull requests. The project is in active developme
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+Oculizer is licensed under the **GNU General Public License v3.0** - see
+[LICENSE](LICENSE) for the full text.
+
+You are free to use, study, modify, and redistribute Oculizer, including
+commercially. In exchange, any distributed derivative work must also be
+released under the GPL-3.0 with its complete source code. Improvements made
+downstream stay available to everyone.
+
+Note that Oculizer builds on [PyDMXControl](https://github.com/MattIPv4/PyDMXControl),
+which is itself GPL-3.0; a permissive license is not available for this
+project while that dependency is in use.
+
+Copyright (C) 2026 Landry Bulls.
 
 ## Acknowledgments
 
