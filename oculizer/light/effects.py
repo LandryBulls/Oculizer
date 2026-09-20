@@ -557,21 +557,22 @@ def rockville_splatter(channels: List[int], mfft_data: np.ndarray, config: dict,
     panel_mfft_range = config.get('panel_mfft_range', (0, len(mfft_data)))
     panel_power = np.mean(mfft_data[panel_mfft_range[0]:panel_mfft_range[1]])
     panel_threshold = config.get('panel_threshold', 0.5)
-    if config.get('affect_panel', True):    
+    if config.get('affect_panel', True):
         if panel_power >= panel_threshold:
+            panel_max_brightness = config.get('max_brightness', 255)
             # Generate independent random states for each block
             block_states = []
             for _ in range(8):
                 is_active = random.random() < 0.5
                 color = random.choice(PANEL_COLORS)
                 block_states.append((is_active, color))
-            
-            # Apply the states to channels
+
+            # Apply the states to channels, scaled to the configured panel brightness cap
             for block, (is_active, color) in zip(blocks, block_states):
                 r_idx, g_idx, b_idx = block['channels']
-                channels[r_idx] = color[0]
-                channels[g_idx] = color[1]
-                channels[b_idx] = color[2]
+                channels[r_idx] = int(color[0] * panel_max_brightness / 255)
+                channels[g_idx] = int(color[1] * panel_max_brightness / 255)
+                channels[b_idx] = int(color[2] * panel_max_brightness / 255)
 
     # Handle bar section
     if config.get('affect_bar', True):
@@ -822,7 +823,70 @@ def rockville_panel_sustain(channels: List[int], mfft_data: np.ndarray, config: 
         # If bar is not affected, ensure all bar channels are off
         for i in range(28, 39):
             channels[i] = 0
-    
+
+    return channels
+
+def peak_decay(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
+    """Peak-hold / decay envelope for rgb, dimmer, and rockville864 panel lights.
+
+    Standard VU-meter envelope: each frame's audio power is mapped to a target
+    brightness. Whenever that target is above the currently displayed
+    brightness, the display snaps up to it instantly (fast attack, so any
+    transient louder than what's currently showing pops immediately).
+    Otherwise brightness eases down toward min_brightness at decay_rate
+    units/sec (slow release). Comparing against the *displayed* level (not
+    the raw previous frame) is what makes this reactive to real beats
+    instead of getting stuck near the floor from frame-to-frame audio jitter."""
+    state = registry.get_state(light_name, 'peak_decay')
+    current_time = time.time()
+    cs = state.custom_state
+
+    mfft_range = config.get('mfft_range', (0, len(mfft_data)))
+    power = float(np.mean(mfft_data[mfft_range[0]:mfft_range[1]]))
+
+    min_brightness = config.get('min_brightness', 10)
+    max_brightness = config.get('max_brightness', 255)
+    power_low, power_high = config.get('power_range', (0, 1))
+    decay_rate = config.get('decay_rate', 60)  # brightness units per second
+
+    brightness = cs.get('brightness', min_brightness)
+    last_time = cs.get('last_time', current_time)
+    dt = max(0.0, current_time - last_time)
+
+    if power <= power_low:
+        target = min_brightness
+    elif power >= power_high:
+        target = max_brightness
+    else:
+        target = min_brightness + (power - power_low) / (power_high - power_low) * (max_brightness - min_brightness)
+
+    if target > brightness:
+        brightness = target
+    else:
+        brightness = max(min_brightness, brightness - decay_rate * dt)
+
+    cs['brightness'] = brightness
+    cs['last_time'] = current_time
+    brightness_int = int(brightness)
+
+    color = COLORS.get(config.get('color', 'white'), COLORS['white'])
+    scaled_color = [int(c * brightness_int / 255) for c in color]
+
+    if len(channels) == 39:
+        # rockville864: drive the panel directly in manual RGB mode (mode 0)
+        channels = [0] * 39
+        channels[0] = 255  # master dimmer
+        channels[1] = config.get('panel_strobe', 0)
+        channels[2] = 0  # manual mode
+        channels[3] = config.get('mode_speed', 255)
+        for i in range(8):
+            base_idx = 4 + (i * 3)
+            channels[base_idx:base_idx + 3] = scaled_color
+    else:
+        # rgb / dimmer: [brightness, R, G, B, strobe, 0]
+        strobe = config.get('strobe', 0)
+        channels = [brightness_int, *scaled_color, strobe, 0]
+
     return channels
 
 # Dictionary mapping effect names to their functions
@@ -830,7 +894,8 @@ EFFECTS = {
     'rockville_panel_fade': rockville_panel_fade,
     'rockville_sequential_panels': rockville_sequential_panels,
     'rockville_splatter': rockville_splatter,
-    'rockville_panel_sustain': rockville_panel_sustain
+    'rockville_panel_sustain': rockville_panel_sustain,
+    'peak_decay': peak_decay
 }
 
 def apply_effect(effect_name: str, channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:

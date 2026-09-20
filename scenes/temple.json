@@ -189,10 +189,11 @@
                     0,
                     255
                 ],
-                "affect_panel": false,
+                "affect_panel": true,
                 "affect_bar": true,
                 "bar_mode": 0,
-                "bar_min_brightness": 20
+                "bar_min_brightness": 20,
+                "max_brightness": 85
             }
         },
         {
@@ -228,10 +229,11 @@
                     0,
                     255
                 ],
-                "affect_panel": false,
+                "affect_panel": true,
                 "affect_bar": true,
                 "bar_mode": 0,
-                "bar_min_brightness": 20
+                "bar_min_brightness": 20,
+                "max_brightness": 85
             }
         },
         {
@@ -267,10 +269,11 @@
                     0,
                     255
                 ],
-                "affect_panel": false,
+                "affect_panel": true,
                 "affect_bar": true,
                 "bar_mode": 0,
-                "bar_min_brightness": 20
+                "bar_min_brightness": 20,
+                "max_brightness": 85
             }
         },
         {
@@ -306,10 +309,11 @@
                     0,
                     255
                 ],
-                "affect_panel": false,
+                "affect_panel": true,
                 "affect_bar": true,
                 "bar_mode": 0,
-                "bar_min_brightness": 20
+                "bar_min_brightness": 20,
+                "max_brightness": 85
             }
         }
     ]

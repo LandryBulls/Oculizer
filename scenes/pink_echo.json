@@ -94,80 +94,80 @@
       "strobe": 255
     },
     {
-        "name": "rockville1",
-        "type": "rockville864", 
-        "modulator": "time",
-        "frequency": 1.0,
-        "function": "square",
-        "min_brightness": 0,
-        "max_brightness": 255,
-        "panel": {
-            "target": "brightness",
-            "mode": 0,
-            "color": "pink",
-            "strobe": 200,
-            "mode_speed": 255
-        },
-        "bar": {
-            "affect_bar": false
-        }
+      "name": "rockville1",
+      "type": "rockville864",
+      "modulator": "time",
+      "frequency": 1.0,
+      "function": "square",
+      "min_brightness": 0,
+      "max_brightness": 85,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "pink",
+        "strobe": 200,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
     },
     {
-        "name": "rockville2",
-        "type": "rockville864", 
-        "modulator": "time",
-        "frequency": 1.1,
-        "function": "square",
-        "min_brightness": 0,
-        "max_brightness": 255,
-        "panel": {
-            "target": "brightness",
-            "mode": 0,
-            "color": "pink",
-            "strobe": 200,
-            "mode_speed": 255
-        },
-        "bar": {
-            "affect_bar": false
-        }
+      "name": "rockville2",
+      "type": "rockville864",
+      "modulator": "time",
+      "frequency": 1.1,
+      "function": "square",
+      "min_brightness": 0,
+      "max_brightness": 85,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "pink",
+        "strobe": 200,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
     },
     {
-        "name": "rockville3",
-        "type": "rockville864", 
-        "modulator": "time",
-        "frequency": 1.2,
-        "function": "square",
-        "min_brightness": 0,
-        "max_brightness": 255,
-        "panel": {
-            "target": "brightness",
-            "mode": 0,
-            "color": "pink",
-            "strobe": 200,
-            "mode_speed": 255
-        },
-        "bar": {
-            "affect_bar": false
-        }
+      "name": "rockville3",
+      "type": "rockville864",
+      "modulator": "time",
+      "frequency": 1.2,
+      "function": "square",
+      "min_brightness": 0,
+      "max_brightness": 85,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "pink",
+        "strobe": 200,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
     },
     {
-        "name": "rockville4",
-        "type": "rockville864", 
-        "modulator": "time",
-        "frequency": 1.3,
-        "function": "square",
-        "min_brightness": 0,
-        "max_brightness": 255,
-        "panel": {
-            "target": "brightness",
-            "mode": 0,
-            "color": "pink",
-            "strobe": 200,
-            "mode_speed": 255
-        },
-        "bar": {
-            "affect_bar": false
-        }
+      "name": "rockville4",
+      "type": "rockville864",
+      "modulator": "time",
+      "frequency": 1.3,
+      "function": "square",
+      "min_brightness": 0,
+      "max_brightness": 85,
+      "panel": {
+        "target": "brightness",
+        "mode": 0,
+        "color": "pink",
+        "strobe": 200,
+        "mode_speed": 255
+      },
+      "bar": {
+        "affect_bar": false
+      }
     }
   ]
 }

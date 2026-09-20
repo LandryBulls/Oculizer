@@ -95,12 +95,12 @@
         },
         {
             "name": "rockville1",
-            "type": "rockville864", 
+            "type": "rockville864",
             "modulator": "time",
             "frequency": 1.0,
             "function": "square",
             "min_brightness": 0,
-            "max_brightness": 255,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -114,12 +114,12 @@
         },
         {
             "name": "rockville2",
-            "type": "rockville864", 
+            "type": "rockville864",
             "modulator": "time",
             "frequency": 1.1,
             "function": "square",
             "min_brightness": 0,
-            "max_brightness": 255,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -133,12 +133,12 @@
         },
         {
             "name": "rockville3",
-            "type": "rockville864", 
+            "type": "rockville864",
             "modulator": "time",
             "frequency": 1.2,
             "function": "square",
             "min_brightness": 0,
-            "max_brightness": 255,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -152,12 +152,12 @@
         },
         {
             "name": "rockville4",
-            "type": "rockville864", 
+            "type": "rockville864",
             "modulator": "time",
             "frequency": 1.3,
             "function": "square",
             "min_brightness": 0,
-            "max_brightness": 255,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,

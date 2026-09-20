@@ -96,7 +96,7 @@
                 "strobe": 0,
                 "brightness": "random",
                 "min_brightness": 20,
-                "max_brightness": 100
+                "max_brightness": 85
             },
             "bar": {
                 "affect_bar": false
@@ -113,7 +113,7 @@
                 "strobe": 0,
                 "brightness": "random",
                 "min_brightness": 20,
-                "max_brightness": 100
+                "max_brightness": 85
             },
             "bar": {
                 "affect_bar": false
@@ -130,7 +130,7 @@
                 "strobe": 0,
                 "brightness": "random",
                 "min_brightness": 20,
-                "max_brightness": 100
+                "max_brightness": 85
             },
             "bar": {
                 "affect_bar": false
@@ -147,7 +147,7 @@
                 "strobe": 0,
                 "brightness": "random",
                 "min_brightness": 20,
-                "max_brightness": 100
+                "max_brightness": 85
             },
             "bar": {
                 "affect_bar": false

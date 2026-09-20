@@ -18,7 +18,7 @@ def parse_args():
     # macOS defaults (match oculize.py defaults)
     if is_macos:
         default_input = 'scarlett'
-        default_profile = 'mobile'
+        default_profile = 't1'
     else:
         # Windows/Linux defaults
         default_input = 'scarlett'

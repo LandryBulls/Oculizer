@@ -8,9 +8,18 @@
             "name": "rgb1",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -18,9 +27,18 @@
             "name": "rgb2",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -28,9 +46,18 @@
             "name": "rgb3",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -38,9 +65,18 @@
             "name": "rgb4",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -48,9 +84,18 @@
             "name": "rgb5",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -58,9 +103,18 @@
             "name": "rgb6",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -68,9 +122,18 @@
             "name": "rgb7",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -78,9 +141,18 @@
             "name": "rgb8",
             "type": "rgb",
             "modulator": "mfft",
-            "mfft_range": [1, 20],
-            "power_range": [0.5, 4],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                20
+            ],
+            "power_range": [
+                0.5,
+                4
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "color": "green",
             "strobe": 255
         },
@@ -90,9 +162,18 @@
             "modulator": "mfft",
             "panel": {
                 "affect_panel": true,
-                "mfft_range": [1, 20],
-                "power_range": [0.5, 4],
-                "brightness_range": [0, 255],
+                "mfft_range": [
+                    1,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    4
+                ],
+                "brightness_range": [
+                    0,
+                    85
+                ],
                 "color": "green",
                 "panel_threshold": -1,
                 "strobe": 200,
@@ -109,9 +190,18 @@
             "modulator": "mfft",
             "panel": {
                 "affect_panel": true,
-                "mfft_range": [1, 20],
-                "power_range": [0.5, 4],
-                "brightness_range": [0, 255],
+                "mfft_range": [
+                    1,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    4
+                ],
+                "brightness_range": [
+                    0,
+                    85
+                ],
                 "color": "green",
                 "panel_threshold": -1,
                 "strobe": 200,
@@ -128,9 +218,18 @@
             "modulator": "mfft",
             "panel": {
                 "affect_panel": true,
-                "mfft_range": [1, 20],
-                "power_range": [0.5, 4],
-                "brightness_range": [0, 255],
+                "mfft_range": [
+                    1,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    4
+                ],
+                "brightness_range": [
+                    0,
+                    85
+                ],
                 "color": "green",
                 "panel_threshold": -1,
                 "strobe": 200,
@@ -147,9 +246,18 @@
             "modulator": "mfft",
             "panel": {
                 "affect_panel": true,
-                "mfft_range": [1, 20],
-                "power_range": [0.5, 4],
-                "brightness_range": [0, 255],
+                "mfft_range": [
+                    1,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    4
+                ],
+                "brightness_range": [
+                    0,
+                    85
+                ],
                 "color": "green",
                 "panel_threshold": -1,
                 "strobe": 200,

@@ -847,12 +847,12 @@ def parse_args():
     
     # macOS defaults (optimized for Mac setup with Scarlett)
     if is_macos:
-        default_input_device = 'blackhole'
-        default_prediction_device = 'blackhole'
+        default_input_device = 'scarlett'
+        default_prediction_device = 'scarlett'
         default_single_stream = True
         default_scene_cache_size = 1  # Instant response
         default_prediction_channels = '1'
-        default_profile = 'rockville'
+        default_profile = 't1'
     else:
         # Windows/Linux defaults
         default_input_device = 'scarlett'

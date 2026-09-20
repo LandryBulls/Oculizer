@@ -19,8 +19,14 @@
             "name": "strobe",
             "type": "strobe",
             "modulator": "mfft",
-            "mfft_range": [90, 110],
-            "power_range": [0.1, 1.0],
+            "mfft_range": [
+                90,
+                110
+            ],
+            "power_range": [
+                0.1,
+                1.0
+            ],
             "brightness": 200,
             "speed": 180
         },
@@ -29,9 +35,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "blue",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -39,9 +54,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "purple",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -49,9 +73,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "pink",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -59,9 +92,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "blue",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -69,9 +111,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "purple",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -79,9 +130,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "pink",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -89,9 +149,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "purple",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
@@ -99,16 +168,28 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "blue",
-            "mfft_range": [1, 15],
-            "power_range": [0.5, 3.5],
-            "brightness_range": [0, 255],
+            "mfft_range": [
+                1,
+                15
+            ],
+            "power_range": [
+                0.5,
+                3.5
+            ],
+            "brightness_range": [
+                0,
+                255
+            ],
             "strobe": 0
         },
         {
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [15, 40],
+            "panel_mfft_range": [
+                15,
+                40
+            ],
             "effect": {
                 "name": "rockville_panel_fade",
                 "time_modulation": {
@@ -117,20 +198,36 @@
                     "min_brightness": 50,
                     "max_brightness": 255
                 },
-                "colors": ["blue", "purple", "pink", "blue", "purple", "pink"],
+                "colors": [
+                    "blue",
+                    "purple",
+                    "pink",
+                    "blue",
+                    "purple",
+                    "pink"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.8,
-                "panel_mfft_range": [15, 40],
+                "panel_mfft_range": [
+                    15,
+                    40
+                ],
                 "panel_threshold": 1.0,
                 "panel_strobe": 0,
                 "fade_duration": 0.6,
                 "min_brightness": 0,
-                "max_brightness": 255,
+                "max_brightness": 85,
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.03,
-                "bar_colors": [0, 50],
+                "bar_colors": [
+                    0,
+                    50
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.2,
                 "bar_strobe": 200
@@ -140,7 +237,10 @@
             "name": "rockville2",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [15, 40],
+            "panel_mfft_range": [
+                15,
+                40
+            ],
             "effect": {
                 "name": "rockville_panel_fade",
                 "time_modulation": {
@@ -149,20 +249,36 @@
                     "min_brightness": 50,
                     "max_brightness": 255
                 },
-                "colors": ["blue", "purple", "pink", "blue", "purple", "pink"],
+                "colors": [
+                    "blue",
+                    "purple",
+                    "pink",
+                    "blue",
+                    "purple",
+                    "pink"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.8,
-                "panel_mfft_range": [15, 40],
+                "panel_mfft_range": [
+                    15,
+                    40
+                ],
                 "panel_threshold": 1.0,
                 "panel_strobe": 0,
                 "fade_duration": 0.6,
                 "min_brightness": 0,
-                "max_brightness": 255,
+                "max_brightness": 85,
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.03,
-                "bar_colors": [0, 50],
+                "bar_colors": [
+                    0,
+                    50
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.2,
                 "bar_strobe": 200
@@ -172,7 +288,10 @@
             "name": "rockville3",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [15, 40],
+            "panel_mfft_range": [
+                15,
+                40
+            ],
             "effect": {
                 "name": "rockville_panel_fade",
                 "time_modulation": {
@@ -181,20 +300,36 @@
                     "min_brightness": 50,
                     "max_brightness": 255
                 },
-                "colors": ["blue", "purple", "pink", "blue", "purple", "pink"],
+                "colors": [
+                    "blue",
+                    "purple",
+                    "pink",
+                    "blue",
+                    "purple",
+                    "pink"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.8,
-                "panel_mfft_range": [15, 40],
+                "panel_mfft_range": [
+                    15,
+                    40
+                ],
                 "panel_threshold": 1.0,
                 "panel_strobe": 0,
                 "fade_duration": 0.6,
                 "min_brightness": 0,
-                "max_brightness": 255,
+                "max_brightness": 85,
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.03,
-                "bar_colors": [0, 50],
+                "bar_colors": [
+                    0,
+                    50
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.2,
                 "bar_strobe": 200
@@ -204,7 +339,10 @@
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [15, 40],
+            "panel_mfft_range": [
+                15,
+                40
+            ],
             "effect": {
                 "name": "rockville_panel_fade",
                 "time_modulation": {
@@ -213,20 +351,36 @@
                     "min_brightness": 50,
                     "max_brightness": 255
                 },
-                "colors": ["blue", "purple", "pink", "blue", "purple", "pink"],
+                "colors": [
+                    "blue",
+                    "purple",
+                    "pink",
+                    "blue",
+                    "purple",
+                    "pink"
+                ],
                 "combo_mode": "mix",
                 "color_order": "random",
                 "coverage": 0.8,
-                "panel_mfft_range": [15, 40],
+                "panel_mfft_range": [
+                    15,
+                    40
+                ],
                 "panel_threshold": 1.0,
                 "panel_strobe": 0,
                 "fade_duration": 0.6,
                 "min_brightness": 0,
-                "max_brightness": 255,
+                "max_brightness": 85,
                 "affect_bar": true,
-                "bar_mfft_range": [110, 127],
+                "bar_mfft_range": [
+                    110,
+                    127
+                ],
                 "bar_threshold": 0.03,
-                "bar_colors": [0, 50],
+                "bar_colors": [
+                    0,
+                    50
+                ],
                 "bar_mode": 0,
                 "bar_sustain": 0.2,
                 "bar_strobe": 200
@@ -236,9 +390,21 @@
     "orchestrator": {
         "type": "hopper",
         "config": {
-            "target_lights": ["rgb1", "rgb2", "rgb3", "rgb4", "rgb5", "rgb6", "rgb7", "rgb8"],
+            "target_lights": [
+                "rgb1",
+                "rgb2",
+                "rgb3",
+                "rgb4",
+                "rgb5",
+                "rgb6",
+                "rgb7",
+                "rgb8"
+            ],
             "trigger": {
-                "mfft_range": [0, 12],
+                "mfft_range": [
+                    0,
+                    12
+                ],
                 "threshold": 2.0
             },
             "transition": {

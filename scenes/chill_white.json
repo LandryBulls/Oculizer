@@ -11,7 +11,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -21,7 +21,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 2],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -31,7 +31,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -41,7 +41,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -51,7 +51,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 1],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -61,7 +61,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -71,7 +71,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -81,7 +81,7 @@
             "modulator": "mfft",
             "mfft_range": [10, 70],
             "power_range": [0, 6],
-            "brightness_range": [5, 255],
+            "brightness_range": [75, 185],
             "color": "white",
             "strobe": 0
         },
@@ -92,7 +92,7 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [10, 75],
+                "brightness_range": [25, 60],
                 "color": "white",
                 "mode": 0,
                 "strobe": 0
@@ -108,7 +108,7 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [10, 75],
+                "brightness_range": [25, 60],
                 "color": "white",
                 "mode": 0,
                 "strobe": 0
@@ -124,7 +124,7 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [10, 75],
+                "brightness_range": [25, 60],
                 "color": "white",
                 "mode": 0,
                 "strobe": 0
@@ -140,7 +140,7 @@
             "panel": {
                 "mfft_range": [0, 20],
                 "power_range": [0.5, 3],
-                "brightness_range": [10, 75],
+                "brightness_range": [25, 60],
                 "color": "white",
                 "mode": 0,
                 "strobe": 0

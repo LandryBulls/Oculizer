@@ -1,0 +1,16 @@
+{
+    "name": "t1",
+    "description": "t1 profile: rockville, rockville, rgb, rockville, rgb, rockville, rgb, rgb, rgb, rgb",
+    "lights": [
+        {"name": "rockville1", "type": "rockville864", "n_channels": 39},
+        {"name": "rockville2", "type": "rockville864", "n_channels": 39},
+        {"name": "rgb1", "type": "rgb", "n_channels": 6},
+        {"name": "rockville3", "type": "rockville864", "n_channels": 39},
+        {"name": "rgb2", "type": "rgb", "n_channels": 6},
+        {"name": "rockville4", "type": "rockville864", "n_channels": 39},
+        {"name": "rgb3", "type": "rgb", "n_channels": 6},
+        {"name": "rgb4", "type": "rgb", "n_channels": 6},
+        {"name": "rgb5", "type": "rgb", "n_channels": 6},
+        {"name": "rgb6", "type": "rgb", "n_channels": 6}
+    ]
+}

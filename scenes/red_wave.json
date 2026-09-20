@@ -9,8 +9,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -20,8 +20,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -31,8 +31,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -42,8 +42,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -53,8 +53,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -64,8 +64,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -75,8 +75,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -86,8 +86,8 @@
       "modulator": "time",
       "function": "sine",
       "frequency": 0.1,
-      "min_brightness": 25,
-      "max_brightness": 175,
+      "min_brightness": 45,
+      "max_brightness": 130,
       "color": "red",
       "strobe": 0
     },
@@ -106,7 +106,9 @@
       },
       "bar": {
         "affect_bar": false
-      }
+      },
+      "min_brightness": 30,
+      "max_brightness": 85
     },
     {
       "name": "rockville2",
@@ -123,7 +125,9 @@
       },
       "bar": {
         "affect_bar": false
-      }
+      },
+      "min_brightness": 30,
+      "max_brightness": 85
     },
     {
       "name": "rockville3",
@@ -140,7 +144,9 @@
       },
       "bar": {
         "affect_bar": false
-      }
+      },
+      "min_brightness": 30,
+      "max_brightness": 85
     },
     {
       "name": "rockville4",
@@ -157,7 +163,9 @@
       },
       "bar": {
         "affect_bar": false
-      }
+      },
+      "min_brightness": 30,
+      "max_brightness": 85
     }
   ]
 }

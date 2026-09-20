@@ -10,9 +10,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -20,9 +29,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -30,9 +48,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -40,9 +67,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -50,9 +86,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -60,9 +105,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -70,9 +124,18 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
@@ -80,90 +143,153 @@
             "type": "rgb",
             "modulator": "mfft",
             "color": "red",
-            "mfft_range": [0, 128],
-            "power_range": [0, 0.5],
-            "brightness_range": [30, 175],
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                0.5
+            ],
+            "brightness_range": [
+                30,
+                175
+            ],
             "strobe": 0
         },
         {
             "name": "orb1",
             "type": "dimmer",
             "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 1],
-            "brightness_range": [20, 255]
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                1
+            ],
+            "brightness_range": [
+                20,
+                255
+            ]
         },
         {
             "name": "orb2",
             "type": "dimmer",
             "modulator": "mfft",
-            "mfft_range": [0, 128],
-            "power_range": [0, 1],
-            "brightness_range": [20, 255]
+            "mfft_range": [
+                0,
+                128
+            ],
+            "power_range": [
+                0,
+                1
+            ],
+            "brightness_range": [
+                20,
+                255
+            ]
         },
         {
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
             "panel": {
-                "mfft_range": [0, 128],
-                "power_range": [0, 0.5],
-                "brightness_range": [30, 175],
+                "mfft_range": [
+                    0,
+                    128
+                ],
+                "power_range": [
+                    0,
+                    0.5
+                ],
+                "brightness_range": [
+                    30,
+                    85
+                ],
                 "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
             "bar": {
                 "affect_bar": false
-            }   
+            }
         },
         {
             "name": "rockville2",
             "type": "rockville864",
             "modulator": "mfft",
             "panel": {
-                "mfft_range": [0, 128],
-                "power_range": [0, 0.5],
-                "brightness_range": [30, 175],
+                "mfft_range": [
+                    0,
+                    128
+                ],
+                "power_range": [
+                    0,
+                    0.5
+                ],
+                "brightness_range": [
+                    30,
+                    85
+                ],
                 "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
             "bar": {
                 "affect_bar": false
-            }   
+            }
         },
         {
             "name": "rockville3",
             "type": "rockville864",
             "modulator": "mfft",
             "panel": {
-                "mfft_range": [0, 128],
-                "power_range": [0, 0.5],
-                "brightness_range": [30, 175],
+                "mfft_range": [
+                    0,
+                    128
+                ],
+                "power_range": [
+                    0,
+                    0.5
+                ],
+                "brightness_range": [
+                    30,
+                    85
+                ],
                 "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
             "bar": {
                 "affect_bar": false
-            }   
+            }
         },
         {
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "mfft",
             "panel": {
-                "mfft_range": [0, 128],
-                "power_range": [0, 0.5],
-                "brightness_range": [30, 175],
+                "mfft_range": [
+                    0,
+                    128
+                ],
+                "power_range": [
+                    0,
+                    0.5
+                ],
+                "brightness_range": [
+                    30,
+                    85
+                ],
                 "color": "red",
                 "mode": 0,
                 "strobe": 0
             },
             "bar": {
                 "affect_bar": false
-            }   
+            }
         }
     ]
 }

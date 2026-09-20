@@ -1,0 +1,237 @@
+{
+    "name": "decay_red",
+    "description": "All red lights, brightness jumps on a beat then fades slowly to a dim floor - reactive but not flickery",
+    "type": "effect",
+    "midi": 85,
+    "key_command": null,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 45,
+                "max_brightness": 200,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 40,
+                "max_brightness": 85,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 40,
+                "max_brightness": 85,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 40,
+                "max_brightness": 85,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "effect": {
+                "name": "peak_decay",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.1,
+                    3
+                ],
+                "min_brightness": 40,
+                "max_brightness": 85,
+                "decay_rate": 70,
+                "color": "red"
+            }
+        }
+    ]
+}

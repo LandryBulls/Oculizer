@@ -11,7 +11,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.1,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "blue"
         },
@@ -21,7 +21,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.08,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "purple"
         },
@@ -31,7 +31,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.12,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "blue"
         },
@@ -41,7 +41,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.09,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "purple"
         },
@@ -51,7 +51,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.11,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "blue"
         },
@@ -61,7 +61,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.07,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "purple"
         },
@@ -71,7 +71,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.13,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "blue"
         },
@@ -81,7 +81,7 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.06,
-            "min_brightness": 0,
+            "min_brightness": 15,
             "max_brightness": 100,
             "color": "purple"
         },
@@ -91,8 +91,8 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.05,
-            "min_brightness": 0,
-            "max_brightness": 30
+            "min_brightness": 15,
+            "max_brightness": 45
         },
         {
             "name": "orb1",
@@ -100,8 +100,8 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.04,
-            "min_brightness": 0,
-            "max_brightness": 50
+            "min_brightness": 15,
+            "max_brightness": 65
         },
         {
             "name": "orb2",
@@ -109,17 +109,17 @@
             "modulator": "time",
             "function": "sine",
             "frequency": 0.04,
-            "min_brightness": 0,
-            "max_brightness": 50
+            "min_brightness": 15,
+            "max_brightness": 65
         },
         {
             "name": "rockville1",
-            "type": "rockville864", 
+            "type": "rockville864",
             "modulator": "time",
             "frequency": 0.1,
             "function": "sine",
-            "min_brightness": 0,
-            "max_brightness": 75,
+            "min_brightness": 15,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -134,11 +134,11 @@
         {
             "name": "rockville2",
             "type": "rockville864",
-            "modulator": "time", 
+            "modulator": "time",
             "frequency": 0.15,
             "function": "sine",
-            "min_brightness": 0,
-            "max_brightness": 75,
+            "min_brightness": 15,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
                 "mode": 0,
@@ -156,10 +156,10 @@
             "modulator": "time",
             "frequency": 0.08,
             "function": "triangle",
-            "min_brightness": 20,
-            "max_brightness": 75,
+            "min_brightness": 35,
+            "max_brightness": 85,
             "panel": {
-                "target": "brightness", 
+                "target": "brightness",
                 "mode": 0,
                 "color": "purple",
                 "strobe": 0,
@@ -175,11 +175,11 @@
             "modulator": "time",
             "frequency": 0.12,
             "function": "sine",
-            "min_brightness": 10,
-            "max_brightness": 75,
+            "min_brightness": 25,
+            "max_brightness": 85,
             "panel": {
                 "target": "brightness",
-                "mode": 0, 
+                "mode": 0,
                 "color": "white",
                 "strobe": 0,
                 "mode_speed": 255

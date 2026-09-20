@@ -15,7 +15,7 @@
                 "brightness": 255,
                 "mode_speed": 25,
                 "min_brightness": 0,
-                "max_brightness": 255
+                "max_brightness": 85
             },
             "bar": {
                 "enabled": false,
@@ -28,4 +28,4 @@
             }
         }
     ]
-} 
+}

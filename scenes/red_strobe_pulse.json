@@ -160,156 +160,112 @@
             "name": "rockville1",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [
-                0,
-                20
-            ],
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_mfft_range": [
-                    0,
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [
+                    1,
                     20
                 ],
-                "panel_threshold": 1.5,
-                "panel_colors": [
-                    "red",
-                    "black"
+                "power_range": [
+                    0.5,
+                    4
                 ],
-                "panel_strobe": 200,
-                "bar_mfft_range": [
-                    115,
-                    127
-                ],
-                "bar_power_range": [
-                    0.05,
-                    1.0
-                ],
-                "bar_strobe": 200,
-                "bar_colors": [
+                "brightness_range": [
                     0,
-                    255
+                    85
                 ],
-                "affect_panel": true,
-                "affect_bar": true,
-                "bar_mode": 0,
-                "bar_min_brightness": 20
+                "color": "red",
+                "panel_threshold": -1,
+                "strobe": 200,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville2",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [
-                0,
-                20
-            ],
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_mfft_range": [
-                    0,
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [
+                    1,
                     20
                 ],
-                "panel_threshold": 1.5,
-                "panel_colors": [
-                    "red",
-                    "black"
+                "power_range": [
+                    0.5,
+                    4
                 ],
-                "panel_strobe": 200,
-                "bar_mfft_range": [
-                    115,
-                    127
-                ],
-                "bar_power_range": [
-                    0.05,
-                    1.0
-                ],
-                "bar_strobe": 200,
-                "bar_colors": [
+                "brightness_range": [
                     0,
-                    255
+                    85
                 ],
-                "affect_panel": true,
-                "affect_bar": true,
-                "bar_mode": 0,
-                "bar_min_brightness": 20
+                "color": "red",
+                "panel_threshold": -1,
+                "strobe": 200,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville3",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [
-                0,
-                20
-            ],
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_mfft_range": [
-                    0,
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [
+                    1,
                     20
                 ],
-                "panel_threshold": 1.5,
-                "panel_colors": [
-                    "red",
-                    "black"
+                "power_range": [
+                    0.5,
+                    4
                 ],
-                "panel_strobe": 200,
-                "bar_mfft_range": [
-                    115,
-                    127
-                ],
-                "bar_power_range": [
-                    0.05,
-                    1.0
-                ],
-                "bar_strobe": 200,
-                "bar_colors": [
+                "brightness_range": [
                     0,
-                    255
+                    85
                 ],
-                "affect_panel": true,
-                "affect_bar": true,
-                "bar_mode": 0,
-                "bar_min_brightness": 20
+                "color": "red",
+                "panel_threshold": -1,
+                "strobe": 200,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         },
         {
             "name": "rockville4",
             "type": "rockville864",
             "modulator": "mfft",
-            "panel_mfft_range": [
-                0,
-                20
-            ],
-            "effect": {
-                "name": "rockville_splatter",
-                "panel_mfft_range": [
-                    0,
+            "panel": {
+                "affect_panel": true,
+                "mfft_range": [
+                    1,
                     20
                 ],
-                "panel_threshold": 1.5,
-                "panel_colors": [
-                    "red",
-                    "black"
+                "power_range": [
+                    0.5,
+                    4
                 ],
-                "panel_strobe": 200,
-                "bar_mfft_range": [
-                    115,
-                    127
-                ],
-                "bar_power_range": [
-                    0.05,
-                    1.0
-                ],
-                "bar_strobe": 200,
-                "bar_colors": [
+                "brightness_range": [
                     0,
-                    255
+                    85
                 ],
-                "affect_panel": true,
-                "affect_bar": true,
-                "bar_mode": 0,
-                "bar_min_brightness": 20
+                "color": "red",
+                "panel_threshold": -1,
+                "strobe": 200,
+                "mode": 0,
+                "mode_speed": 255
+            },
+            "bar": {
+                "affect_bar": false
             }
         }
     ]
