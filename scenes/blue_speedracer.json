@@ -27,18 +27,7 @@
                 "strobe": 0
             },
             "bar": {
-                "mfft_range": [
-                    0,
-                    20
-                ],
-                "power_range": [
-                    -1,
-                    0
-                ],
-                "threshold": 0,
-                "mode": 0,
-                "mode_speed": 255,
-                "strobe": 0
+                "affect_bar": false
             }
         },
         {
@@ -83,18 +72,7 @@
                 "strobe": 0
             },
             "bar": {
-                "mfft_range": [
-                    0,
-                    20
-                ],
-                "power_range": [
-                    -1,
-                    0
-                ],
-                "threshold": 0,
-                "mode": 0,
-                "mode_speed": 255,
-                "strobe": 0
+                "affect_bar": false
             }
         },
         {
@@ -177,18 +155,7 @@
                 "strobe": 0
             },
             "bar": {
-                "mfft_range": [
-                    0,
-                    20
-                ],
-                "power_range": [
-                    -1,
-                    0
-                ],
-                "threshold": 0,
-                "mode": 0,
-                "mode_speed": 255,
-                "strobe": 0
+                "affect_bar": false
             }
         },
         {
@@ -233,18 +200,7 @@
                 "strobe": 0
             },
             "bar": {
-                "mfft_range": [
-                    0,
-                    20
-                ],
-                "power_range": [
-                    -1,
-                    0
-                ],
-                "threshold": 0,
-                "mode": 0,
-                "mode_speed": 255,
-                "strobe": 0
+                "affect_bar": false
             }
         }
     ],

@@ -1,0 +1,261 @@
+{
+    "name": "chill_blue_flicker",
+    "description": "chill_blue reactive envelope + red_flicker randomness, in blue: noisy reactive pulses. Power range widened for intense bass.",
+    "type": "effect",
+    "midi": 91,
+    "key_command": null,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "blue"
+            }
+        }
+    ]
+}

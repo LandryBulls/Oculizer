@@ -1,0 +1,13 @@
+{
+    "name": "Etna26",
+    "description": "4 Rockville 864 panels followed by 3 RGB fixtures.",
+    "lights": [
+        {"name": "rockville1", "type": "rockville864", "n_channels": 39},
+        {"name": "rockville2", "type": "rockville864", "n_channels": 39},
+        {"name": "rockville3", "type": "rockville864", "n_channels": 39},
+        {"name": "rockville4", "type": "rockville864", "n_channels": 39},
+        {"name": "rgb1", "type": "rgb", "n_channels": 6},
+        {"name": "rgb2", "type": "rgb", "n_channels": 6},
+        {"name": "rgb3", "type": "rgb", "n_channels": 6}
+    ]
+}

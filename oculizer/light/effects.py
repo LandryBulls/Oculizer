@@ -889,13 +889,83 @@ def peak_decay(channels: List[int], mfft_data: np.ndarray, config: dict, light_n
 
     return channels
 
+def noisy_reactive(channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:
+    """peak_decay's reactive attack/decay envelope with stochastic noise layered on top.
+
+    Same clean audio-driven envelope as peak_decay (fast attack up to a beat,
+    slow decay down to min_brightness). On top of that clean value, each frame
+    adds random jitter (noise_amount, as a fraction of the brightness range) and
+    occasionally (flicker_prob per frame) replaces the display value outright with
+    an independent random brightness, the way red_flicker does. The envelope state
+    itself stays clean/unnoised so the noise doesn't compound frame to frame."""
+    state = registry.get_state(light_name, 'noisy_reactive')
+    current_time = time.time()
+    cs = state.custom_state
+
+    mfft_range = config.get('mfft_range', (0, len(mfft_data)))
+    power = float(np.mean(mfft_data[mfft_range[0]:mfft_range[1]]))
+
+    min_brightness = config.get('min_brightness', 10)
+    max_brightness = config.get('max_brightness', 255)
+    power_low, power_high = config.get('power_range', (0, 1))
+    decay_rate = config.get('decay_rate', 100)  # brightness units per second
+    noise_amount = config.get('noise_amount', 0.2)  # fraction of range, additive jitter every frame
+    flicker_prob = config.get('flicker_prob', 0.12)  # chance per frame of an independent random flicker
+
+    brightness = cs.get('brightness', min_brightness)
+    last_time = cs.get('last_time', current_time)
+    dt = max(0.0, current_time - last_time)
+
+    if power <= power_low:
+        target = min_brightness
+    elif power >= power_high:
+        target = max_brightness
+    else:
+        target = min_brightness + (power - power_low) / (power_high - power_low) * (max_brightness - min_brightness)
+
+    if target > brightness:
+        brightness = target
+    else:
+        brightness = max(min_brightness, brightness - decay_rate * dt)
+
+    cs['brightness'] = brightness
+    cs['last_time'] = current_time
+
+    span = max_brightness - min_brightness
+    display = brightness + random.uniform(-noise_amount, noise_amount) * span
+    if random.random() < flicker_prob:
+        display = random.uniform(min_brightness, max_brightness)
+    display = min(max_brightness, max(min_brightness, display))
+    brightness_int = int(display)
+
+    color = COLORS.get(config.get('color', 'white'), COLORS['white'])
+    scaled_color = [int(c * brightness_int / 255) for c in color]
+
+    if len(channels) == 39:
+        # rockville864: drive the panel directly in manual RGB mode (mode 0)
+        channels = [0] * 39
+        channels[0] = 255  # master dimmer
+        channels[1] = config.get('panel_strobe', 0)
+        channels[2] = 0  # manual mode
+        channels[3] = config.get('mode_speed', 255)
+        for i in range(8):
+            base_idx = 4 + (i * 3)
+            channels[base_idx:base_idx + 3] = scaled_color
+    else:
+        # rgb / dimmer: [brightness, R, G, B, strobe, 0]
+        strobe = config.get('strobe', 0)
+        channels = [brightness_int, *scaled_color, strobe, 0]
+
+    return channels
+
 # Dictionary mapping effect names to their functions
 EFFECTS = {
     'rockville_panel_fade': rockville_panel_fade,
     'rockville_sequential_panels': rockville_sequential_panels,
     'rockville_splatter': rockville_splatter,
     'rockville_panel_sustain': rockville_panel_sustain,
-    'peak_decay': peak_decay
+    'peak_decay': peak_decay,
+    'noisy_reactive': noisy_reactive
 }
 
 def apply_effect(effect_name: str, channels: List[int], mfft_data: np.ndarray, config: dict, light_name: str) -> List[int]:

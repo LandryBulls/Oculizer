@@ -1,0 +1,261 @@
+{
+    "name": "chill_pink_flicker",
+    "description": "chill_pink reactive envelope + red_flicker randomness, in pink: noisy reactive pulses. Power range widened for intense bass.",
+    "type": "effect",
+    "midi": 93,
+    "key_command": null,
+    "lights": [
+        {
+            "name": "rgb1",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb2",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb3",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb4",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb5",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb6",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb7",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rgb8",
+            "type": "rgb",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 30,
+                "max_brightness": 100,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rockville1",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rockville2",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rockville3",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        },
+        {
+            "name": "rockville4",
+            "type": "rockville864",
+            "effect": {
+                "name": "noisy_reactive",
+                "mfft_range": [
+                    0,
+                    20
+                ],
+                "power_range": [
+                    0.5,
+                    8
+                ],
+                "min_brightness": 15,
+                "max_brightness": 60,
+                "decay_rate": 90,
+                "noise_amount": 0.2,
+                "flicker_prob": 0.12,
+                "color": "pink"
+            }
+        }
+    ]
+}

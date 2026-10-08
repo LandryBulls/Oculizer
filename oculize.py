@@ -852,7 +852,7 @@ def parse_args():
         default_single_stream = True
         default_scene_cache_size = 1  # Instant response
         default_prediction_channels = '1'
-        default_profile = 't1'
+        default_profile = 'etna26'
     else:
         # Windows/Linux defaults
         default_input_device = 'scarlett'
