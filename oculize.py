@@ -857,9 +857,9 @@ def parse_args():
         # Windows/Linux defaults
         default_input_device = 'scarlett'
         default_prediction_device = 'cable_output'
-        default_single_stream = False
+        default_single_stream = True
         default_scene_cache_size = 25  # Heavy smoothing
-        default_prediction_channels = None  # Auto-detect
+        default_prediction_channels = '1'
         default_profile = 'garage2025'
     
     parser = argparse.ArgumentParser(
